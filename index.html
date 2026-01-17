@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Minimal Pro</title>
+    <title>YouTube Smart Organizer - Google Style Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            letter-spacing: -0.01em;
+        }
         
         .terminal-scroll::-webkit-scrollbar { width: 4px; }
         .terminal-scroll::-webkit-scrollbar-track { background: #f8fafc; }
@@ -18,15 +22,15 @@
         .treemap-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
             height: 350px;
-            border-radius: 32px;
+            border-radius: 24px;
             overflow: hidden;
         }
         
         .treemap-tile {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
             display: flex;
@@ -37,29 +41,29 @@
             text-align: center;
         }
         
-        .treemap-tile:hover { filter: brightness(1.05); transform: scale(0.99); z-index: 10; }
+        .treemap-tile:hover { filter: brightness(1.03); transform: translateY(-2px); }
 
         #player-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(32, 33, 36, 0.6);
             z-index: 100;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(8px);
         }
 
         .modal-content {
             width: 95%;
             max-width: 1300px;
             background: #fff;
-            border-radius: 48px;
+            border-radius: 28px;
             overflow: hidden;
             display: grid;
             grid-template-columns: 1fr 400px;
             height: 85vh;
-            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
         }
 
         .player-wrapper {
@@ -79,164 +83,194 @@
         .category-tag-container {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             padding: 6px 12px;
-            border-radius: 12px;
-            border-width: 1.5px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.2s ease;
+            border-radius: 8px;
+            border-width: 1px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #fff;
+            transition: all 0.2s;
         }
+        .category-tag-container:hover { border-color: #5f6368; background: #f8fafc; }
 
         .category-tag-delete {
-            opacity: 0.4;
-            transition: opacity 0.2s;
+            opacity: 0.5;
+            transition: all 0.2s;
             cursor: pointer;
+            font-size: 16px;
+            margin-left: 2px;
         }
-        .category-tag-delete:hover { opacity: 1; color: #ef4444; }
+        .category-tag-delete:hover { opacity: 1; color: #d93025; }
+
+        .google-btn {
+            transition: background-color .2s, box-shadow .2s;
+            font-weight: 500;
+        }
+        
+        .google-btn-primary {
+            background-color: #1a73e8;
+            color: white;
+        }
+        .google-btn-primary:hover {
+            background-color: #1765cc;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+        }
+        
+        .google-input {
+            border: 1px solid #dadce0;
+            transition: border .2s, box-shadow .2s;
+        }
+        .google-input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.1);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+<body class="bg-[#f8f9fa] text-[#202124] min-h-screen">
 
-    <div id="app" class="max-w-7xl mx-auto px-6 py-12">
+    <div id="app" class="max-w-7xl mx-auto px-6 py-8">
         <!-- Header -->
-        <header class="flex items-center justify-between mb-16">
-            <div class="flex items-center gap-6">
-                <div class="p-4.5 bg-red-600 rounded-[28px] text-white shadow-2xl shadow-red-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
+        <header class="flex items-center justify-between mb-12">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-red-600 rounded-xl text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
                 </div>
-                <div>
-                    <h1 class="text-4xl font-black tracking-tighter leading-none uppercase italic">YouTube <span class="text-red-600 font-bold">Smart</span> Organizer</h1>
-                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
             </div>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-4 gap-10">
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Sidebar -->
-            <div class="lg:col-span-1 space-y-8">
-                <!-- API Engine Config -->
-                <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
-                    <h2 class="text-[11px] font-black text-slate-400 uppercase mb-5 tracking-[0.2em]">Settings</h2>
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Settings & Keys -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Engine Configuration</h2>
                     <div class="space-y-4">
-                        <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-2">Gemini API Key</p>
-                            <input type="password" id="gemini-api-key-input" placeholder="Enter key..." class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-red-500/10 font-bold transition-all">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] text-[#70757a] font-bold ml-1">Gemini API Key</label>
+                            <input type="password" id="gemini-api-key-input" placeholder="API Key..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
                         </div>
-                        <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-2">OAuth Client ID</p>
-                            <input type="text" id="client-id-input" placeholder="Client ID..." class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm outline-none focus:ring-4 focus:ring-red-500/10 font-bold transition-all">
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] text-[#70757a] font-bold ml-1">OAuth Client ID</label>
+                            <input type="text" id="client-id-input" placeholder="Google Client ID..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
                         </div>
-                        <button id="auth-btn" class="w-full py-4 bg-slate-900 text-white rounded-2xl text-[11px] font-black shadow-lg hover:bg-black transition-all uppercase tracking-widest italic">Sync Liked Videos</button>
+                        <button id="auth-btn" class="google-btn w-full py-3 bg-[#202124] text-white rounded-lg text-sm font-medium hover:bg-black">1. Sync Liked Videos</button>
+                        
+                        <div class="relative py-1 flex items-center">
+                            <div class="flex-grow border-t border-[#eee]"></div>
+                            <span class="flex-shrink mx-3 text-[10px] text-[#bdc1c6] font-bold">OR</span>
+                            <div class="flex-grow border-t border-[#eee]"></div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[11px] text-[#70757a] font-bold ml-1">Playlist ID</label>
+                            <input type="text" id="playlist-id-input" placeholder="PL..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
+                            <button id="playlist-sync-btn" class="google-btn w-full mt-2 py-2.5 bg-[#f1f3f4] text-[#3c4043] rounded-lg text-xs font-bold hover:bg-[#e8eaed]">2. Sync by Playlist</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Manual Source -->
-                <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
-                    <h2 class="text-[11px] font-black text-slate-400 uppercase mb-5 tracking-[0.2em]">Data Source</h2>
-                    <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-[32px] cursor-pointer hover:bg-slate-50 hover:border-red-300 transition-all group text-center">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter group-hover:text-red-500">Upload CSV File</p>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Manual Import</h2>
+                    <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] transition-all group text-center">
+                        <p class="text-[11px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">Upload CSV File</p>
                         <input id="csv-input" type="file" class="hidden" accept=".csv" />
                     </label>
-                    <div id="file-info" class="mt-4 hidden bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <span id="file-name" class="text-[10px] font-black text-slate-600 truncate block"></span>
+                    <div id="file-info" class="mt-3 hidden bg-[#f1f3f4] p-3 rounded-lg border border-[#e8eaed]">
+                        <span id="file-name" class="text-[11px] font-medium text-[#3c4043] truncate block font-mono"></span>
                     </div>
                 </div>
 
                 <!-- Category Manager -->
-                <div id="category-panel" class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
-                    <h2 class="text-[11px] font-black text-slate-400 uppercase mb-6 tracking-[0.2em]">Categories</h2>
+                <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Categories</h2>
                     
-                    <div class="flex gap-2 mb-6">
-                        <input type="text" id="new-category-input" placeholder="Add custom..." class="flex-grow bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-xs font-bold outline-none focus:ring-4 focus:ring-red-500/10">
-                        <button id="add-category-btn" class="bg-red-600 text-white font-black w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg shadow-red-100 hover:bg-red-700 transition-all">+</button>
+                    <div class="flex gap-2 mb-5">
+                        <input type="text" id="new-category-input" placeholder="Add category..." class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
+                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">+</button>
                     </div>
 
-                    <div id="category-tags" class="flex flex-wrap gap-2.5 mb-8 max-h-56 overflow-y-auto terminal-scroll"></div>
+                    <div id="category-tags" class="flex flex-wrap gap-2 mb-6 max-h-64 overflow-y-auto terminal-scroll"></div>
                     
-                    <div class="flex flex-col gap-4 pt-6 border-t border-slate-50">
-                        <button id="analyze-10-btn" class="w-full py-3 bg-white border border-slate-200 text-slate-500 rounded-2xl text-[10px] font-black hover:border-slate-800 hover:text-slate-800 transition-all uppercase tracking-widest">Quick Test (10 Items)</button>
-                        <button id="analyze-btn" class="w-full py-5 bg-red-600 text-white rounded-3xl text-sm font-black shadow-2xl shadow-red-200 hover:bg-red-700 transition-all uppercase tracking-tight">Execute Analysis Engine</button>
+                    <div class="flex flex-col gap-3 pt-5 border-t border-[#f1f3f4]">
+                        <button id="analyze-10-btn" class="google-btn w-full py-2.5 bg-white border border-[#dadce0] text-[#5f6368] rounded-lg text-xs font-bold hover:bg-[#f8f9fa]">Quick Test (10 Items)</button>
+                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md">Run Analysis Engine</button>
                     </div>
                 </div>
 
                 <!-- Logs -->
-                <div class="bg-slate-900 rounded-[40px] p-8 shadow-2xl border border-slate-800">
-                    <div id="log-console" class="h-40 terminal-scroll overflow-y-auto font-mono text-[10px] text-slate-500 space-y-3">
-                        <div class="text-emerald-500 font-bold">> System Ready.</div>
-                        <div class="text-slate-400">> Configure API keys to start.</div>
+                <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
+                    <div id="log-console" class="h-40 terminal-scroll overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2">
+                        <div class="text-[#81c995] font-bold">> System Ready.</div>
                     </div>
                 </div>
             </div>
 
             <!-- Main Area -->
-            <div class="lg:col-span-3 space-y-10">
+            <div class="lg:col-span-3 space-y-8">
                 <!-- Treemap -->
-                <div id="dashboard-card" class="bg-white p-10 rounded-[56px] shadow-sm border border-slate-200 hidden">
-                    <div class="flex items-center justify-between mb-10">
-                        <h2 class="text-base font-black text-slate-800 uppercase flex items-center gap-4 italic tracking-tighter">
-                            Interest Distribution
-                        </h2>
-                        <button id="reset-filter-btn" class="text-[10px] bg-slate-100 hover:bg-slate-800 hover:text-white text-slate-500 font-black px-6 py-2.5 rounded-full transition-all uppercase">Reset Filters</button>
+                <div id="dashboard-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="text-lg font-bold text-[#3c4043] tracking-tight">Interest Distribution</h2>
+                        <button id="reset-filter-btn" class="google-btn text-[11px] bg-[#f1f3f4] text-[#5f6368] font-bold px-4 py-2 rounded-full hover:bg-[#e8eaed]">Reset Filters</button>
                     </div>
                     <div id="treemap-content" class="treemap-container"></div>
                 </div>
 
                 <!-- Progress -->
-                <div id="progress-card" class="bg-white p-10 rounded-[56px] shadow-sm border border-slate-200 hidden">
-                    <div class="flex justify-between items-end mb-6">
-                        <div id="progress-text" class="text-6xl font-black text-slate-800 tracking-tighter">0%</div>
-                        <span class="text-xs font-black text-red-500 uppercase tracking-widest animate-pulse italic">Scanning Content Library...</span>
+                <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
+                    <div class="flex justify-between items-end mb-4">
+                        <div id="progress-text" class="text-5xl font-bold text-[#202124] tracking-tighter">0%</div>
+                        <span class="text-xs font-bold text-[#1a73e8] uppercase tracking-widest animate-pulse">Analysis in progress...</span>
                     </div>
-                    <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="bg-red-600 h-full w-0 transition-all duration-1000 shadow-lg shadow-red-200"></div>
+                    <div class="w-full bg-[#f1f3f4] h-2.5 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-[#1a73e8] h-full w-0 transition-all duration-700"></div>
                     </div>
                 </div>
 
-                <!-- Filters -->
-                <div id="toolbar" class="bg-white p-6 rounded-[40px] shadow-sm border border-slate-200 flex flex-wrap items-center gap-6 transition-all opacity-50 pointer-events-none">
+                <!-- Toolbar -->
+                <div id="toolbar" class="bg-white p-4 rounded-2xl shadow-sm border border-[#dadce0] flex flex-wrap items-center gap-4 transition-all opacity-50 pointer-events-none">
                     <div class="flex-grow relative">
-                        <input type="text" id="search-input" placeholder="Search by title or channel..." class="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-3xl text-sm outline-none focus:ring-4 focus:ring-red-500/10 font-bold transition-all">
+                        <input type="text" id="search-input" placeholder="Search by keyword..." class="google-input w-full px-6 py-3.5 bg-[#f1f3f4] rounded-xl text-sm font-medium outline-none focus:bg-white transition-all">
                     </div>
-                    <div class="flex gap-4">
-                        <select id="filter-category" class="bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 text-xs font-black outline-none cursor-pointer hover:border-slate-300 transition-all appearance-none pr-10">
-                            <option value="all">All Categories</option>
-                        </select>
-                        <select id="sort-select" class="bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 text-xs font-black outline-none cursor-pointer hover:border-slate-300 transition-all appearance-none pr-10">
-                            <option value="default">Default Order</option>
+                    <div class="flex gap-3">
+                        <select id="filter-category" class="google-input bg-white rounded-lg px-4 py-3 text-xs font-bold outline-none cursor-pointer appearance-none pr-8"></select>
+                        <select id="sort-select" class="google-input bg-white rounded-lg px-4 py-3 text-xs font-bold outline-none cursor-pointer appearance-none pr-8">
+                            <option value="default">Sort by Order</option>
                             <option value="views-desc">Most Views</option>
                             <option value="views-asc">Least Views</option>
-                            <option value="duration-desc">Longest Duration</option>
-                            <option value="duration-asc">Shortest Duration</option>
-                            <option value="newest">Newest Upload</option>
+                            <option value="duration-desc">Longest Video</option>
+                            <option value="duration-asc">Shortest Video</option>
+                            <option value="newest">Latest Upload</option>
                             <option value="title-asc">Alphabetical (A-Z)</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Results -->
-                <div class="bg-white rounded-[56px] shadow-sm border border-slate-200 overflow-hidden flex flex-col min-h-[800px]">
-                    <div class="px-12 py-10 border-b border-slate-100 flex justify-between items-center bg-white">
-                        <h2 class="font-black text-slate-800 text-2xl tracking-tight uppercase italic">Organized Matrix</h2>
-                        <div class="flex gap-4 items-center">
-                            <button id="export-csv-btn" class="hidden text-xs bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white px-8 py-3.5 rounded-full font-black uppercase transition-all border border-emerald-100">Export Full CSV</button>
-                            <span id="result-count" class="text-xs bg-slate-100 text-slate-500 px-6 py-3 rounded-full font-black">0 Items Loaded</span>
+                <!-- Matrix Table -->
+                <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
+                    <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
+                        <h2 class="font-bold text-[#3c4043] text-xl">Organized Matrix</h2>
+                        <div class="flex gap-3 items-center">
+                            <button id="export-csv-btn" class="google-btn hidden text-[11px] bg-[#e6f4ea] text-[#137333] hover:bg-[#137333] hover:text-white px-5 py-2 rounded-lg font-bold border border-[#ceead6]">Export CSV</button>
+                            <span id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0 Ready</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-sm text-left border-collapse table-fixed">
-                            <thead class="bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-widest border-b border-slate-100">
+                            <thead class="bg-[#f8f9fa] text-[#5f6368] font-bold text-[10px] uppercase tracking-wider border-b border-[#dadce0]">
                                 <tr>
-                                    <th class="px-12 py-6 w-56 text-center">Video</th>
-                                    <th class="px-12 py-6 w-64">Classification</th>
-                                    <th class="px-12 py-6">AI Report</th>
-                                    <th class="px-12 py-6 w-40 text-right">Stats</th>
+                                    <th class="px-8 py-4 w-48 text-center">Video</th>
+                                    <th class="px-8 py-4 w-60">Classification</th>
+                                    <th class="px-8 py-4">AI Insights Report</th>
+                                    <th class="px-8 py-4 w-36 text-right">Statistics</th>
                                 </tr>
                             </thead>
-                            <tbody id="result-body" class="divide-y divide-slate-100">
+                            <tbody id="result-body" class="divide-y divide-[#eee]">
                                 <tr id="empty-state">
-                                    <td colspan="4" class="px-10 py-64 text-center text-slate-300 font-black italic uppercase tracking-[0.2em]">Await Data Source Input.</td>
+                                    <td colspan="4" class="px-10 py-64 text-center text-[#bdc1c6] font-medium italic">Load a data source to begin organizing your library.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -246,48 +280,42 @@
         </main>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Player -->
     <div id="player-modal">
         <div class="modal-content">
             <div class="player-wrapper" id="player-target-container"></div>
-            <div class="flex flex-col h-full bg-white border-l border-slate-100">
-                <div class="p-12 border-b border-slate-100 bg-slate-50/10">
-                    <h3 id="modal-video-title" class="font-black text-slate-800 text-xl line-clamp-2 leading-tight tracking-tighter italic uppercase">Title</h3>
-                    <p id="modal-video-channel" class="text-xs text-slate-400 font-black uppercase mt-6 tracking-[0.2em]">Channel</p>
+            <div class="flex flex-col h-full bg-white border-l border-[#eee]">
+                <div class="p-10 border-b border-[#f1f3f4]">
+                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">Title</h3>
+                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">Channel</p>
                     
-                    <div class="mt-12 flex gap-4">
-                        <button id="close-modal-btn" class="flex-1 text-[11px] bg-slate-900 text-white py-4.5 rounded-2xl font-black uppercase tracking-widest hover:bg-black transition-all">Close</button>
-                        <a id="external-link" target="_blank" class="flex-1 text-[11px] bg-red-600 text-white py-4.5 rounded-2xl font-black uppercase tracking-widest text-center hover:bg-red-700 shadow-xl shadow-red-100 transition-all italic">URL</a>
+                    <div class="mt-8 flex gap-3">
+                        <button id="close-modal-btn" class="google-btn flex-1 text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all">Close</button>
+                        <a id="external-link" target="_blank" class="google-btn flex-1 text-xs bg-[#f1f3f4] text-[#3c4043] py-3.5 rounded-xl text-center hover:bg-[#e8eaed] font-bold">YouTube URL</a>
                     </div>
                 </div>
                 
-                <div id="timeline-box" class="p-12 flex-grow overflow-y-auto terminal-scroll">
-                    <div id="timeline-not-ready" class="py-20 text-center space-y-6">
-                        <p class="text-xs text-slate-400 font-bold italic">No timeline metadata.<br><span class="text-slate-300 font-medium italic">Create AI Chapters?</span></p>
-                        <button id="generate-timeline-btn" class="w-full py-5 bg-slate-100 text-slate-800 text-xs font-black rounded-3xl hover:bg-slate-200 transition-all uppercase">Generate AI Timeline</button>
+                <div id="timeline-box" class="p-10 flex-grow overflow-y-auto terminal-scroll">
+                    <div id="timeline-not-ready" class="py-16 text-center space-y-6">
+                        <p class="text-xs text-[#70757a] font-medium leading-relaxed">No timeline data available.<br><span class="text-[#bdc1c6]">Generate AI Chapters?</span></p>
+                        <button id="generate-timeline-btn" class="google-btn w-full py-4 bg-[#f8f9fa] text-[#1a73e8] text-xs font-bold rounded-xl border border-[#dadce0] hover:bg-[#f1f3f4]">Generate Timeline</button>
                     </div>
-                    <div id="timeline-loading" class="hidden py-20 animate-pulse text-center">
-                        <div class="w-12 h-12 border-4 border-slate-100 border-t-red-600 rounded-full animate-spin mx-auto mb-6"></div>
-                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">AI Brain Thinking...</p>
+                    <div id="timeline-loading" class="hidden py-16 animate-pulse text-center">
+                        <div class="w-10 h-10 border-4 border-[#eee] border-t-[#1a73e8] rounded-full animate-spin mx-auto mb-4"></div>
+                        <p class="text-[11px] text-[#70757a] font-bold italic">AI Processing...</p>
                     </div>
-                    <div id="timestamp-list" class="hidden space-y-5"></div>
-                </div>
-                
-                <div class="p-8 bg-slate-50 border-t border-slate-100 text-center">
-                    <span class="text-[9px] font-black text-slate-300 uppercase italic tracking-widest">Hybrid Scraper V11.0 Pro</span>
+                    <div id="timestamp-list" class="hidden space-y-4"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // --- Core Configurations ---
+        // --- Configuration & Data ---
         const ytApiKey = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs";
         const BATCH_SIZE = 50; 
         
-        let initialCategories = ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
-        let currentCategories = [...initialCategories];
-        
+        let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
         let csvData = [];
         let analysisResults = [];
         let activeVideo = null;
@@ -295,21 +323,21 @@
         let accessToken = null;
 
         const PALETTE = [
-            { border: 'border-blue-500', text: 'text-blue-600', bg: 'bg-blue-50' },
-            { border: 'border-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { border: 'border-rose-500', text: 'text-rose-600', bg: 'bg-rose-50' },
-            { border: 'border-amber-500', text: 'text-amber-600', bg: 'bg-amber-50' },
-            { border: 'border-indigo-500', text: 'text-indigo-600', bg: 'bg-indigo-50' },
-            { border: 'border-violet-500', text: 'text-violet-600', bg: 'bg-violet-50' },
-            { border: 'border-orange-500', text: 'text-orange-600', bg: 'bg-orange-50' },
-            { border: 'border-cyan-500', text: 'text-cyan-600', bg: 'bg-cyan-50' },
-            { border: 'border-slate-500', text: 'text-slate-600', bg: 'bg-slate-50' },
-            { border: 'border-pink-500', text: 'text-pink-600', bg: 'bg-pink-50' }
+            { border: 'border-blue-200', text: 'text-blue-700', bg: 'bg-blue-50' },
+            { border: 'border-green-200', text: 'text-green-700', bg: 'bg-green-50' },
+            { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
+            { border: 'border-yellow-200', text: 'text-yellow-700', bg: 'bg-yellow-50' },
+            { border: 'border-indigo-200', text: 'text-indigo-700', bg: 'bg-indigo-50' },
+            { border: 'border-purple-200', text: 'text-purple-700', bg: 'bg-purple-50' },
+            { border: 'border-orange-200', text: 'text-orange-700', bg: 'bg-orange-50' },
+            { border: 'border-cyan-200', text: 'text-cyan-700', bg: 'bg-cyan-50' }
         ];
 
-        // --- DOM Selectors ---
+        // --- Selectors ---
         const csvInput = document.getElementById('csv-input');
         const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
+        const clientIdInput = document.getElementById('client-id-input');
+        const playlistIdInput = document.getElementById('playlist-id-input');
         const categoryTags = document.getElementById('category-tags');
         const analyzeBtn = document.getElementById('analyze-btn');
         const analyze10Btn = document.getElementById('analyze-10-btn');
@@ -317,6 +345,7 @@
         const addCategoryBtn = document.getElementById('add-category-btn');
         const exportCsvBtn = document.getElementById('export-csv-btn');
         const authBtn = document.getElementById('auth-btn');
+        const playlistSyncBtn = document.getElementById('playlist-sync-btn');
         const resultBody = document.getElementById('result-body');
         const filterCategory = document.getElementById('filter-category');
         const sortSelect = document.getElementById('sort-select');
@@ -324,36 +353,53 @@
         const playerModal = document.getElementById('player-modal');
         const timestampList = document.getElementById('timestamp-list');
 
+        // --- Initialization ---
+        const saveSettings = () => {
+            localStorage.setItem('gemini-key', geminiApiKeyInput.value);
+            localStorage.setItem('client-id', clientIdInput.value);
+        };
+        const loadSettings = () => {
+            geminiApiKeyInput.value = localStorage.getItem('gemini-key') || '';
+            clientIdInput.value = localStorage.getItem('client-id') || '';
+        };
+        geminiApiKeyInput.addEventListener('input', saveSettings);
+        clientIdInput.addEventListener('input', saveSettings);
+
         // --- Utils ---
         const getGeminiApiKey = () => geminiApiKeyInput.value.trim();
-        
         const getStyleForCat = (cat) => {
             let hash = 0;
             for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
             return PALETTE[Math.abs(hash) % PALETTE.length];
         };
-
         const addLog = (msg, type = 'info') => {
             const div = document.createElement('div');
-            div.className = type === 'error' ? 'text-rose-500 font-bold' : type === 'success' ? 'text-emerald-500 font-bold' : 'text-slate-500';
+            div.className = type === 'error' ? 'text-[#d93025] font-bold' : type === 'success' ? 'text-[#188038] font-bold' : 'text-[#70757a]';
             div.textContent = `> ${msg}`;
             const box = document.getElementById('log-console');
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         };
-
-        const wait = (ms) => new Promise(res => setTimeout(res, ms));
+        const parseDuration = (d) => {
+            if(!d) return 0;
+            const m = d.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+            return (parseInt(m[1])||0)*3600 + (parseInt(m[2])||0)*60 + (parseInt(m[3])||0);
+        };
+        const parseYoutubeInfo = (url) => {
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            return { id: (match && match[2].length === 11) ? match[2] : null };
+        };
 
         // --- Category Management ---
         const renderCategoriesUI = () => {
             categoryTags.innerHTML = '';
             filterCategory.innerHTML = '<option value="all">All Categories</option>';
+            localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             
             currentCategories.forEach(cat => {
                 const style = getStyleForCat(cat);
-                
                 const container = document.createElement('div');
-                container.className = `category-tag-container ${style.bg} ${style.border} ${style.text}`;
+                container.className = `category-tag-container border-[#dadce0] ${style.text}`;
                 
                 const label = document.createElement('span');
                 label.className = "cursor-pointer";
@@ -361,8 +407,8 @@
                 label.onclick = () => { filterCategory.value = cat; renderResults(); };
                 
                 const del = document.createElement('span');
-                del.className = "category-tag-delete text-xs font-black ml-1";
-                del.innerHTML = "×";
+                del.className = "category-tag-delete font-bold";
+                del.innerHTML = "&times;";
                 del.onclick = (e) => {
                     e.stopPropagation();
                     currentCategories = currentCategories.filter(c => c !== cat);
@@ -372,7 +418,6 @@
                 container.appendChild(label);
                 container.appendChild(del);
                 categoryTags.appendChild(container);
-                
                 const opt = document.createElement('option');
                 opt.value = cat; opt.textContent = cat;
                 filterCategory.appendChild(opt);
@@ -388,10 +433,41 @@
             }
         };
 
-        // --- Data Fetching & Sync ---
+        // --- Data Fetching ---
+        playlistSyncBtn.onclick = async () => {
+            const pid = playlistIdInput.value.trim();
+            if(!pid) return;
+            addLog("Playlist items requested...", "info");
+            try {
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${pid}&maxResults=50&key=${ytApiKey}`);
+                const data = await res.json();
+                if(data.items) {
+                    const ids = data.items.map(i => i.contentDetails.videoId);
+                    const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${ytApiKey}`);
+                    const vData = await vRes.json();
+                    
+                    const synced = vData.items.map(v => ({
+                        title: v.snippet.title,
+                        url: `https://www.youtube.com/watch?v=${v.id}`,
+                        thumbnail: v.snippet.thumbnails.high?.url,
+                        description: v.snippet.description,
+                        viewCount: parseInt(v.statistics.viewCount)||0,
+                        channelTitle: v.snippet.channelTitle,
+                        publishedAt: v.snippet.publishedAt,
+                        durationSec: parseDuration(v.contentDetails.duration)
+                    }));
+                    csvData = [...synced, ...csvData];
+                    addLog(`Successfully synced ${synced.length} playlist items.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
+                    document.getElementById('toolbar').style.opacity = "1";
+                    document.getElementById('toolbar').classList.remove('pointer-events-none');
+                }
+            } catch(e) { addLog("Sync Failed.", "error"); }
+        };
+
         authBtn.onclick = () => {
-            const clientId = document.getElementById('client-id-input').value.trim();
-            if (!clientId) { addLog("OAuth Client ID is required.", "error"); return; }
+            const clientId = clientIdInput.value.trim();
+            if (!clientId) { addLog("Client ID missing.", "error"); return; }
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: clientId, scope: 'https://www.googleapis.com/auth/youtube.readonly',
                 callback: (res) => { if (res.error) return; accessToken = res.access_token; fetchLikedVideos(); }
@@ -400,64 +476,33 @@
         };
 
         async function fetchLikedVideos() {
-            if (!accessToken) return;
             try {
-                addLog("Syncing Liked Videos...", "info");
                 const res = await fetch('https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails,statistics&maxResults=50', {
                     headers: { 'Authorization': `Bearer ${accessToken}` }
                 });
                 const data = await res.json();
                 if (data.items) {
                     const synced = data.items.map(v => ({ 
-                        title: v.snippet.title, 
-                        url: `https://www.youtube.com/watch?v=${v.id}`, 
-                        thumbnail: v.snippet.thumbnails.high?.url, 
-                        description: v.snippet.description, 
-                        viewCount: parseInt(v.statistics.viewCount)||0, 
-                        channelTitle: v.snippet.channelTitle,
-                        publishedAt: v.snippet.publishedAt,
-                        duration: v.contentDetails.duration,
-                        durationSec: (d=>{if(!d)return 0; const m=d.match(/PT(\d+H)?(\d+M)?(\d+S)?/); return (parseInt(m[1])||0)*3600+(parseInt(m[2])||0)*60+(parseInt(m[3])||0);})(v.contentDetails.duration)
+                        title: v.snippet.title, url: `https://www.youtube.com/watch?v=${v.id}`, thumbnail: v.snippet.thumbnails.high?.url, description: v.snippet.description, 
+                        viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    addLog("Sync Complete.", "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Items`;
+                    addLog(`Synced ${synced.length} liked videos.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
                 }
-            } catch (e) { addLog("Sync Failed.", "error"); }
+            } catch (e) { addLog("OAuth Data Fetch Failed.", "error"); }
         }
-
-        const parseYoutubeInfo = (url) => {
-            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-            return { id: (match && match[2].length === 11) ? match[2] : null };
-        };
 
         // --- Analysis Engine ---
-        async function fetchGeminiBatch(batchData, geminiKey) {
-            const prompt = `Classify these titles into matching categories from this list: [${currentCategories.join(', ')}]. 
-                Provide a polite 2-sentence summary in Korean and relevant sub-hashtags.
-                Return ONLY a JSON array. Format: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}]
-                Data: ${batchData.map((d,i)=>`${i+1}. ${d.title}`).join('\n')}`;
-
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-            });
-            const data = await res.json();
-            return JSON.parse(data.candidates[0].content.parts[0].text);
-        }
-
         async function runAnalysis(limit) {
             const geminiKey = getGeminiApiKey();
-            if(!geminiKey) { addLog("Missing Gemini API Key.", "error"); return; }
-            if (csvData.length === 0) { addLog("No data to analyze.", "error"); return; }
+            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
+            if (csvData.length === 0) return;
             
             analyzeBtn.disabled = true; analyze10Btn.disabled = true;
             document.getElementById('progress-card').classList.remove('hidden');
-            document.getElementById('toolbar').style.opacity = "1";
-            document.getElementById('toolbar').classList.remove('pointer-events-none');
-            
             resultBody.innerHTML = '';
             analysisResults = [];
             const working = csvData.slice(0, limit || csvData.length);
@@ -465,41 +510,23 @@
 
             for (let i = 0; i < total; i += BATCH_SIZE) {
                 const batch = working.slice(i, i + BATCH_SIZE);
-                const idsFetch = batch.filter(v => !v.thumbnail).map(v => parseYoutubeInfo(v.url).id).filter(id => id);
-                
                 try {
-                    let metaMap = {};
-                    if (idsFetch.length > 0) {
-                        const mRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${idsFetch.join(',')}&key=${ytApiKey}`);
-                        const mData = await mRes.json();
-                        mData.items?.forEach(v => { 
-                            metaMap[v.id] = { 
-                                channelTitle: v.snippet.channelTitle, 
-                                description: v.snippet.description, 
-                                thumbnail: v.snippet.thumbnails.high?.url, 
-                                viewCount: parseInt(v.statistics.viewCount)||0, 
-                                publishedAt: v.snippet.publishedAt,
-                                duration: v.contentDetails.duration,
-                                durationSec: (d=>{if(!d)return 0; const m=d.match(/PT(\d+H)?(\d+M)?(\d+S)?/); return (parseInt(m[1])||0)*3600+(parseInt(m[2])||0)*60+(parseInt(m[3])||0);})(v.contentDetails.duration)
-                            }; 
-                        });
-                    }
-                    const batchMeta = batch.map(v => { const id = parseYoutubeInfo(v.url).id; return { ...v, ...(metaMap[id] || {}) }; });
-                    const aiResults = await fetchGeminiBatch(batchMeta, geminiKey);
-                    
-                    aiResults.forEach((res, idx) => { if (batchMeta[idx]) analysisResults.push({ ...batchMeta[idx], ...res }); });
-                    
+                    const prompt = `Classify these ${batch.length} titles into: [${currentCategories.join(', ')}]. JSON only: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                    });
+                    const aiData = await res.json();
+                    const aiResults = JSON.parse(aiData.candidates[0].content.parts[0].text);
+                    aiResults.forEach((r, idx) => { if (batch[idx]) analysisResults.push({ ...batch[idx], ...r }); });
                     renderResults();
                     updateTreemap();
-                } catch (e) { addLog("Batch error. Retrying...", "error"); i -= BATCH_SIZE; await wait(2000); }
-                
+                } catch (e) { addLog("Batch failed. Checking API Key or Network.", "error"); }
                 const p = Math.round((analysisResults.length / total) * 100);
                 document.getElementById('progress-bar').style.width = `${p}%`;
                 document.getElementById('progress-text').textContent = `${p}%`;
-                await wait(500); 
             }
-            
-            addLog(`Completed Analysis.`, "success");
+            addLog("Library analysis engine completed.", "success");
             analyzeBtn.disabled = false; analyze10Btn.disabled = false;
             exportCsvBtn.classList.remove('hidden');
         }
@@ -507,36 +534,22 @@
         analyze10Btn.onclick = () => runAnalysis(10);
         analyzeBtn.onclick = () => runAnalysis();
 
-        // --- View & Controls ---
+        // --- Visualization & Sorting ---
         const updateTreemap = () => {
-            if (analysisResults.length === 0) return;
             document.getElementById('dashboard-card').classList.remove('hidden');
-            
             const stats = {};
-            analysisResults.forEach(item => {
-                (item.categories || []).forEach(cat => {
-                    if (currentCategories.includes(cat)) stats[cat] = (stats[cat] || 0) + 1;
-                });
-            });
-            
+            analysisResults.forEach(item => { (item.categories || []).forEach(cat => { if (currentCategories.includes(cat)) stats[cat] = (stats[cat] || 0) + 1; }); });
             const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
             const totalCount = Object.values(stats).reduce((a, b) => a + b, 0);
-            
             treemapContent.innerHTML = '';
             sorted.forEach(([cat, count]) => {
                 const perc = Math.round((count / totalCount) * 100);
                 if (perc < 1) return;
                 const style = getStyleForCat(cat);
-                
                 const tile = document.createElement('div');
-                tile.className = `treemap-tile ${style.bg} ${style.border} border-2 ${style.text} shadow-xl rounded-[32px]`;
-                tile.style.flex = `1 1 ${perc}%`;
-                tile.style.minWidth = '140px';
-                tile.innerHTML = `
-                    <div class="font-black text-[10px] italic mb-1 uppercase opacity-60">${cat}</div>
-                    <div class="text-3xl font-black">${perc}%</div>
-                    <div class="text-[9px] font-black opacity-40 mt-1 uppercase">${count} Items</div>
-                `;
+                tile.className = `${style.bg} border-[#dadce0] border ${style.text} treemap-tile rounded-2xl`;
+                tile.style.flex = `1 1 ${perc}%`; tile.style.minWidth = '130px';
+                tile.innerHTML = `<div class="font-bold text-[11px] uppercase opacity-60 mb-1">${cat}</div><div class="text-3xl font-bold">${perc}%</div>`;
                 tile.onclick = () => { filterCategory.value = cat; renderResults(); };
                 treemapContent.appendChild(tile);
             });
@@ -553,7 +566,6 @@
                 return matchSearch && matchCat;
             });
 
-            // Improved Sorting
             if (sortVal === 'views-desc') filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
             else if (sortVal === 'views-asc') filtered.sort((a, b) => (a.viewCount || 0) - (b.viewCount || 0));
             else if (sortVal === 'duration-desc') filtered.sort((a, b) => (b.durationSec || 0) - (a.durationSec || 0));
@@ -562,94 +574,62 @@
             else if (sortVal === 'title-asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
 
             resultBody.innerHTML = '';
-            if (filtered.length === 0) {
-                resultBody.innerHTML = '<tr><td colspan="4" class="py-32 text-center text-slate-300 font-bold uppercase italic">No results matched.</td></tr>';
-                return;
-            }
-
             filtered.forEach(data => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 border-b border-slate-100 group transition-all";
-                
+                tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
                 const cats = (data.categories || []).map(c => {
                     const style = getStyleForCat(c);
-                    return `<span class="inline-block px-2 py-1 ${style.bg} ${style.border} border ${style.text} text-[9px] font-black rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
+                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
                 }).join('');
-                
-                const tags = (data.subTags || []).map(t => `<span class="text-[9px] text-slate-400 font-bold mr-2 uppercase">${t}</span>`).join('');
-                
                 tr.innerHTML = `
-                    <td class="px-12 py-10 align-top">
-                        <div class="aspect-video rounded-3xl bg-slate-100 overflow-hidden mb-4 shadow-sm border border-slate-200">
+                    <td class="px-8 py-6 align-top">
+                        <div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">
                             ${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}
                         </div>
-                        <div class="text-[9px] font-black text-slate-400 text-center uppercase tracking-widest">${data.channelTitle}</div>
+                        <div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div>
                     </td>
-                    <td class="px-12 py-10 align-top">
-                        <div class="flex flex-wrap mb-4">${cats}</div>
-                        <div class="flex flex-wrap">${tags}</div>
+                    <td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td>
+                    <td class="px-8 py-6 align-top">
+                        <button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button>
+                        <p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary}</p>
                     </td>
-                    <td class="px-12 py-10 align-top">
-                        <button class="open-p font-black text-slate-800 text-left hover:text-red-600 line-clamp-2 italic uppercase leading-tight text-lg tracking-tight">${data.title}</button>
-                        <p class="text-xs text-slate-500 mt-5 leading-relaxed font-medium">${data.summary}</p>
-                    </td>
-                    <td class="px-12 py-10 align-top text-xs text-slate-400 font-black text-right">
-                        <div class="text-slate-800">${(data.viewCount || 0).toLocaleString()}</div>
-                        <div class="mt-2 opacity-50">${data.duration?.replace('PT','').toLowerCase() || '-'}</div>
-                    </td>
-                `;
-                tr.querySelector('.open-p').onclick = () => openModal(data);
+                    <td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right">
+                        <div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div>
+                    </td>`;
+                tr.querySelector('.open-p').onclick = () => {
+                    activeVideo = data;
+                    document.getElementById('modal-video-title').textContent = data.title;
+                    document.getElementById('modal-video-channel').textContent = data.channelTitle;
+                    document.getElementById('player-target-container').innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${parseYoutubeInfo(data.url).id}?autoplay=1&rel=0" frameborder="0" allowfullscreen></iframe>`;
+                    document.getElementById('external-link').href = data.url;
+                    playerModal.style.display = 'flex';
+                };
                 resultBody.appendChild(tr);
             });
         };
 
-        // --- Initialization ---
+        document.getElementById('close-modal-btn').onclick = () => { playerModal.style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
+        
         csvInput.onchange = e => {
             const r = new FileReader();
             r.onload = ev => {
                 const rows = ev.target.result.split('\n').filter(l => l.trim());
-                if (rows.length < 2) return;
-                const h = rows[0].split(',').map(v => v.trim().toLowerCase());
-                const tIdx = h.findIndex(v => v.includes('title') || v.includes('제목'));
-                const uIdx = h.findIndex(v => v.includes('url') || v.includes('링크'));
                 csvData = rows.slice(1).map(row => {
                     const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    return { title: p[tIdx]?.replace(/"/g, '').trim(), url: p[uIdx]?.replace(/"/g, '').trim() };
+                    return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() };
                 }).filter(v => v.url);
                 document.getElementById('file-info').classList.remove('hidden');
                 document.getElementById('file-name').textContent = e.target.files[0].name;
-                document.getElementById('result-count').textContent = `${csvData.length} Items`;
             };
             r.readAsText(e.target.files[0]);
         };
 
+        // --- Start ---
+        loadSettings();
+        renderCategoriesUI();
         document.getElementById('search-input').oninput = renderResults;
         document.getElementById('filter-category').onchange = renderResults;
         document.getElementById('sort-select').onchange = renderResults;
-        document.getElementById('reset-filter-btn').onclick = () => { 
-            filterCategory.value = 'all'; 
-            sortSelect.value = 'default';
-            document.getElementById('search-input').value = '';
-            renderResults(); 
-        };
-        
-        const openModal = (video) => {
-            activeVideo = video;
-            document.getElementById('modal-video-title').textContent = video.title;
-            document.getElementById('modal-video-channel').textContent = video.channelTitle;
-            const container = document.getElementById('player-target-container');
-            const { id } = parseYoutubeInfo(video.url);
-            container.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&enablejsapi=1&rel=0&origin=${encodeURIComponent(window.location.origin)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            document.getElementById('external-link').href = video.url;
-            playerModal.style.display = 'flex';
-        };
-
-        document.getElementById('close-modal-btn').onclick = () => {
-            playerModal.style.display = 'none';
-            document.getElementById('player-target-container').innerHTML = '';
-        };
-
-        renderCategoriesUI();
     </script>
 </body>
 </html>
