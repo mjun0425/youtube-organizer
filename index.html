@@ -91,6 +91,31 @@
             grid-template-columns: 1fr 400px;
             height: 85vh;
             box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14);
+            position: relative;
+        }
+
+        /* 닫기 X 버튼 스타일 */
+        .modal-close-x {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 110;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            color: #5f6368;
+        }
+        .modal-close-x:hover {
+            background: #f1f3f4;
+            color: #202124;
+            transform: rotate(90deg);
         }
 
         .confirm-content {
@@ -108,6 +133,7 @@
         @media (max-width: 1024px) {
             .modal-content { grid-template-columns: 1fr; height: 95vh; overflow-y: auto; }
             .player-wrapper { aspect-ratio: 16/9; height: auto; }
+            .modal-close-x { top: 10px; right: 10px; width: 32px; height: 32px; }
         }
 
         .google-btn { transition: all .2s; font-weight: 600; }
@@ -398,13 +424,21 @@
     <!-- 비디오 모달 -->
     <div id="player-modal">
         <div class="modal-content">
+            <!-- 우상단 X 버튼 추가 -->
+            <div id="close-player-x" class="modal-close-x">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </div>
+
             <div class="player-wrapper" id="player-target-container"></div>
-            <div class="flex flex-col h-full bg-white border-l border-[#eee]">
-                <div class="p-10 border-b border-[#f1f3f4]">
+            <div class="flex flex-col h-full bg-white border-l border-[#eee] overflow-hidden">
+                <div class="p-10 border-b border-[#f1f3f4] shrink-0">
                     <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목</h3>
-                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">채널</p>
-                    <div class="mt-8">
-                        <button id="close-player-modal" class="google-btn w-full text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all font-bold text-center">닫기</button>
+                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-bold mt-4 tracking-wide uppercase">채널명</p>
+                    
+                    <!-- 요약 전문 표시 영역 추가 -->
+                    <div class="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">AI Summary</p>
+                        <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium">분석된 요약 내용이 여기에 표시됩니다.</p>
                     </div>
                 </div>
                 <div id="timeline-box" class="p-10 flex-grow overflow-y-auto custom-scrollbar">
@@ -639,12 +673,18 @@
             });
         }
 
+        // --- 플레이어 제어 (요약 전문 포함) ---
         function openPlayer(video) {
             activeVideo = video;
             const cont = document.getElementById('player-target-container');
             cont.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
             document.getElementById('modal-video-title').textContent = video.title;
             document.getElementById('modal-video-channel').textContent = video.channelTitle || '';
+            
+            // 요약 전문 설정
+            const summaryEl = document.getElementById('modal-video-summary');
+            if (summaryEl) summaryEl.textContent = video.summary || '분석된 요약 정보가 없습니다.';
+            
             renderTimelineUI();
             document.getElementById('player-modal').style.display = 'flex';
         }
@@ -668,7 +708,7 @@
             } else { emptyBox.classList.remove('hidden'); listContainer.classList.add('hidden'); loadingBox.classList.add('hidden'); }
         }
 
-        // --- 분석 코어 (Tier 1 Ultra-Fast) ---
+        // --- 분석 코어 ---
         async function runAnalysis(itemsToProcess, isReanalyze = false) {
             const key = getGeminiApiKey(); if (!key) return;
             const analyzeBtn = document.getElementById('analyze-btn');
@@ -694,45 +734,11 @@
             for (let item of enriched) {
                 if (processed > 0) await new Promise(res => setTimeout(res, THROTTLE_DELAY));
                 try {
-                    const prompt = `Analyze this YouTube video info.
-                    Title: ${item.title}
-                    Description: ${item.description?.substring(0, 1000) || 'None'}
-                    Categories Available: [${currentCategories.join(', ')}]
-                    
-                    Mapping Rules for Accuracy:
-                    - IT/가전/테크/AI -> 테크
-                    - 요리/레시피/맛집 -> 푸드
-                    - 일상/브이로그/취미 -> 라이프
-                    - 재테크/경제/금융 -> 경제
-                    - 건강/운동/자기관리 -> 건강관리
-                    - 여행/문화/탐험 -> 여행
-                    - 뉴스/시사/다큐 -> 정보
-                    - 음악/라이브/커버 -> 음악
-                    - 게임/E스포츠/스트리밍 -> 게임
-                    - 리빙/인테리어/생활팁 -> 리빙
-                    - 교육/학습/자기계발 -> 성장
-                    - 패션/뷰티/스타일링 -> 자기관리
-                    - 영화/드라마/애니메이션 -> 미디어
-
-                    Requirements:
-                    1. Assign to 1-2 categories from the list (allow multiple).
-                    2. 1-sentence Korean summary.
-                    3. Generate 3-5 core #hashtags.
-                    4. Extract logical chapters/timestamps.
-
-                    Return ONLY JSON:
-                    {
-                      "categories": ["Name1", "Name2"],
-                      "summary": "한국어 요약",
-                      "tags": ["#태그1", "#태그2"],
-                      "timestamps": [{"time": "MM:SS", "desc": "Chapter Title"}]
-                    }`;
-                    
+                    const prompt = `Analyze this YouTube video info.\nTitle: ${item.title}\nDescription: ${item.description?.substring(0, 1000) || 'None'}\nCategories Available: [${currentCategories.join(', ')}]\n\nMapping Rules:\n- IT/가전/테크/AI -> 테크\n- 요리/레시피/맛집 -> 푸드\n- 일상/브이로그/취미 -> 라이프\n- 재테크/경제/금융 -> 경제\n- 건강/운동/자기관리 -> 건강관리\n- 여행/문화/탐험 -> 여행\n- 뉴스/시사/다큐 -> 정보\n- 음악/라이브/커버 -> 음악\n- 게임/E스포츠/스트리밍 -> 게임\n- 리빙/인테리어/생활팁 -> 리빙\n- 교육/학습/자기계발 -> 성장\n- 패션/뷰티/스타일링 -> 자기관리\n- 영화/드라마/애니메이션 -> 미디어\n\nRequirements: 1 Category, 1 Summary sentence, 3 tags, chapters.\nReturn ONLY JSON:\n{\n"categories":["Name from list"],\n"summary":"요약",\n"tags":["#태그"],\n"timestamps":[{"time":"MM:SS","desc":"제목"}]\n}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
                     });
-                    
                     const aiData = await res.json();
                     if (!res.ok) throw new Error(aiData.error?.message || "AI Error");
                     const result = JSON.parse(aiData.candidates[0].content.parts[0].text);
@@ -760,7 +766,7 @@
             addLog("분석 작업 완료!", "success");
             checkEngineEnable();
             
-            // 100% 도달 시 진행바 카드 숨김 (약간의 대기 후)
+            // 100% 도달 시 진행바 카드 숨김
             setTimeout(() => { progressCard.classList.add('hidden'); }, 2000);
         }
 
@@ -839,7 +845,7 @@
             document.getElementById('export-json-btn').onclick = () => {
                 const blob = new Blob([JSON.stringify(syncedData, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url;
-                a.download = `youtube_library_full_sync.json`; a.click();
+                a.download = `youtube_organized_full_sync.json`; a.click();
             };
 
             importInput.addEventListener('change', e => {
@@ -904,7 +910,15 @@
                     renderCategoriesUI_Logic();
                 }
             };
-            document.getElementById('close-player-modal').onclick = () => { document.getElementById('player-modal').style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
+            // 모달 닫기 바인딩
+            document.getElementById('close-player-x').onclick = () => { 
+                document.getElementById('player-modal').style.display = 'none'; 
+                document.getElementById('player-target-container').innerHTML = ''; 
+            };
+            document.getElementById('close-player-modal')?.addEventListener('click', () => {
+                document.getElementById('player-modal').style.display = 'none'; 
+                document.getElementById('player-target-container').innerHTML = ''; 
+            });
         };
     </script>
 </body>
