@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Full Hybrid Edition</title>
+    <title>YouTube Smart Organizer - 5,000+ Bulk Hybrid</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -111,6 +111,7 @@
             justify-content: center;
             padding: 0;
             line-height: 0;
+            flex-shrink: 0;
         }
 
         .timestamp-btn {
@@ -131,6 +132,31 @@
             margin-top: 4px;
             display: inline-block;
         }
+
+        /* 페이지네이션 스타일 */
+        .page-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #5f6368;
+        }
+        .page-btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #dadce0;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            background: #f1f3f4;
+            border-color: #bdc1c6;
+        }
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen">
@@ -144,7 +170,7 @@
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
             </div>
-            <div id="storage-status" class="text-xs font-bold text-slate-400 italic">Local Hybrid Storage</div>
+            <div id="storage-status" class="text-xs font-bold text-slate-400 italic uppercase">Hybrid Engine V2 (RPM 15)</div>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -156,11 +182,11 @@
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">AI 분석 엔진 (2.5 Flash-Lite)</h2>
                     <div class="space-y-4">
                         <div class="space-y-1.5">
-                            <label class="text-[10px] text-[#70757a] font-bold ml-1 uppercase tracking-tight">Gemini API 키 (필수)</label>
+                            <label class="text-[10px] text-[#70757a] font-bold ml-1 uppercase tracking-tight">Gemini API 키</label>
                             <input type="password" id="gemini-api-key-input" placeholder="분석 필수 키 입력" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none">
                         </div>
                         <div class="flex flex-col gap-3 pt-2">
-                            <button id="analyze-btn" disabled class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all">신규 영상 분석 시작</button>
+                            <button id="analyze-btn" disabled class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all">신규 영상 50개씩 분석 시작</button>
                             <div id="engine-status-hint" class="text-[10px] text-rose-500 text-center font-medium leading-tight">데이터 연동 및 API 키가 필요합니다</div>
                         </div>
                     </div>
@@ -206,7 +232,7 @@
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
                         <input type="text" id="new-category-input" placeholder="새 주제" class="google-input flex-grow min-w-0 bg-white rounded-lg px-3 h-10 text-sm outline-none">
-                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-2xl font-light leading-none shrink-0 outline-none">+</button>
+                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-2xl font-light leading-none outline-none">+</button>
                     </div>
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
@@ -215,7 +241,7 @@
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2">System Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2">
-                        <div class="text-[#81c995] font-bold">> 하이브리드 엔진 활성화.</div>
+                        <div class="text-[#81c995] font-bold">> 하이브리드 로컬 엔진 준비 완료.</div>
                     </div>
                 </div>
             </div>
@@ -242,7 +268,8 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <span class="block text-[10px] font-black text-[#1a73e8] uppercase tracking-widest animate-pulse">분석 데이터 로컬 동기화 중</span>
+                            <span class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest animate-pulse">Batch Analyzing (50 items/step)</span>
+                            <span class="text-[9px] text-slate-400">RPM 15 준수를 위해 4초 간격으로 처리 중입니다.</span>
                         </div>
                     </div>
                     <div class="w-full bg-[#f1f3f4] h-3 rounded-full overflow-hidden shadow-inner">
@@ -250,27 +277,43 @@
                     </div>
                 </div>
 
-                <!-- 콘텐츠 라이브러리 -->
+                <!-- 통합 라이브러리 (정렬, 필터, 검색, 페이지네이션) -->
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
                         <h2 class="font-bold text-[#3c4043] text-xl">통합 라이브러리</h2>
                         <div id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0개 항목 로드됨</div>
                     </div>
                     
-                    <div class="bg-[#f8f9fa] p-4 flex flex-wrap items-center gap-4 border-b border-[#eee]">
-                        <div class="flex-grow relative">
-                            <input type="text" id="search-input" placeholder="제목 또는 채널명으로 검색..." class="w-full px-6 py-2.5 bg-white border border-[#dadce0] rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-100">
+                    <!-- 검색 및 툴바 -->
+                    <div class="bg-[#f8f9fa] p-4 border-b border-[#eee] space-y-4">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex-grow relative">
+                                <input type="text" id="search-input" placeholder="제목 또는 채널명으로 검색..." class="w-full px-6 py-2.5 bg-white border border-[#dadce0] rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-100">
+                            </div>
+                            <div class="flex gap-3">
+                                <select id="filter-category" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
+                                    <option value="all">모든 카테고리</option>
+                                </select>
+                                <select id="sort-select" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
+                                    <option value="default">기본 순서</option>
+                                    <option value="views-desc">조회수 높은 순</option>
+                                    <option value="newest">최신 분석 순</option>
+                                    <option value="title-asc">가나다 순</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="flex gap-3">
-                            <select id="filter-category" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
-                                <option value="all">모든 카테고리</option>
-                            </select>
-                            <select id="sort-select" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
-                                <option value="default">기본 순서</option>
-                                <option value="views-desc">조회수 높은 순</option>
-                                <option value="newest">최신 분석 순</option>
-                                <option value="title-asc">가나다 순</option>
-                            </select>
+
+                        <!-- 페이지네이션 컨트롤 (검색창 밑 배치) -->
+                        <div id="pagination-container" class="flex items-center justify-between px-2 pt-1 border-t border-slate-200 hidden">
+                            <div class="text-[11px] font-bold text-slate-400">
+                                전체 <span id="total-results-count" class="text-[#1a73e8]">0</span>개 중 
+                                <span id="current-range-text">1-100</span> 표시
+                            </div>
+                            <div class="page-control">
+                                <button id="prev-page-btn" class="page-btn" disabled>이전</button>
+                                <span class="mx-2">Page <span id="current-page-num" class="text-[#1a73e8]">1</span> / <span id="total-page-num">1</span></span>
+                                <button id="next-page-btn" class="page-btn">다음</button>
+                            </div>
                         </div>
                     </div>
                     
@@ -326,9 +369,10 @@
     <script type="module">
         // --- 1. 환경 설정 및 API 키 ---
         const BATCH_SIZE = 50; 
-        const THROTTLE_DELAY = 13000; 
+        const THROTTLE_DELAY = 4000; 
+        const ITEMS_PER_PAGE = 100; // 요청하신 한 페이지당 100개 설정
         const GEMINI_MODEL = "gemini-2.5-flash-lite-preview-09-2025"; 
-        const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; // 복구된 유튜브 API 키
+        const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         
         const PALETTE = [
@@ -347,6 +391,7 @@
         let syncedData = [];  
         let activeVideo = null;
         let accessToken = null;
+        let currentPage = 1; // 현재 페이지 상태
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
 
         // --- 3. 유틸리티 함수 ---
@@ -376,6 +421,22 @@
             if (logBox) { logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight; }
         };
 
+        const parseDescriptionTimestamps = (desc) => {
+            if (!desc) return [];
+            const lines = desc.split('\n');
+            const timeRegex = /(\d{1,2}:\d{2}(?::\d{2})?)/;
+            const found = [];
+            lines.forEach(line => {
+                const match = line.match(timeRegex);
+                if (match) {
+                    const time = match[1];
+                    const label = line.replace(time, '').trim().replace(/^[-:.]\s*/, '').trim();
+                    if (label.length > 1) found.push({ time, desc: label });
+                }
+            });
+            return found;
+        };
+
         const checkEngineEnable = () => {
             const analyzeBtn = document.getElementById('analyze-btn');
             const hint = document.getElementById('engine-status-hint');
@@ -385,7 +446,7 @@
             
             if (analyzeBtn) analyzeBtn.disabled = !(pendingCount > 0 && hasKey);
             if (hint) {
-                if (pendingCount > 0 && hasKey) hint.textContent = `${pendingCount}개의 새로운 영상 분석 가능`;
+                if (pendingCount > 0 && hasKey) hint.textContent = `${pendingCount}개의 새로운 영상 분석 가능 (RPM 15 모드)`;
                 else if (pendingCount === 0 && syncedData.length > 0) hint.textContent = "모든 항목 분석 완료됨";
                 else hint.textContent = "데이터 연동 및 API 키가 필요합니다";
             }
@@ -394,7 +455,7 @@
         // --- 4. 데이터 저장 및 로드 ---
         const saveToLocal = () => {
             try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); } 
-            catch (e) { addLog("저장 공간 부족!", "error"); }
+            catch (e) { addLog("로컬 저장 공간 부족!", "error"); }
         };
 
         const loadFromLocal = () => {
@@ -408,7 +469,7 @@
             checkEngineEnable();
         };
 
-        // --- 5. 유튜브 API 연동 (메타데이터 긁어오기) ---
+        // --- 5. 유튜브 API 연동 ---
         async function enrichMetadata(batch) {
             const ids = batch.map(item => item.id).join(',');
             try {
@@ -428,14 +489,15 @@
                 
                 return batch.map(item => ({
                     ...item,
-                    ...(metaMap[item.id] || { channelTitle: "Unknown", viewCount: 0, duration: "00:00" })
+                    ...(metaMap[item.id] || { channelTitle: "Bulk", viewCount: 0, duration: "00:00" })
                 }));
             } catch (e) {
+                addLog("메타데이터 수집 실패.", "error");
                 return batch;
             }
         }
 
-        // --- 6. 렌더링 함수 ---
+        // --- 6. 렌더링 함수 (페이지네이션 적용) ---
         const renderCategoriesUI = () => {
             const container = document.getElementById('category-tags');
             const filterCategory = document.getElementById('filter-category');
@@ -449,7 +511,7 @@
                 const tag = document.createElement('div');
                 tag.className = `category-tag-container border-[#dadce0] ${style.text} ${style.bg}`;
                 tag.innerHTML = `<span class="cursor-pointer font-bold">${cat}</span><span class="category-tag-delete font-bold">&times;</span>`;
-                tag.querySelector('span:first-child').onclick = () => { filterCategory.value = cat; renderResults(); };
+                tag.querySelector('span:first-child').onclick = () => { filterCategory.value = cat; resetPageAndRender(); };
                 tag.querySelector('.category-tag-delete').onclick = (e) => {
                     e.stopPropagation();
                     currentCategories = currentCategories.filter(c => c !== cat);
@@ -463,11 +525,17 @@
             filterCategory.value = curVal;
         };
 
+        const resetPageAndRender = () => {
+            currentPage = 1;
+            renderResults();
+        };
+
         const renderResults = () => {
             const resultBody = document.getElementById('result-body');
             const term = document.getElementById('search-input')?.value.toLowerCase() || "";
             const catFilter = document.getElementById('filter-category')?.value || "all";
             const sortVal = document.getElementById('sort-select')?.value || "default";
+            const paginationContainer = document.getElementById('pagination-container');
 
             if (!resultBody) return;
 
@@ -481,27 +549,48 @@
             else if (sortVal === "newest") filtered.sort((a,b) => new Date(b.analyzedAt || 0) - new Date(a.analyzedAt || 0));
             else if (sortVal === "title-asc") filtered.sort((a,b) => a.title.localeCompare(b.title));
 
+            // 페이지네이션 처리
+            const totalItems = filtered.length;
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+            if(currentPage > totalPages) currentPage = totalPages;
+            
+            const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIdx = startIdx + ITEMS_PER_PAGE;
+            const pageData = filtered.slice(startIdx, endIdx);
+
+            // 페이지 UI 업데이트
+            if (totalItems > 0) {
+                paginationContainer.classList.remove('hidden');
+                document.getElementById('total-results-count').textContent = totalItems.toLocaleString();
+                document.getElementById('current-range-text').textContent = `${(startIdx + 1).toLocaleString()} - ${Math.min(endIdx, totalItems).toLocaleString()}`;
+                document.getElementById('current-page-num').textContent = currentPage;
+                document.getElementById('total-page-num').textContent = totalPages;
+                document.getElementById('prev-page-btn').disabled = (currentPage === 1);
+                document.getElementById('next-page-btn').disabled = (currentPage === totalPages);
+            } else {
+                paginationContainer.classList.add('hidden');
+            }
+
             resultBody.innerHTML = '';
-            if (filtered.length === 0) {
+            if (pageData.length === 0) {
                 resultBody.innerHTML = '<tr><td colspan="4" class="py-32 text-center text-slate-300 italic">표시할 데이터가 없습니다.</td></tr>';
                 return;
             }
 
-            filtered.forEach(data => {
+            pageData.forEach(data => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
                 const cats = (data.categories || []).map(c => {
                     const style = getStyleForCat(c);
                     return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
                 }).join('');
-                
                 const tags = (data.tags || []).map(t => `<span class="auto-tag">${t}</span>`).join('');
                 
                 tr.innerHTML = `
                     <td class="px-8 py-6 align-top">
                         <div class="aspect-video rounded-xl bg-[#eee] overflow-hidden border border-[#dadce0] relative">
                             ${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}
-                            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${data.duration || "00:00"}</span>
+                            <span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded font-bold">${data.duration || "00:00"}</span>
                         </div>
                     </td>
                     <td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td>
@@ -511,7 +600,7 @@
                         <div class="mt-2 flex flex-wrap">${tags}</div>
                     </td>
                     <td class="px-8 py-6 align-top text-xs text-right font-bold text-[#70757a]">
-                        <div class="text-[#202124] mb-1">${(data.viewCount || 0).toLocaleString()}</div>
+                        <div class="text-[#202124] mb-1 font-mono">${(data.viewCount || 0).toLocaleString()}</div>
                         <div class="text-[9px] opacity-40 truncate uppercase">${data.channelTitle || 'Bulk'}</div>
                     </td>
                 `;
@@ -539,7 +628,7 @@
                 tile.innerHTML = `<div class="font-bold text-[10px] uppercase opacity-60">${cat}</div><div class="text-2xl font-black">${perc}%</div>`;
                 tile.onclick = () => {
                     const filter = document.getElementById('filter-category');
-                    if (filter) { filter.value = cat; renderResults(); }
+                    if (filter) { filter.value = cat; resetPageAndRender(); }
                 };
                 container.appendChild(tile);
             });
@@ -552,6 +641,17 @@
             cont.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
             document.getElementById('modal-video-title').textContent = video.title;
             document.getElementById('modal-video-channel').textContent = video.channelTitle || '';
+            
+            if (!activeVideo.timestamps || activeVideo.timestamps.length === 0) {
+                const found = parseDescriptionTimestamps(activeVideo.description);
+                if (found.length > 0) {
+                    activeVideo.timestamps = found;
+                    const idx = syncedData.findIndex(v => v.id === activeVideo.id);
+                    if (idx !== -1) syncedData[idx] = activeVideo;
+                    saveToLocal();
+                    addLog(`설명란에서 ${found.length}개의 타임라인을 자동 추출했습니다.`, "success");
+                }
+            }
             renderTimelineUI();
             document.getElementById('player-modal').style.display = 'flex';
         };
@@ -584,7 +684,9 @@
             document.getElementById('timeline-empty').classList.add('hidden');
             document.getElementById('timeline-loading').classList.remove('hidden');
             try {
-                const prompt = `YouTube Video Chapter Extraction: Title: ${activeVideo.title}, Description: ${activeVideo.description || ''}. 
+                const prompt = `Task: Extract logical timestamps with titles from this YouTube video info.
+                Title: ${activeVideo.title}
+                Description: ${activeVideo.description || ''}
                 Format ONLY a JSON array: [{"time":"MM:SS", "desc":"Chapter Title"}]`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -595,7 +697,7 @@
                 activeVideo.timestamps = timestamps;
                 const idx = syncedData.findIndex(v => v.id === activeVideo.id);
                 if (idx !== -1) syncedData[idx] = activeVideo;
-                saveToLocal(); renderTimelineUI(); addLog("타임라인 저장됨.", "success");
+                saveToLocal(); renderTimelineUI(); addLog("AI 타임라인이 생성되었습니다.", "success");
             } catch (e) {
                 addLog("타임라인 생성 실패.", "error"); document.getElementById('timeline-empty').classList.remove('hidden');
             } finally {
@@ -603,7 +705,7 @@
             }
         }
 
-        // --- 8. 분석 및 메타데이터 긁기 로직 ---
+        // --- 8. 벌크 하이브리드 분석 엔진 ---
         async function runLocalAnalysis() {
             const key = getGeminiApiKey(); if (!key) return;
             const processedIds = new Set(syncedData.map(d => d.id));
@@ -612,56 +714,73 @@
 
             document.getElementById('analyze-btn').disabled = true;
             document.getElementById('progress-card').classList.remove('hidden');
-            const total = pending.length;
+            const totalToAnalyze = pending.length;
             const startTime = Date.now();
+            let processedInSession = 0;
 
             const timer = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 document.getElementById('elapsed-time').textContent = formatTime(elapsed);
+                if (processedInSession > 0) {
+                    const progress = processedInSession / totalToAnalyze;
+                    const est = (elapsed / progress) - elapsed;
+                    document.getElementById('remaining-time').textContent = formatTime(Math.max(0, Math.round(est)));
+                }
             }, 1000);
 
-            for (let i = 0; i < total; i += BATCH_SIZE) {
-                if (i > 0) await new Promise(res => setTimeout(res, THROTTLE_DELAY));
+            for (let i = 0; i < totalToAnalyze; i += BATCH_SIZE) {
+                if (i > 0) {
+                    addLog(`쿼터 최적화 대기 중 (4초)...`, "info");
+                    await new Promise(res => setTimeout(res, THROTTLE_DELAY));
+                }
+
                 let batch = pending.slice(i, i + BATCH_SIZE);
-                
-                // 메타데이터 긁어오기 (조회수, 채널, 길이 등)
-                addLog(`메타데이터 수집 중 (${i + 1}~)...`, "info");
+                addLog(`${i + 1}~${Math.min(i + BATCH_SIZE, totalToAnalyze)}개 메타데이터 수집 중...`, "info");
                 batch = await enrichMetadata(batch);
 
                 try {
-                    const prompt = `Task: Classify these videos into [${currentCategories.join(', ')}]. 
-                    Assign relevant #hashtags as well. 
-                    Format ONLY a JSON array: [{"categories":["Name"],"summary":"Short Korean summary","tags":["#Tag1","#Tag2"]}] 
+                    const prompt = `Classify these ${batch.length} YouTube videos into: [${currentCategories.join(', ')}]. 
+                    Provide 3 relevant #hashtags and a short Korean summary.
+                    Return ONLY a JSON array: [{"categories":["Name"],"summary":"요약","tags":["#태그"]}]
                     Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
                     
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
                     });
+                    
                     const aiData = await res.json();
                     const results = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     
-                    const newlyAnalyzed = batch.map((item, idx) => ({ 
+                    const analyzedBatch = batch.map((item, idx) => ({ 
                         ...item, 
                         ...(results[idx] || {}), 
                         analyzedAt: new Date().toISOString() 
                     }));
                     
-                    syncedData = [...syncedData, ...newlyAnalyzed];
-                    saveToLocal(); renderResults(); updateTreemap();
-                } catch (e) { addLog(`배치 오류: ${e.message}`, "error"); }
-                
-                const p = Math.round(((i + batch.length) / total) * 100);
-                document.getElementById('progress-bar').style.width = `${p}%`;
-                document.getElementById('progress-text').textContent = `${p}%`;
+                    syncedData = [...syncedData, ...analyzedBatch];
+                    processedInSession += batch.length;
+                    
+                    saveToLocal(); 
+                    renderResults(); 
+                    updateTreemap();
+
+                    const p = Math.round((processedInSession / totalToAnalyze) * 100);
+                    document.getElementById('progress-bar').style.width = `${p}%`;
+                    document.getElementById('progress-text').textContent = `${p}%`;
+                    
+                } catch (e) { 
+                    addLog(`배치 분석 오류 발생`, "error"); 
+                }
             }
+
             clearInterval(timer);
             document.getElementById('analyze-btn').disabled = false;
-            addLog("모든 데이터 하이브리드 동기화 완료!", "success");
+            addLog(`총 ${processedInSession}개의 영상 동기화 완료!`, "success");
             checkEngineEnable();
         }
 
-        // --- 9. 초기화 및 이벤트 ---
+        // --- 9. 초기화 및 이벤트 바인딩 ---
         window.onload = () => {
             loadFromLocal();
             renderCategoriesUI();
@@ -669,6 +788,13 @@
             const geminiInput = document.getElementById('gemini-api-key-input');
             const csvInputEl = document.getElementById('csv-input');
             const importInput = document.getElementById('import-json-input');
+            const searchInput = document.getElementById('search-input');
+            const filterCat = document.getElementById('filter-category');
+            const sortSel = document.getElementById('sort-select');
+
+            // 페이지네이션 이벤트
+            document.getElementById('prev-page-btn').onclick = () => { if(currentPage > 1) { currentPage--; renderResults(); window.scrollTo(0, 0); } };
+            document.getElementById('next-page-btn').onclick = () => { currentPage++; renderResults(); window.scrollTo(0, 0); };
 
             if (geminiInput) {
                 geminiInput.value = localStorage.getItem('gemini-key') || '';
@@ -679,14 +805,16 @@
                 const blob = new Blob([JSON.stringify(syncedData, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url;
-                a.download = `youtube_organized_full_backup.json`; a.click();
+                a.download = `youtube_organized_full_sync.json`; a.click();
             };
 
             importInput.addEventListener('change', e => {
                 const file = e.target.files[0]; if (!file) return;
                 const r = new FileReader(); r.onload = ev => {
-                    const data = JSON.parse(ev.target.result);
-                    if (Array.isArray(data)) { syncedData = data; saveToLocal(); renderResults(); updateTreemap(); }
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (Array.isArray(data)) { syncedData = data; saveToLocal(); resetPageAndRender(); updateTreemap(); addLog("데이터 복구 완료.", "success"); }
+                    } catch(err) { addLog("JSON 형식이 올바르지 않습니다.", "error"); }
                 }; r.readAsText(file);
             });
 
@@ -700,7 +828,7 @@
                         const id = url?.match(/[v=|\/]([a-zA-Z0-9_-]{11})/)?.[1];
                         return { id, title, url };
                     }).filter(v => v.id);
-                    addLog(`CSV 로드 성공 (${csvRawItems.length}개). 신규 메타데이터를 수집합니다.`, "success");
+                    addLog(`CSV 로드 완료 (${csvRawItems.length}개).`, "success");
                     document.getElementById('file-info')?.classList.remove('hidden');
                     document.getElementById('file-name').textContent = file.name;
                     checkEngineEnable();
@@ -709,14 +837,26 @@
 
             document.getElementById('generate-timeline-btn').onclick = generateAiTimeline;
             document.getElementById('analyze-btn').onclick = runLocalAnalysis;
-            document.getElementById('search-input').oninput = renderResults;
-            document.getElementById('filter-category').onchange = renderResults;
-            document.getElementById('sort-select').onchange = renderResults;
-            document.getElementById('reset-filter-btn').onclick = () => { document.getElementById('filter-category').value = "all"; renderResults(); };
+            
+            // 검색/필터 변경 시 페이지 리셋
+            if (searchInput) searchInput.oninput = resetPageAndRender;
+            if (filterCat) filterCat.onchange = resetPageAndRender;
+            if (sortSel) sortSel.onchange = resetPageAndRender;
+            
+            document.getElementById('reset-filter-btn').onclick = () => { 
+                if(filterCat) filterCat.value = "all"; 
+                resetPageAndRender(); 
+            };
+            
             document.getElementById('add-category-btn').onclick = () => {
                 const val = document.getElementById('new-category-input')?.value.trim();
-                if (val && !currentCategories.includes(val)) { currentCategories.push(val); document.getElementById('new-category-input').value = ''; renderCategoriesUI(); }
+                if (val && !currentCategories.includes(val)) {
+                    currentCategories.push(val);
+                    document.getElementById('new-category-input').value = '';
+                    renderCategoriesUI();
+                }
             };
+
             document.getElementById('close-modal-btn').onclick = () => { 
                 document.getElementById('player-modal').style.display = 'none'; 
                 document.getElementById('player-target-container').innerHTML = ''; 
