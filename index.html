@@ -87,7 +87,7 @@
             border-radius: 28px;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 450px;
             height: 85vh;
             box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14);
             position: relative;
@@ -208,7 +208,43 @@
             cursor: not-allowed;
         }
 
-        /* 스위치 스타일 */
+        /* 상세 요약 블록 스타일 */
+        .summary-block {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        .summary-block:last-child { border-bottom: none; }
+        .summary-subtitle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .summary-seek-btn {
+            flex-shrink: 0;
+            background: #eef2ff;
+            color: #4f46e5;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid #c7d2fe;
+            transition: all 0.2s;
+        }
+        .summary-seek-btn:hover { background: #4f46e5; color: white; border-color: #4f46e5; }
+        .summary-subtitle-text {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+        .summary-content-text {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
@@ -246,7 +282,7 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 
-                <!-- 1. 핵심 설정 패널 -->
+                <!-- 1. 핵심 설정 패널 (사이드바 최상단) -->
                 <div id="credentials-panel" class="bg-white rounded-2xl shadow-sm border border-[#dadce0] overflow-hidden transition-all duration-300">
                     <div id="credentials-summary" class="px-5 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors">
                         <div class="flex items-center gap-2">
@@ -391,7 +427,7 @@
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
                         <h2 class="font-bold text-[#3c4043] text-xl">통합 라이브러리</h2>
-                        <div id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0개 항목</div>
+                        <div id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0개 항목 저장됨</div>
                     </div>
                     <div class="bg-[#f8f9fa] p-4 border-b border-[#eee] space-y-4">
                         <div class="flex flex-wrap items-center gap-4">
@@ -473,24 +509,29 @@
             </div>
             <div class="player-wrapper" id="player-target-container"></div>
             <div class="flex flex-col h-full bg-white border-l border-[#eee] overflow-hidden">
-                <div class="p-10 border-b border-[#f1f3f4] shrink-0">
+                <div class="p-8 border-b border-[#f1f3f4] shrink-0">
                     <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목</h3>
                     <p id="modal-video-channel" class="text-xs text-[#5f6368] font-bold mt-4 tracking-wide uppercase">채널명</p>
                     <div class="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100 relative">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">AI Summary</p>
-                        <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium mb-4">요약 내용이 여기에 표시됩니다.</p>
-                        <button id="detailed-summary-btn" class="google-btn text-[10px] px-4 py-2 bg-[#1a73e8] text-white rounded-lg hover:bg-[#1765cc] font-bold shadow-sm">자세한 요약 및 정밀 타임라인 생성</button>
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">AI Analysis Result</p>
+                        </div>
+                        <div id="modal-video-summary-container" class="max-h-[350px] overflow-y-auto custom-scrollbar pr-2 mb-4">
+                            <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium italic">기본 요약 정보가 표시됩니다.</p>
+                        </div>
+                        <button id="detailed-summary-btn" class="google-btn w-full py-3 bg-[#1a73e8] text-white rounded-xl hover:bg-[#1765cc] font-bold shadow-md text-xs transition-all">자세한 요약 및 정밀 타임라인 생성</button>
                     </div>
                 </div>
-                <div id="timeline-box" class="p-10 flex-grow overflow-y-auto custom-scrollbar">
+                <div id="timeline-box" class="p-8 flex-grow overflow-y-auto custom-scrollbar bg-slate-50/30">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Full Chapters</h4>
                     <div id="timeline-empty" class="text-center py-10">
-                        <p class="text-xs text-[#70757a] mb-6 font-medium">타임라인 정보가 없습니다.</p>
+                        <p class="text-xs text-[#70757a] mb-6 font-medium italic opacity-60">생성된 타임라인 정보가 없습니다.</p>
                     </div>
                     <div id="timeline-loading" class="hidden text-center py-10 animate-pulse">
                         <div class="w-10 h-10 border-4 border-[#eee] border-t-[#1a73e8] rounded-full animate-spin mx-auto mb-4"></div>
                         <p class="text-[11px] text-[#70757a] font-bold italic">심층 분석 중...</p>
                     </div>
-                    <div id="timestamp-list" class="hidden"></div>
+                    <div id="timestamp-list" class="hidden space-y-2"></div>
                 </div>
             </div>
         </div>
@@ -523,7 +564,7 @@
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
         let tokenClient;
 
-        // --- 3. 유틸리티 함수 (호이스팅 보장) ---
+        // --- 3. 유틸리티 함수 ---
         function getGeminiApiKey() { return document.getElementById('gemini-api-key-input')?.value.trim() || ""; }
         function getClientId() { return document.getElementById('client-id-input')?.value.trim() || ""; }
         function formatTime(s) { return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
@@ -564,7 +605,7 @@
         // --- 4. 데이터 및 설정 관리 ---
         function saveToLocal() {
             try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); } 
-            catch (e) { addLog("로컬 저장 공간 부족!", "error"); }
+            catch (e) { addLog("저장 공간 부족!", "error"); }
         }
 
         function updateConfigStatus() {
@@ -588,6 +629,19 @@
 
             updateConfigStatus();
             checkEngineEnable();
+        }
+
+        function toggleCredentials(forceCollapse = null) {
+            const details = document.getElementById('credentials-details');
+            const arrow = document.getElementById('toggle-arrow');
+            const shouldCollapse = forceCollapse !== null ? forceCollapse : !details.classList.contains('hidden');
+            if (shouldCollapse) {
+                details.classList.add('hidden');
+                arrow.style.transform = "rotate(0deg)";
+            } else {
+                details.classList.remove('hidden');
+                arrow.style.transform = "rotate(180deg)";
+            }
         }
 
         function resetLibrary() {
@@ -645,7 +699,7 @@
             } catch (e) { addLog("동기화 에러: " + e.message, "error"); }
         }
 
-        // --- 6. 렌더링 및 차트 ---
+        // --- 6. 렌더링 엔진 ---
         function resetPageAndRender() { currentPage = 1; renderResults(); }
         function renderResults() {
             const resultBody = document.getElementById('result-body');
@@ -760,16 +814,52 @@
             }
         }
 
-        // --- 7. 플레이어 및 상세 분석 ---
+        // --- 7. 플레이어 제어 및 심층 분석 렌더링 ---
         function openPlayer(video) {
             activeVideo = video;
             const cont = document.getElementById('player-target-container');
             cont.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
             document.getElementById('modal-video-title').textContent = video.title;
             document.getElementById('modal-video-channel').textContent = video.channelTitle || '';
-            document.getElementById('modal-video-summary').textContent = video.summary || '요약 정보가 없습니다.';
+            
+            renderSummaryUI();
             renderTimelineUI();
+            
             document.getElementById('player-modal').style.display = 'flex';
+        }
+
+        // 요약 UI 렌더링 (심층 블록 지원)
+        function renderSummaryUI() {
+            const summaryContainer = document.getElementById('modal-video-summary-container');
+            summaryContainer.innerHTML = '';
+            
+            if (activeVideo.detailedBlocks && activeVideo.detailedBlocks.length > 0) {
+                activeVideo.detailedBlocks.forEach(block => {
+                    const blockDiv = document.createElement('div');
+                    blockDiv.className = 'summary-block';
+                    blockDiv.innerHTML = `
+                        <div class="summary-subtitle-row">
+                            <button class="summary-seek-btn" data-time="${block.time}">${block.time}</button>
+                            <span class="summary-subtitle-text">${block.subtitle}</span>
+                        </div>
+                        <p class="summary-content-text">${block.content}</p>
+                    `;
+                    blockDiv.querySelector('.summary-seek-btn').onclick = (e) => seekTo(e.target.dataset.time);
+                    summaryContainer.appendChild(blockDiv);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.className = 'text-sm text-slate-700 leading-relaxed font-medium italic';
+                p.id = 'modal-video-summary';
+                p.textContent = activeVideo.summary || '요약 정보가 없습니다.';
+                summaryContainer.appendChild(p);
+            }
+        }
+
+        function seekTo(timeStr) {
+            const parts = timeStr.split(':').map(Number);
+            const sec = parts.length === 3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+parts[1];
+            document.getElementById('main-player-iframe').src = `https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&start=${sec}`;
         }
 
         function renderTimelineUI() {
@@ -782,27 +872,41 @@
                     const btn = document.createElement('button');
                     btn.className = "timestamp-btn";
                     btn.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[11px] mr-2 font-mono">${item.time}</span> ${item.desc}`;
-                    btn.onclick = () => {
-                        const parts = item.time.split(':').map(Number);
-                        const sec = parts.length === 3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+parts[1];
-                        document.getElementById('main-player-iframe').src = `https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&start=${sec}`;
-                    };
+                    btn.onclick = () => seekTo(item.time);
                     listContainer.appendChild(btn);
                 });
             } else { emptyBox.classList.remove('hidden'); listContainer.classList.add('hidden'); }
         }
 
+        // 심층 분석 실행 로직 (블록 구조화)
         async function runDetailedAnalysis() {
             const key = getGeminiApiKey(); if (!key || !activeVideo) return;
             const summaryBtn = document.getElementById('detailed-summary-btn');
-            const summaryText = document.getElementById('modal-video-summary');
             const timelineLoading = document.getElementById('timeline-loading');
             
-            summaryBtn.disabled = true; summaryBtn.textContent = "심층 분석 중...";
+            summaryBtn.disabled = true; summaryBtn.textContent = "구조적 심층 분석 중...";
             timelineLoading.classList.remove('hidden');
 
             try {
-                const prompt = `Detailed YouTube Video Analysis:\nTitle: ${activeVideo.title}\nDescription: ${activeVideo.description || ''}\nTasks: 1. Detail Summary (Korean), 2. Chapters.\nReturn JSON:\n{\n"detailedSummary": "심층 내용",\n"timestamps": [{"time":"MM:SS", "desc":"장면"}]\n}`;
+                const prompt = `Detailed YouTube Analysis Task:
+                Analyze the video Title: ${activeVideo.title}
+                Description: ${activeVideo.description || ''}
+
+                Requirements:
+                1. Break the content into 3-5 logical blocks.
+                2. For each block, provide a subtitle, a timestamp (MM:SS), and a 2-3 sentence summary in Korean.
+                3. Also provide a full list of all notable timestamps/chapters.
+
+                Return ONLY JSON:
+                {
+                  "detailedBlocks": [
+                    {"time": "MM:SS", "subtitle": "부제목", "content": "상세 요약 내용..."}
+                  ],
+                  "timestamps": [
+                    {"time": "MM:SS", "desc": "장면 설명"}
+                  ]
+                }`;
+
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
@@ -810,19 +914,22 @@
                 const aiData = await res.json();
                 const result = JSON.parse(aiData.candidates[0].content.parts[0].text);
                 
-                activeVideo.summary = result.detailedSummary;
+                // 데이터 업데이트
+                activeVideo.detailedBlocks = result.detailedBlocks;
                 const newTimestamps = result.timestamps || [];
                 const existing = activeVideo.timestamps || [];
-                activeVideo.timestamps = newTimestamps.length > existing.length ? newTimestamps : existing;
+                // 기존 데이터와 통합 (중복 제거 로직 생략, 새 정보 우선)
+                activeVideo.timestamps = newTimestamps.length >= existing.length ? newTimestamps : existing;
 
                 const idx = syncedData.findIndex(v => v.id === activeVideo.id);
                 if (idx !== -1) syncedData[idx] = activeVideo;
                 
                 saveToLocal();
-                summaryText.textContent = activeVideo.summary;
-                renderTimelineUI(); renderResults();
-                addLog("심층 분석 완료", "success");
-            } catch (e) { addLog("상세 분석 에러.", "error"); } finally {
+                renderSummaryUI();
+                renderTimelineUI();
+                renderResults();
+                addLog("구조적 심층 분석 완료", "success");
+            } catch (e) { addLog("상세 분석 에러: " + e.message, "error"); } finally {
                 summaryBtn.disabled = false; summaryBtn.textContent = "자세한 요약 및 정밀 타임라인 생성";
                 timelineLoading.classList.add('hidden');
             }
@@ -876,7 +983,7 @@
                 } catch (e) { processed++; }
             }
             clearInterval(timer); analyzeBtn.disabled = false;
-            addLog("분석 작업이 완료되었습니다!", "success");
+            addLog("분석 완료!", "success");
             checkEngineEnable();
             setTimeout(() => { progressCard.classList.add('hidden'); }, 3000);
         }
@@ -950,7 +1057,7 @@
             document.getElementById('export-json-btn').onclick = () => {
                 const blob = new Blob([JSON.stringify(syncedData, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url;
-                a.download = `youtube_library_backup.json`; a.click();
+                a.download = `youtube_sync_${new Date().toISOString().slice(0,10)}.json`; a.click();
             };
 
             if(importInput) {
