@@ -251,6 +251,7 @@
             display: inline-block;
             cursor: pointer;
         }
+        .auto-tag:hover { background: #e0ebff; }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen">
@@ -363,6 +364,22 @@
                             <button id="reanalyze-btn" class="google-btn py-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-[10px] hover:bg-blue-100 transition-colors">기존 재분류</button>
                             <button id="reset-library-btn-trigger" class="google-btn py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-lg text-[10px] hover:bg-rose-100 transition-colors">전체 초기화</button>
                         </div>
+                        
+                        <div class="relative flex items-center py-1">
+                            <div class="flex-grow border-t border-[#eee]"></div>
+                        </div>
+
+                        <!-- CSV 업로드 섹션 복구 -->
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">CSV 업로드</p>
+                            <label for="csv-input" class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all text-center">
+                                <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">파일 선택</p>
+                                <input id="csv-input" type="file" class="hidden" accept=".csv" />
+                            </label>
+                            <div id="file-info" class="hidden bg-[#f1f3f4] p-2 rounded-lg border border-[#e8eaed]">
+                                <span id="file-name" class="text-[10px] font-medium text-[#3c4043] truncate block font-mono"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -405,6 +422,26 @@
                     </div>
                 </div>
 
+                <!-- 실시간 진행률 카드 -->
+                <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <div id="progress-text" class="text-6xl font-black text-[#202124] tracking-tighter">0%</div>
+                            <div class="mt-3 flex gap-4 text-[11px] font-bold uppercase">
+                                <span class="text-slate-400">경과 시간: <span id="elapsed-time" class="text-slate-900">00:00</span></span>
+                                <span class="text-emerald-500">남은 예상 시간: <span id="remaining-time">계산 중...</span></span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[11px] font-black text-emerald-500 uppercase tracking-widest animate-pulse">Ultra Fast Real-time Sync</span>
+                            <span id="progress-item-count" class="text-[10px] text-slate-400 font-bold mt-1 block">0 / 0 items</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-[#f1f3f4] h-3 rounded-full overflow-hidden shadow-inner">
+                        <div id="progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-150"></div>
+                    </div>
+                </div>
+
                 <!-- 통합 라이브러리 -->
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
@@ -432,6 +469,7 @@
                             </div>
                         </div>
 
+                        <!-- 페이지네이션 -->
                         <div id="pagination-container" class="flex items-center justify-between px-2 pt-2 border-t border-slate-200 hidden">
                             <div class="text-[11px] font-bold text-slate-400">
                                 전체 <span id="total-results-count" class="text-[#1a73e8]">0</span>개 중 <span id="current-range-text">1-100</span> 표시
@@ -475,13 +513,13 @@
     <div id="player-modal">
         <div class="modal-content">
             <div id="close-player-x" class="modal-close-x">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" x2="6" x2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </div>
             <div class="player-wrapper" id="player-target-container"></div>
             <div class="flex flex-col h-full bg-white border-l border-[#eee] overflow-hidden">
                 <div class="p-8 border-b border-[#f1f3f4] shrink-0">
                     <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목</h3>
-                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-bold mt-2 tracking-wide uppercase">채널명</p>
+                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-bold mt-4 tracking-wide uppercase">채널명</p>
                     <div class="mt-6 p-5 bg-slate-50 rounded-2xl border border-slate-100 relative">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">AI Structured Summary</p>
@@ -507,7 +545,7 @@
     <div id="confirm-modal">
         <div class="confirm-content">
             <h3 class="text-xl font-bold text-slate-900 mb-4">라이브러리 초기화</h3>
-            <p class="text-sm text-slate-500 mb-8 leading-relaxed">저장된 모든 분석 데이터를 삭제합니다. 이 작업은 되돌릴 수 없습니다. 정말 진행하시겠습니까?</p>
+            <p class="text-sm text-slate-500 mb-8 leading-relaxed">저장된 모든 분석 데이터를 삭제합니다. 정말 진행하시겠습니까?</p>
             <div class="flex gap-3">
                 <button id="cancel-reset-modal" class="google-btn flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200">취소</button>
                 <button id="confirm-reset-btn" class="google-btn flex-1 py-3 bg-rose-600 text-white rounded-xl hover:bg-rose-700 shadow-lg">예, 초기화합니다</button>
@@ -541,7 +579,7 @@
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
         let tokenClient;
 
-        // --- 2. 유틸리티 함수 (전역 스코프 유지) ---
+        // --- 2. 유틸리티 함수 ---
         const getGeminiApiKey = () => document.getElementById('gemini-api-key-input')?.value.trim() || "";
         const getClientId = () => document.getElementById('client-id-input')?.value.trim() || "";
         const formatTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
@@ -614,7 +652,6 @@
         function renderResults() {
             const resultBody = document.getElementById('result-body'), term = document.getElementById('search-input')?.value.toLowerCase() || "", catFilter = document.getElementById('filter-category')?.value || "all", sortVal = document.getElementById('sort-select')?.value || "default", paginationContainer = document.getElementById('pagination-container'), clearSearchBtn = document.getElementById('clear-search-btn');
             if (!resultBody) return;
-
             if (clearSearchBtn) clearSearchBtn.style.display = term ? 'block' : 'none';
 
             let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))) && (catFilter === "all" || (v.categories && v.categories.includes(catFilter))));
@@ -669,7 +706,7 @@
             }
         }
 
-        // --- 5. 플레이어 및 심층 분석 로직 ---
+        // --- 5. 플레이어 및 심층 요약 로직 ---
         function openPlayer(video) {
             activeVideo = video; const cont = document.getElementById('player-target-container');
             cont.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
@@ -698,10 +735,9 @@
         async function runDetailedAnalysis() {
             const key = getGeminiApiKey(); if (!key || !activeVideo) return;
             const btn = document.getElementById('detailed-summary-btn'), loading = document.getElementById('script-loading');
-            btn.disabled = true; btn.textContent = "심층 분석 중..."; loading.classList.remove('hidden');
+            btn.disabled = true; btn.textContent = "분석 중..."; loading.classList.remove('hidden');
             try {
-                const prompt = `Advanced Analysis Task: Provide a comprehensive structural summary of "${activeVideo.title}".
-                Requirements: Split content into 6-10 granular logical segments. For each: MM:SS timestamp, powerful subtitle, and detailed summary (3-4 sentences in Korean). Return ONLY JSON: {"detailedBlocks": [{"time": "MM:SS", "subtitle": "title", "content": "text"}]}`;
+                const prompt = `Advanced Analysis Task: Provide a granular structural summary of "${activeVideo.title}". Split content into 6-10 logical segments. For each: MM:SS timestamp, descriptive subtitle, and detailed summary (3-4 sentences in Korean). Return ONLY JSON: {"detailedBlocks": [{"time": "MM:SS", "subtitle": "title", "content": "text"}]}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) });
                 const aiData = await res.json(), result = JSON.parse(aiData.candidates[0].content.parts[0].text);
                 activeVideo.detailedBlocks = result.detailedBlocks;
@@ -734,8 +770,7 @@
                     const p = Math.round((processed / total) * 100);
                     const pb = document.getElementById('progress-bar');
                     if(pb) pb.style.width = `${p}%`;
-                    if(document.getElementById('progress-text')) document.getElementById('progress-text').textContent = `${p}%`;
-                    if(document.getElementById('progress-item-count')) document.getElementById('progress-item-count').textContent = `${processed} / ${total} items`;
+                    if(pic) pic.textContent = `${processed} / ${total} items`;
                 } catch (e) { processed++; }
             }
             clearInterval(timer); btn.disabled = false; refreshQueueUI(0);
@@ -783,6 +818,7 @@
             } catch (e) { addLog("재생목록 실패.", "error"); }
         }
 
+        // --- 7. Google OAuth 및 카테고리 ---
         function handleAuth() {
             const clientId = getClientId(); if (!clientId) { addLog("Auth 필요.", "error"); toggleCredentials(false); return; }
             tokenClient = google.accounts.oauth2.initTokenClient({
@@ -802,7 +838,6 @@
             } catch (e) { addLog("동기화 실패.", "error"); }
         }
 
-        // --- 7. 카테고리 로직 ---
         function renderCategoriesUI_Logic() {
             const cont = document.getElementById('category-tags'), filter = document.getElementById('filter-category');
             if (!cont || !filter) return; cont.innerHTML = ''; filter.innerHTML = '<option value="all">모든 카테고리</option>';
@@ -834,7 +869,7 @@
             bind('csv-input', 'change', e => { if(!e.target.files[0]) return; const r = new FileReader(); r.onload = ev => { 
                 const lines = ev.target.result.split(/\r?\n/).filter(l => l.trim()), news = lines.slice(1).map(l => { const p = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); const id = p[1]?.match(/[v=|\/]([a-zA-Z0-9_-]{11})/)?.[1]; return { id, title: p[0]?.replace(/"/g,'').trim(), url: p[1]?.replace(/"/g,'').trim() }; }).filter(v => v.id); 
                 const existing = new Set(syncedData.map(d => d.id).concat(csvRawItems.map(i => i.id))), filtered = news.filter(ni => !existing.has(ni.id)), dups = news.length - filtered.length;
-                csvRawItems = [...csvRawItems, ...filtered]; refreshQueueUI(dups);
+                csvRawItems = [...csvRawItems, ...filtered]; addLog("CSV 로드 완료.", "success"); refreshQueueUI(dups);
             }; r.readAsText(e.target.files[0], 'UTF-8'); });
             bind('auto-sync-toggle', 'change', e => localStorage.setItem('auto-sync-enabled', e.target.checked));
             bind('reset-library-btn-trigger', 'click', () => el('confirm-modal').style.display = 'flex');
