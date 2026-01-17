@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - 5,000+ Bulk Hybrid</title>
+    <title>YouTube Smart Organizer - Full Hybrid Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -276,7 +276,7 @@
                     </div>
                 </div>
 
-                <!-- 통합 라이브러리 -->
+                <!-- 통합 라이브러리 (정렬, 필터, 검색, 페이지네이션) -->
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
                         <h2 class="font-bold text-[#3c4043] text-xl">통합 라이브러리</h2>
@@ -367,8 +367,8 @@
 
     <script type="module">
         // --- 1. 환경 설정 및 API 키 ---
-        const BATCH_SIZE = 100; // 100개 통합 요청
-        const THROTTLE_DELAY = 6000; // RPM 10 준수 (6초 간격)
+        const BATCH_SIZE = 100; 
+        const THROTTLE_DELAY = 6000; 
         const ITEMS_PER_PAGE = 100; 
         const GEMINI_MODEL = "gemini-2.5-flash-lite-preview-09-2025"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
@@ -391,7 +391,8 @@
         let activeVideo = null;
         let accessToken = null;
         let currentPage = 1; 
-        let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
+        // 요청하신 기본 카테고리 설정 (IT/가전 -> 테크 등 반영)
+        let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
         // --- 3. 유틸리티 함수 ---
         const getGeminiApiKey = () => document.getElementById('gemini-api-key-input')?.value.trim() || "";
@@ -445,7 +446,7 @@
             
             if (analyzeBtn) analyzeBtn.disabled = !(pendingCount > 0 && hasKey);
             if (hint) {
-                if (pendingCount > 0 && hasKey) hint.textContent = `${pendingCount}개의 새로운 영상 분석 가능 (100개 일괄 추출)`;
+                if (pendingCount > 0 && hasKey) hint.textContent = `${pendingCount}개의 새로운 영상 분석 가능 (RPM 10 대응)`;
                 else if (pendingCount === 0 && syncedData.length > 0) hint.textContent = "모든 항목 분석 완료됨";
                 else hint.textContent = "데이터 연동 및 API 키가 필요합니다";
             }
@@ -460,7 +461,7 @@
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (saved) {
                 syncedData = JSON.parse(saved);
-                addLog(`로컬 저장소에서 ${syncedData.length}개의 분석 데이터를 로드했습니다.`, "success");
+                addLog(`저장소에서 ${syncedData.length}개의 데이터를 로드했습니다.`, "success");
                 renderResults();
                 updateTreemap();
             }
@@ -643,7 +644,6 @@
             document.getElementById('modal-video-title').textContent = video.title;
             document.getElementById('modal-video-channel').textContent = video.channelTitle || '';
             
-            // 설명란에서 타임라인 자동 추출 시도 (AI 분석 전인 경우 대비)
             if (!activeVideo.timestamps || activeVideo.timestamps.length === 0) {
                 const found = parseDescriptionTimestamps(activeVideo.description);
                 if (found.length > 0) {
@@ -703,7 +703,7 @@
             }
         }
 
-        // --- 8. 벌크 하이브리드 분석 엔진 (통합 요청 최적화) ---
+        // --- 8. 벌크 하이브리드 분석 엔진 (통합 요청 최적화 - BATCH 100) ---
         async function runLocalAnalysis() {
             const key = getGeminiApiKey(); if (!key) return;
             const processedIds = new Set(syncedData.map(d => d.id));
@@ -736,19 +736,35 @@
                 }
 
                 let batch = pending.slice(i, i + BATCH_SIZE);
-                addLog(`${i + 1}~${Math.min(i + BATCH_SIZE, totalToAnalyze)}개 메타데이터 및 분석 처리 중...`, "info");
+                addLog(`${i + 1}~${Math.min(i + BATCH_SIZE, totalToAnalyze)}개 분석 중...`, "info");
                 
                 batch = await enrichMetadata(batch);
 
                 try {
-                    // 프롬프트 수정: 타임라인 정보 생성 포함 요청
-                    const prompt = `Task: Classify these ${batch.length} YouTube videos into [${currentCategories.join(', ')}].
-                    For each video, provide:
-                    1. A short Korean summary.
-                    2. 3 relevant #hashtags (tags array).
-                    3. Logical timestamps/chapters (timestamps array of objects with time and desc) based on the description provided.
+                    // 프롬프트 가이드: 요청하신 카테고리 매핑 로직 포함
+                    const prompt = `Classify these ${batch.length} videos into [${currentCategories.join(', ')}]. 
+                    Mapping Rules:
+                    - IT/Electronics/Tech -> 테크
+                    - Cooking/Recipes/Food -> 푸드
+                    - Daily/Vlog/Hobby -> 라이프
+                    - Investing/Economy/Finance -> 경제
+                    - Health/Exercise/Self-Care -> 건강관리
+                    - Travel/Culture/Explore -> 여행
+                    - News/Current Affairs/Documentary -> 정보
+                    - Music/Live/Cover -> 음악
+                    - Game/E-sports/Streaming -> 게임
+                    - Living/Interior/Life Hacks -> 리빙
+                    - Education/Learning/Self-Dev -> 성장
+                    - Fashion/Beauty/Styling -> 자기관리
+                    - Movies/Drama/Animation -> 미디어
+                    
+                    Task for each video:
+                    1. Korean Summary (1-2 sentences).
+                    2. 3 relevant #hashtags.
+                    3. Logical timestamps/chapters based on the description.
+                    
                     Return ONLY a JSON array. 
-                    Format: [{"categories":["Name"],"summary":"Short Korean summary","tags":["#Tag"],"timestamps":[{"time":"MM:SS","desc":"Title"}]}]
+                    Format: [{"categories":["Name"],"summary":"요약","tags":["#Tag"],"timestamps":[{"time":"MM:SS","desc":"Title"}]}]
                     Videos:
                     ${batch.map((d,idx)=>`${idx+1}. Title: ${d.title}\nDescription: ${d.description?.substring(0, 500)}`).join('\n---\n')}`;
                     
@@ -766,7 +782,6 @@
                     
                     const analyzedBatch = batch.map((item, idx) => {
                         const aiRes = results[idx] || {};
-                        // 설명란에 타임라인이 이미 파싱 가능한 경우 우선 사용, 없는 경우 AI가 생성한 것 사용
                         const existingTimestamps = parseDescriptionTimestamps(item.description);
                         return { 
                             ...item, 
@@ -794,7 +809,7 @@
 
             clearInterval(timer);
             document.getElementById('analyze-btn').disabled = false;
-            addLog(`총 ${processedInSession}개의 영상 정보(타임라인 포함) 동기화 완료!`, "success");
+            addLog(`총 ${processedInSession}개의 영상 동기화 완료!`, "success");
             checkEngineEnable();
         }
 
@@ -822,7 +837,7 @@
                 const blob = new Blob([JSON.stringify(syncedData, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.href = url;
-                a.download = `youtube_library_full_sync.json`; a.click();
+                a.download = `youtube_organized_full_sync.json`; a.click();
             };
 
             importInput.addEventListener('change', e => {
@@ -857,7 +872,7 @@
             if (searchInput) searchInput.oninput = resetPageAndRender;
             if (filterCat) filterCat.onchange = resetPageAndRender;
             if (sortSel) sortSel.onchange = resetPageAndRender;
-            document.getElementById('reset-filter-btn').onclick = () => { if(filterCat) filterCat.value = "all"; resetPageAndRender(); };
+            document.getElementById('reset-filter-btn').onclick = () => { if(filterCat) { filterCat.value = "all"; resetPageAndRender(); } };
             document.getElementById('add-category-btn').onclick = () => {
                 const val = document.getElementById('new-category-input')?.value.trim();
                 if (val && !currentCategories.includes(val)) {
