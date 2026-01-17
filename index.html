@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Private Pro</title>
+    <title>YouTube Smart Organizer - Google Style Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -16,10 +16,12 @@
             color: #202124;
         }
         
+        /* 커스텀 스크롤바 */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         
+        /* 트리맵 디자인 */
         .treemap-container {
             display: flex;
             flex-wrap: wrap;
@@ -44,6 +46,7 @@
         
         .treemap-tile:hover { filter: brightness(1.03); transform: translateY(-2px); }
 
+        /* 플레이어 모달 */
         #player-modal {
             display: none;
             position: fixed;
@@ -81,6 +84,7 @@
             .player-wrapper { aspect-ratio: 16/9; height: auto; }
         }
 
+        /* 카테고리 태그 */
         .category-tag-container {
             display: inline-flex;
             align-items: center;
@@ -90,6 +94,7 @@
             border-width: 1px;
             font-size: 12px;
             font-weight: 500;
+            background: #fff;
             transition: all 0.2s;
         }
         .category-tag-container:hover { border-color: #5f6368; background: #f8fafc; }
@@ -103,6 +108,7 @@
         }
         .category-tag-delete:hover { opacity: 1; color: #d93025; }
 
+        /* 공통 구글 스타일 버튼 */
         .google-btn {
             transition: all .2s;
             font-weight: 500;
@@ -112,11 +118,27 @@
             background-color: #1a73e8;
             color: white;
         }
-        .google-btn-primary:hover {
+        /* 활성화 상태일 때만 호버 효과 적용 */
+        .google-btn-primary:enabled:hover {
             background-color: #1765cc;
             box-shadow: 0 1px 3px rgba(60,64,67,.3);
         }
         
+        .google-btn:disabled {
+            background-color: #f1f3f4;
+            color: #bdc1c6;
+            cursor: not-allowed;
+            border-color: #dadce0;
+            box-shadow: none;
+            /* 비활성화 시 모든 호버 효과 강제 제거 */
+            pointer-events: none;
+        }
+        
+        /* 비활성화 상태에서도 이벤트는 받되 스타일 변화는 없도록 설정 */
+        .engine-btn-inactive {
+            pointer-events: auto !important;
+        }
+
         .google-input {
             border: 1px solid #dadce0;
             transition: border .2s;
@@ -151,7 +173,7 @@
         <!-- Header -->
         <header class="flex items-center justify-between mb-10">
             <div class="flex items-center gap-4">
-                <div class="p-3 bg-red-600 rounded-xl text-white">
+                <div class="p-3 bg-red-600 rounded-xl text-white shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
@@ -161,134 +183,150 @@
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Settings -->
+                
+                <!-- 1. 분석 제어 섹션 (최상단) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-red-600">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">AI 분석 엔진</h2>
+                    <div class="flex flex-col gap-3">
+                        <button id="analyze-10-btn" disabled class="google-btn engine-btn-inactive w-full py-2.5 bg-white border border-[#dadce0] text-[#5f6368] rounded-lg text-xs font-bold enabled:hover:bg-[#f8f9fa] enabled:hover:border-[#5f6368] enabled:hover:text-[#202124] transition-all">10개 퀵 테스트 분석</button>
+                        <button id="analyze-btn" disabled class="google-btn engine-btn-inactive google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all">전체 데이터 분석 시작</button>
+                        <p id="engine-status-hint" class="text-[10px] text-rose-500 text-center font-medium mt-1">데이터를 먼저 연동해주세요</p>
+                    </div>
+                </div>
+
+                <!-- 2. 데이터 소스 연동 섹션 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Engine Configuration</h2>
-                    <div class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] text-[#70757a] font-bold ml-1">Gemini API Key</label>
-                            <input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 소스 연동</h2>
+                    <div class="space-y-5">
+                        <!-- API 설정 -->
+                        <div class="space-y-3">
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-[#70757a] font-bold ml-1 uppercase">Gemini API 키</label>
+                                <input type="password" id="gemini-api-key-input" placeholder="키를 입력하세요" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none font-medium">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-[#70757a] font-bold ml-1 uppercase">구글 클라이언트 ID</label>
+                                <input type="text" id="client-id-input" placeholder="클라이언트 ID 입력" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none font-medium">
+                            </div>
                         </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] text-[#70757a] font-bold ml-1">OAuth Client ID</label>
-                            <input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
+
+                        <!-- 자동 싱크 -->
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">자동 싱크</p>
+                            <button id="auth-btn" class="google-btn w-full py-2.5 bg-[#202124] text-white rounded-lg text-xs font-medium hover:bg-black transition-all">좋아요 표시한 영상 가져오기</button>
                         </div>
-                        <button id="auth-btn" class="google-btn w-full py-2.5 bg-[#202124] text-white rounded-lg text-sm font-medium hover:bg-black">1. Sync Liked Videos</button>
                         
-                        <div class="relative py-1 flex items-center">
+                        <div class="relative flex items-center">
                             <div class="flex-grow border-t border-[#eee]"></div>
-                            <span class="flex-shrink mx-3 text-[10px] text-[#bdc1c6] font-bold">OR</span>
+                            <span class="flex-shrink mx-3 text-[9px] text-[#bdc1c6] font-bold">또는</span>
                             <div class="flex-grow border-t border-[#eee]"></div>
                         </div>
 
-                        <div class="space-y-1.5">
-                            <label class="text-[11px] text-[#70757a] font-bold ml-1">Playlist ID</label>
-                            <input type="text" id="playlist-id-input" placeholder="PL..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
-                            <button id="playlist-sync-btn" class="google-btn w-full mt-2 py-2.5 bg-[#f1f3f4] text-[#3c4043] rounded-lg text-xs font-bold hover:bg-[#e8eaed]">2. Sync by Playlist</button>
+                        <!-- 수동 싱크 -->
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">수동 싱크</p>
+                            <input type="text" id="playlist-id-input" placeholder="재생목록 ID (PL...)" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none font-medium">
+                            <button id="playlist-sync-btn" class="google-btn w-full py-2 bg-[#f1f3f4] text-[#3c4043] rounded-lg text-[11px] font-bold hover:bg-[#e8eaed] transition-all">재생목록 로드하기</button>
+                        </div>
+
+                        <div class="relative flex items-center">
+                            <div class="flex-grow border-t border-[#eee]"></div>
+                            <span class="flex-shrink mx-3 text-[9px] text-[#bdc1c6] font-bold">또는</span>
+                            <div class="flex-grow border-t border-[#eee]"></div>
+                        </div>
+
+                        <!-- 파일 업로드 -->
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">파일 업로드</p>
+                            <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] transition-all group text-center">
+                                <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">CSV 파일 선택</p>
+                                <input id="csv-input" type="file" class="hidden" accept=".csv" />
+                            </label>
+                            <div id="file-info" class="hidden bg-[#f1f3f4] p-2 rounded-lg border border-[#e8eaed]">
+                                <span id="file-name" class="text-[10px] font-medium text-[#3c4043] truncate block font-mono"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Manual Source (RESTORED) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Manual Import</h2>
-                    <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] transition-all group text-center">
-                        <p class="text-[11px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">Upload CSV File</p>
-                        <input id="csv-input" type="file" class="hidden" accept=".csv" />
-                    </label>
-                    <div id="file-info" class="mt-3 hidden bg-[#f1f3f4] p-3 rounded-lg border border-[#e8eaed]">
-                        <span id="file-name" class="text-[11px] font-medium text-[#3c4043] truncate block font-mono"></span>
-                    </div>
-                </div>
-
-                <!-- Category Manager -->
+                <!-- 3. 카테고리 관리 -->
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Categories</h2>
-                    
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 관리</h2>
                     <div class="flex flex-nowrap gap-2 mb-5 items-center">
-                        <input type="text" id="new-category-input" placeholder="New category" class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
+                        <input type="text" id="new-category-input" placeholder="새 카테고리" class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
                         <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 font-bold">+</button>
                     </div>
-
-                    <div id="category-tags" class="flex flex-wrap gap-2 mb-6 max-h-60 overflow-y-auto custom-scrollbar pr-1"></div>
-                    
-                    <div class="flex flex-col gap-3 pt-5 border-t border-[#f1f3f4]">
-                        <button id="analyze-10-btn" class="google-btn w-full py-2 bg-white border border-[#dadce0] text-[#5f6368] rounded-lg text-xs font-bold hover:bg-[#f8f9fa]">Quick Test (10 Items)</button>
-                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-3.5 rounded-xl text-sm font-bold shadow-md">Run Analysis Engine</button>
-                    </div>
+                    <div id="category-tags" class="flex flex-wrap gap-2 mb-2 max-h-60 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
-                <!-- Logs -->
+                <!-- 4. 로그 콘솔 -->
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2">
-                        <div class="text-[#81c995] font-bold">> System Ready.</div>
+                        <div class="text-[#81c995] font-bold">> 시스템 준비 완료.</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Area -->
+            <!-- 메인 영역 -->
             <div class="lg:col-span-3 space-y-8">
-                <!-- Dashboard (Treemap) -->
+                <!-- 대시보드 -->
                 <div id="dashboard-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
                     <div class="flex items-center justify-between mb-8">
-                        <h2 class="text-lg font-bold text-[#3c4043] tracking-tight">Interest Distribution</h2>
-                        <button id="reset-filter-btn" class="google-btn text-[11px] bg-[#f1f3f4] text-[#5f6368] font-bold px-4 py-2 rounded-full hover:bg-[#e8eaed]">Reset Filters</button>
+                        <h2 class="text-lg font-bold text-[#3c4043] tracking-tight">관심사 분포 리포트</h2>
+                        <button id="reset-filter-btn" class="google-btn text-[11px] bg-[#f1f3f4] text-[#5f6368] font-bold px-4 py-2 rounded-full hover:bg-[#e8eaed]">필터 초기화</button>
                     </div>
                     <div id="treemap-content" class="treemap-container"></div>
                 </div>
 
-                <!-- Progress -->
+                <!-- 분석 진행바 -->
                 <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
                     <div class="flex justify-between items-end mb-4">
                         <div id="progress-text" class="text-5xl font-bold text-[#202124] tracking-tighter">0%</div>
-                        <span class="text-xs font-bold text-[#1a73e8] uppercase tracking-widest animate-pulse">Analysis in progress...</span>
+                        <span class="text-xs font-bold text-[#1a73e8] uppercase tracking-widest animate-pulse">분석 진행 중...</span>
                     </div>
                     <div class="w-full bg-[#f1f3f4] h-2.5 rounded-full overflow-hidden">
                         <div id="progress-bar" class="bg-[#1a73e8] h-full w-0 transition-all duration-700"></div>
                     </div>
                 </div>
 
-                <!-- Toolbar -->
+                <!-- 툴바 -->
                 <div id="toolbar" class="bg-white p-4 rounded-2xl shadow-sm border border-[#dadce0] flex flex-wrap items-center gap-4 transition-all opacity-50 pointer-events-none">
                     <div class="flex-grow relative">
-                        <input type="text" id="search-input" placeholder="Search library..." class="google-input w-full px-6 py-3 bg-[#f1f3f4] rounded-xl text-sm font-medium outline-none focus:bg-white transition-all">
+                        <input type="text" id="search-input" placeholder="영상 제목 또는 채널로 검색..." class="google-input w-full px-6 py-3 bg-[#f1f3f4] rounded-xl text-sm font-medium outline-none focus:bg-white transition-all">
                     </div>
                     <div class="flex gap-3">
                         <select id="filter-category" class="google-input bg-white rounded-lg px-4 py-3 text-xs font-bold outline-none cursor-pointer appearance-none pr-8"></select>
                         <select id="sort-select" class="google-input bg-white rounded-lg px-4 py-3 text-xs font-bold outline-none cursor-pointer appearance-none pr-8">
-                            <option value="default">Sort by Order</option>
-                            <option value="views-desc">Most Views</option>
-                            <option value="views-asc">Least Views</option>
-                            <option value="duration-desc">Longest Video</option>
-                            <option value="duration-asc">Shortest Video</option>
-                            <option value="newest">Latest Upload</option>
-                            <option value="title-asc">Alphabetical (A-Z)</option>
+                            <option value="default">기본 순서</option>
+                            <option value="views-desc">조회수 높은 순</option>
+                            <option value="newest">최신 등록 순</option>
+                            <option value="title-asc">가나다 순</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Matrix Table -->
+                <!-- 테이블 -->
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
-                        <h2 class="font-bold text-[#3c4043] text-xl">Organized Matrix</h2>
+                        <h2 class="font-bold text-[#3c4043] text-xl">콘텐츠 분석 목록</h2>
                         <div class="flex gap-3 items-center">
-                            <button id="export-csv-btn" class="google-btn hidden text-[11px] bg-[#e6f4ea] text-[#137333] hover:bg-[#137333] hover:text-white px-5 py-2 rounded-lg font-bold border border-[#ceead6]">Export CSV</button>
-                            <span id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0 Items</span>
+                            <button id="export-csv-btn" class="google-btn hidden text-[11px] bg-[#e6f4ea] text-[#137333] hover:bg-[#137333] hover:text-white px-5 py-2 rounded-lg font-bold border border-[#ceead6]">CSV 내보내기</button>
+                            <span id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0개 준비됨</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-sm text-left border-collapse table-fixed">
                             <thead class="bg-[#f8f9fa] text-[#5f6368] font-bold text-[10px] uppercase tracking-wider border-b border-[#dadce0]">
                                 <tr>
-                                    <th class="px-8 py-4 w-48 text-center">Video</th>
-                                    <th class="px-8 py-4 w-60">Classification</th>
-                                    <th class="px-8 py-4">AI Insights Report</th>
-                                    <th class="px-8 py-4 w-36 text-right">Statistics</th>
+                                    <th class="px-8 py-4 w-48 text-center">영상 정보</th>
+                                    <th class="px-8 py-4 w-60">분류 정보</th>
+                                    <th class="px-8 py-4">AI 분석 리포트</th>
+                                    <th class="px-8 py-4 w-36 text-right">통계</th>
                                 </tr>
                             </thead>
                             <tbody id="result-body" class="divide-y divide-[#eee]">
                                 <tr id="empty-state">
-                                    <td colspan="4" class="px-10 py-64 text-center text-[#bdc1c6] font-medium italic">Load a data source to begin organizing your library.</td>
+                                    <td colspan="4" class="px-10 py-64 text-center text-[#bdc1c6] font-medium italic">데이터 소스를 연동하여 분석을 시작하세요.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -298,29 +336,29 @@
         </main>
     </div>
 
-    <!-- Modal Player -->
+    <!-- 모달 플레이어 -->
     <div id="player-modal">
         <div class="modal-content">
             <div class="player-wrapper" id="player-target-container"></div>
             <div class="flex flex-col h-full bg-white border-l border-[#eee]">
                 <div class="p-10 border-b border-[#f1f3f4]">
-                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">Title</h3>
-                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">Channel</p>
+                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목</h3>
+                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">채널</p>
                     
                     <div class="mt-8 flex gap-3">
-                        <button id="close-modal-btn" class="google-btn flex-1 text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all">Close</button>
-                        <a id="external-link" target="_blank" class="google-btn flex-1 text-xs bg-[#f1f3f4] text-[#3c4043] py-3.5 rounded-xl text-center hover:bg-[#e8eaed] font-bold">Open Link</a>
+                        <button id="close-modal-btn" class="google-btn flex-1 text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all">닫기</button>
+                        <a id="external-link" target="_blank" class="google-btn flex-1 text-xs bg-[#f1f3f4] text-[#3c4043] py-3.5 rounded-xl text-center hover:bg-[#e8eaed] font-bold">원본 링크</a>
                     </div>
                 </div>
                 
                 <div id="timeline-box" class="p-10 flex-grow overflow-y-auto custom-scrollbar">
                     <div id="timeline-not-ready" class="py-16 text-center space-y-6">
-                        <p class="text-xs text-[#70757a] font-medium leading-relaxed">No timeline metadata.<br><span class="text-[#bdc1c6]">Generate AI Chapters?</span></p>
-                        <button id="generate-timeline-btn" class="google-btn w-full py-4 bg-[#f8f9fa] text-[#1a73e8] text-xs font-bold rounded-xl border border-[#dadce0] hover:bg-[#f1f3f4]">Generate AI Chapters</button>
+                        <p class="text-xs text-[#70757a] font-medium leading-relaxed">타임라인 정보가 없습니다.<br><span class="text-[#bdc1c6]">AI로 챕터를 생성할까요?</span></p>
+                        <button id="generate-timeline-btn" class="google-btn w-full py-4 bg-[#f8f9fa] text-[#1a73e8] text-xs font-bold rounded-xl border border-[#dadce0] hover:bg-[#f1f3f4]">AI 타임라인 생성</button>
                     </div>
                     <div id="timeline-loading" class="hidden py-16 animate-pulse text-center">
                         <div class="w-10 h-10 border-4 border-[#eee] border-t-[#1a73e8] rounded-full animate-spin mx-auto mb-4"></div>
-                        <p class="text-[11px] text-[#70757a] font-bold italic">AI brain thinking...</p>
+                        <p class="text-[11px] text-[#70757a] font-bold italic">AI 분석 중...</p>
                     </div>
                     <div id="timestamp-list" class="hidden space-y-3"></div>
                 </div>
@@ -329,9 +367,9 @@
     </div>
 
     <script type="module">
-        // --- API & Core State ---
+        // --- 설정 및 상태 ---
         const ytApiKey = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs";
-        const BATCH_SIZE = 50; 
+        const BATCH_SIZE = 30; 
         
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
         let csvData = [];
@@ -351,7 +389,7 @@
             { border: 'border-cyan-300', text: 'text-cyan-700', bg: 'bg-cyan-50' }
         ];
 
-        // --- DOM Elements ---
+        // --- 요소 정의 ---
         const csvInput = document.getElementById('csv-input');
         const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
         const clientIdInput = document.getElementById('client-id-input');
@@ -370,8 +408,9 @@
         const treemapContent = document.getElementById('treemap-content');
         const playerModal = document.getElementById('player-modal');
         const timestampList = document.getElementById('timestamp-list');
+        const engineHint = document.getElementById('engine-status-hint');
 
-        // --- Init & Persistence ---
+        // --- 초기화 로직 ---
         const saveSettings = () => {
             localStorage.setItem('gemini-key', geminiApiKeyInput.value);
             localStorage.setItem('client-id', clientIdInput.value);
@@ -383,7 +422,22 @@
         geminiApiKeyInput.addEventListener('input', saveSettings);
         clientIdInput.addEventListener('input', saveSettings);
 
-        // --- Utility Functions ---
+        // --- 엔진 활성화 체크 ---
+        const checkEngineEnable = () => {
+            if (csvData.length > 0) {
+                analyzeBtn.disabled = false;
+                analyze10Btn.disabled = false;
+                engineHint.textContent = `${csvData.length}개 항목이 분석 가능합니다.`;
+                engineHint.classList.replace('text-rose-500', 'text-emerald-600');
+            } else {
+                analyzeBtn.disabled = true;
+                analyze10Btn.disabled = true;
+                engineHint.textContent = `데이터를 먼저 연동해주세요`;
+                engineHint.classList.replace('text-emerald-600', 'text-rose-500');
+            }
+        };
+
+        // --- 유틸리티 ---
         const getGeminiApiKey = () => geminiApiKeyInput.value.trim();
         const getStyleForCat = (cat) => {
             let hash = 0;
@@ -408,7 +462,7 @@
             return { id: (match && match[2].length === 11) ? match[2] : null };
         };
 
-        // --- Category Management ---
+        // --- 카테고리 렌더링 ---
         const renderCategoriesUI = () => {
             categoryTags.innerHTML = '';
             filterCategory.innerHTML = '<option value="all">모든 카테고리</option>';
@@ -434,25 +488,25 @@
             if (name && !currentCategories.includes(name)) { currentCategories.push(name); newCategoryInput.value = ''; renderCategoriesUI(); }
         };
 
-        // --- Data Sync (OAuth & Playlist) ---
+        // --- 구글 로그인 및 데이터 연동 ---
         authBtn.onclick = () => {
             const clientId = clientIdInput.value.trim();
-            if (!clientId) { addLog("OAuth Client ID is required.", "error"); return; }
+            if (!clientId) { addLog("구글 클라이언트 ID를 입력하세요.", "error"); return; }
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: clientId,
                     scope: 'https://www.googleapis.com/auth/youtube.readonly',
                     callback: (res) => {
-                        if (res.error) { addLog("Auth Failed.", "error"); return; }
+                        if (res.error) { addLog("인증 실패.", "error"); return; }
                         accessToken = res.access_token;
-                        authBtn.textContent = "✓ Sync Active";
+                        authBtn.textContent = "✓ 계정 연동됨";
                         authBtn.classList.replace('bg-[#202124]', 'bg-[#188038]');
-                        addLog("Sync Ready. Fetching videos...", "success");
+                        addLog("OAuth 연동 성공. 영상을 불러옵니다.", "success");
                         fetchLikedVideos();
                     }
                 });
                 tokenClient.requestAccessToken({ prompt: 'consent' });
-            } catch (err) { addLog("OAuth Init Error.", "error"); }
+            } catch (err) { addLog("인증 초기화 실패.", "error"); }
         };
 
         async function fetchLikedVideos() {
@@ -467,19 +521,20 @@
                         viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    addLog(`Synced ${synced.length} liked videos.`, "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Items`;
+                    addLog(`좋아요한 영상 ${synced.length}개 동기화 완료.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length}개 로드됨`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
+                    checkEngineEnable();
                     renderResults();
                 }
-            } catch (e) { addLog("Fetch Failed.", "error"); }
+            } catch (e) { addLog("데이터 연동 중 오류 발생.", "error"); }
         }
 
         playlistSyncBtn.onclick = async () => {
             const pid = playlistIdInput.value.trim();
             if(!pid) return;
-            addLog("Playlist items requested...", "info");
+            addLog("재생목록 데이터를 요청 중...", "info");
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${pid}&maxResults=50&key=${ytApiKey}`);
                 const data = await res.json();
@@ -492,79 +547,24 @@
                         viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    playlistSyncBtn.textContent = "✓ Playlist Synced";
+                    playlistSyncBtn.textContent = "✓ 재생목록 로드됨";
                     playlistSyncBtn.classList.replace('bg-[#f1f3f4]', 'bg-[#e6f4ea]');
-                    addLog(`Synced ${synced.length} playlist items.`, "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
+                    addLog(`재생목록에서 ${synced.length}개를 가져왔습니다.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length}개 로드됨`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
+                    checkEngineEnable();
                     renderResults();
                 }
-            } catch(e) { addLog("Sync Failed.", "error"); }
+            } catch(e) { addLog("연동 실패.", "error"); }
         };
 
-        // --- Timeline & AI Chapters ---
-        const extractNativeTimestamps = (desc) => {
-            if (!desc) return null;
-            const timeRegex = /(\d{1,2}:\d{2}(?::\d{2})?)/g;
-            const lines = desc.split('\n');
-            const items = [];
-            lines.forEach(line => {
-                const matches = line.match(timeRegex);
-                if (matches) {
-                    const time = matches[0];
-                    const rawText = line.replace(time, '').trim().replace(/^[-:.]\s*/, '').trim();
-                    if (rawText.length > 1) items.push({ time, desc: rawText });
-                }
-            });
-            return items.length > 0 ? items.slice(0, 20) : null;
-        };
-
-        const showTimestamps = (ts) => {
-            document.getElementById('timeline-not-ready').classList.add('hidden');
-            document.getElementById('timeline-loading').classList.add('hidden');
-            timestampList.innerHTML = '';
-            timestampList.classList.remove('hidden');
-            ts.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = "timestamp-btn";
-                btn.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[11px] mr-2">${item.time}</span> ${item.desc}`;
-                btn.onclick = () => {
-                    const parts = item.time.split(':').map(Number);
-                    const seconds = parts.length === 3 ? parts[0] * 3600 + parts[1] * 60 + parts[2] : parts[0] * 60 + parts[1];
-                    loadStablePlayer(activeVideo.url, seconds);
-                };
-                timestampList.appendChild(btn);
-            });
-        };
-
-        document.getElementById('generate-timeline-btn').onclick = async () => {
-            const geminiKey = getGeminiApiKey();
-            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
-            document.getElementById('timeline-not-ready').classList.add('hidden');
-            document.getElementById('timeline-loading').classList.remove('hidden');
-            const prompt = `Video Summary: Title: ${activeVideo.title}, Description: ${activeVideo.description?.substring(0, 400)}. Create 5 logical chapters. Format: JSON array [{"time": "MM:SS", "desc": "Context"}] only.`;
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
-                });
-                const data = await res.json();
-                const result = JSON.parse(data.candidates[0].content.parts[0].text);
-                activeVideo.timestamps = result;
-                showTimestamps(result);
-            } catch (e) { 
-                addLog("AI Generation Failed.", "error");
-                document.getElementById('timeline-loading').classList.add('hidden');
-                document.getElementById('timeline-not-ready').classList.remove('hidden');
-            }
-        };
-
-        // --- Analysis Engine ---
+        // --- 분석 엔진 로직 ---
         async function runAnalysis(limit) {
             const geminiKey = getGeminiApiKey();
-            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
+            if(!geminiKey) { addLog("Gemini API 키가 필요합니다.", "error"); return; }
             if (csvData.length === 0) return;
+            
             analyzeBtn.disabled = true; analyze10Btn.disabled = true;
             document.getElementById('progress-card').classList.remove('hidden');
             resultBody.innerHTML = ''; analysisResults = [];
@@ -573,21 +573,22 @@
             for (let i = 0; i < total; i += BATCH_SIZE) {
                 const batch = working.slice(i, i + BATCH_SIZE);
                 try {
-                    const prompt = `Classify into categories: [${currentCategories.join(', ')}]. JSON: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
+                    const prompt = `Classify into: [${currentCategories.join(', ')}]. JSON array: [{"categories":["Name"],"subTags":["#Tag"],"summary":"Short Korean summary"}] for: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
                     });
                     const aiData = await res.json();
+                    if(!aiData.candidates?.[0]?.content?.parts?.[0]?.text) throw new Error("API 오류");
                     const aiResults = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     aiResults.forEach((r, idx) => { if (batch[idx]) analysisResults.push({ ...batch[idx], ...r }); });
                     renderResults(); updateTreemap();
-                } catch (e) { addLog("Batch failed.", "error"); }
+                } catch (e) { addLog("분석 중 오류 발생.", "error"); }
                 const p = Math.round((analysisResults.length / total) * 100);
                 document.getElementById('progress-bar').style.width = `${p}%`;
                 document.getElementById('progress-text').textContent = `${p}%`;
             }
-            addLog("Analysis Completed.", "success");
+            addLog("모든 분석이 완료되었습니다!", "success");
             analyzeBtn.disabled = false; analyze10Btn.disabled = false;
             exportCsvBtn.classList.remove('hidden');
         }
@@ -595,7 +596,7 @@
         analyze10Btn.onclick = () => runAnalysis(10);
         analyzeBtn.onclick = () => runAnalysis();
 
-        // --- View Handlers ---
+        // --- 화면 렌더링 핸들러 ---
         const loadStablePlayer = (url, start = 0) => {
             const { id } = parseYoutubeInfo(url);
             const container = document.getElementById('player-target-container');
@@ -633,23 +634,45 @@
             else if (sortVal === 'newest') filtered.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
             else if (sortVal === 'title-asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
             resultBody.innerHTML = '';
-            if(filtered.length === 0) {
-                resultBody.innerHTML = '<tr><td colspan="4" class="py-20 text-center text-slate-300">No content found.</td></tr>';
-                return;
-            }
+            if(filtered.length === 0) { resultBody.innerHTML = '<tr><td colspan="4" class="py-20 text-center text-slate-300">표시할 영상이 없습니다.</td></tr>'; return; }
             filtered.forEach(data => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
                 const cats = (data.categories || []).map(c => { const style = getStyleForCat(c); return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`; }).join('');
-                tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}</div><div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button><p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary || 'Awaiting analysis...'}</p></td><td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right"><div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div></td>`;
+                tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}</div><div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button><p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary || '분석 대기 중...'}</p></td><td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right"><div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div></td>`;
                 tr.querySelector('.open-p').onclick = () => {
                     activeVideo = data;
                     document.getElementById('modal-video-title').textContent = data.title;
                     document.getElementById('modal-video-channel').textContent = data.channelTitle;
                     loadStablePlayer(data.url);
-                    const ts = data.timestamps || extractNativeTimestamps(data.description);
+                    const ts = data.timestamps || (() => {
+                        const timeRegex = /(\d{1,2}:\d{2}(?::\d{2})?)/g;
+                        const lines = (data.description || "").split('\n');
+                        const found = [];
+                        lines.forEach(line => {
+                            const match = line.match(timeRegex);
+                            if (match) {
+                                const time = match[0];
+                                const text = line.replace(time, '').trim().replace(/^[-:.]\s*/, '').trim();
+                                if (text.length > 1) found.push({ time, desc: text });
+                            }
+                        });
+                        return found.length > 0 ? found.slice(0, 20) : null;
+                    })();
                     if (ts) {
-                        showTimestamps(ts);
+                        document.getElementById('timeline-not-ready').classList.add('hidden');
+                        timestampList.innerHTML = ''; timestampList.classList.remove('hidden');
+                        ts.forEach(item => {
+                            const btn = document.createElement('button');
+                            btn.className = "timestamp-btn";
+                            btn.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[11px] mr-2 font-mono">${item.time}</span> ${item.desc}`;
+                            btn.onclick = () => {
+                                const p = item.time.split(':').map(Number);
+                                const s = p.length === 3 ? p[0]*3600+p[1]*60+p[2] : p[0]*60+p[1];
+                                loadStablePlayer(activeVideo.url, s);
+                            };
+                            timestampList.appendChild(btn);
+                        });
                     } else {
                         document.getElementById('timeline-not-ready').classList.remove('hidden');
                         timestampList.classList.add('hidden');
@@ -665,7 +688,10 @@
                 const r = new FileReader(); r.onload = ev => {
                     const rows = ev.target.result.split('\n').filter(l => l.trim());
                     csvData = rows.slice(1).map(row => { const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() }; }).filter(v => v.url);
-                    addLog(`CSV loaded.`, "success"); renderResults();
+                    addLog(`CSV 파일 로드 완료.`, "success"); 
+                    document.getElementById('file-info').classList.remove('hidden');
+                    document.getElementById('file-name').textContent = e.target.files[0].name;
+                    checkEngineEnable(); renderResults();
                 }; r.readAsText(e.target.files[0]);
             };
         }
