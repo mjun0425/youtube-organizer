@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Google Style Pro</title>
+    <title>YouTube Smart Organizer - Private Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -16,9 +16,9 @@
             color: #202124;
         }
         
-        .terminal-scroll::-webkit-scrollbar { width: 4px; }
-        .terminal-scroll::-webkit-scrollbar-track { background: #f8fafc; }
-        .terminal-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         
         .treemap-container {
             display: flex;
@@ -48,11 +48,11 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(32, 33, 36, 0.6);
+            background: rgba(32, 33, 36, 0.7);
             z-index: 100;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
         }
 
         .modal-content {
@@ -64,7 +64,7 @@
             display: grid;
             grid-template-columns: 1fr 400px;
             height: 85vh;
-            box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
+            box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14);
         }
 
         .player-wrapper {
@@ -90,7 +90,6 @@
             border-width: 1px;
             font-size: 12px;
             font-weight: 500;
-            background: #fff;
             transition: all 0.2s;
         }
         .category-tag-container:hover { border-color: #5f6368; background: #f8fafc; }
@@ -105,7 +104,7 @@
         .category-tag-delete:hover { opacity: 1; color: #d93025; }
 
         .google-btn {
-            transition: background-color .2s, box-shadow .2s;
+            transition: all .2s;
             font-weight: 500;
         }
         
@@ -115,16 +114,34 @@
         }
         .google-btn-primary:hover {
             background-color: #1765cc;
-            box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            box-shadow: 0 1px 3px rgba(60,64,67,.3);
         }
         
         .google-input {
             border: 1px solid #dadce0;
-            transition: border .2s, box-shadow .2s;
+            transition: border .2s;
         }
         .google-input:focus {
             border-color: #1a73e8;
             box-shadow: 0 0 0 2px rgba(26,115,232,0.1);
+        }
+
+        .timestamp-btn {
+            width: 100%;
+            text-align: left;
+            padding: 12px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .timestamp-btn:hover {
+            background: #fff;
+            border-color: #1a73e8;
+            color: #1a73e8;
+            transform: translateX(4px);
         }
     </style>
 </head>
@@ -144,19 +161,19 @@
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
-                <!-- Settings & Keys -->
+                <!-- Settings -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Engine Configuration</h2>
                     <div class="space-y-4">
                         <div class="space-y-1.5">
                             <label class="text-[11px] text-[#70757a] font-bold ml-1">Gemini API Key</label>
-                            <input type="password" id="gemini-api-key-input" placeholder="API Key..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
+                            <input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-[11px] text-[#70757a] font-bold ml-1">OAuth Client ID</label>
-                            <input type="text" id="client-id-input" placeholder="Google Client ID..." class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
+                            <input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-white rounded-lg px-4 py-2.5 text-sm outline-none font-medium">
                         </div>
-                        <button id="auth-btn" class="google-btn w-full py-3 bg-[#202124] text-white rounded-lg text-sm font-medium hover:bg-black">1. Sync Liked Videos</button>
+                        <button id="auth-btn" class="google-btn w-full py-2.5 bg-[#202124] text-white rounded-lg text-sm font-medium hover:bg-black">1. Sync Liked Videos</button>
                         
                         <div class="relative py-1 flex items-center">
                             <div class="flex-grow border-t border-[#eee]"></div>
@@ -172,7 +189,7 @@
                     </div>
                 </div>
 
-                <!-- Manual Source -->
+                <!-- Manual Source (RESTORED) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Manual Import</h2>
                     <label class="flex flex-col items-center justify-center w-full h-20 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] transition-all group text-center">
@@ -189,21 +206,21 @@
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Categories</h2>
                     
                     <div class="flex flex-nowrap gap-2 mb-5 items-center">
-                        <input type="text" id="new-category-input" placeholder="Add category..." class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
+                        <input type="text" id="new-category-input" placeholder="New category" class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
                         <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 font-bold">+</button>
                     </div>
 
-                    <div id="category-tags" class="flex flex-wrap gap-2 mb-6 max-h-64 overflow-y-auto terminal-scroll"></div>
+                    <div id="category-tags" class="flex flex-wrap gap-2 mb-6 max-h-60 overflow-y-auto custom-scrollbar pr-1"></div>
                     
                     <div class="flex flex-col gap-3 pt-5 border-t border-[#f1f3f4]">
-                        <button id="analyze-10-btn" class="google-btn w-full py-2.5 bg-white border border-[#dadce0] text-[#5f6368] rounded-lg text-xs font-bold hover:bg-[#f8f9fa]">Quick Test (10 Items)</button>
-                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md">Run Analysis Engine</button>
+                        <button id="analyze-10-btn" class="google-btn w-full py-2 bg-white border border-[#dadce0] text-[#5f6368] rounded-lg text-xs font-bold hover:bg-[#f8f9fa]">Quick Test (10 Items)</button>
+                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-3.5 rounded-xl text-sm font-bold shadow-md">Run Analysis Engine</button>
                     </div>
                 </div>
 
                 <!-- Logs -->
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
-                    <div id="log-console" class="h-40 terminal-scroll overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2">
+                    <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2">
                         <div class="text-[#81c995] font-bold">> System Ready.</div>
                     </div>
                 </div>
@@ -211,7 +228,7 @@
 
             <!-- Main Area -->
             <div class="lg:col-span-3 space-y-8">
-                <!-- Treemap -->
+                <!-- Dashboard (Treemap) -->
                 <div id="dashboard-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-lg font-bold text-[#3c4043] tracking-tight">Interest Distribution</h2>
@@ -234,7 +251,7 @@
                 <!-- Toolbar -->
                 <div id="toolbar" class="bg-white p-4 rounded-2xl shadow-sm border border-[#dadce0] flex flex-wrap items-center gap-4 transition-all opacity-50 pointer-events-none">
                     <div class="flex-grow relative">
-                        <input type="text" id="search-input" placeholder="Search by keyword..." class="google-input w-full px-6 py-3.5 bg-[#f1f3f4] rounded-xl text-sm font-medium outline-none focus:bg-white transition-all">
+                        <input type="text" id="search-input" placeholder="Search library..." class="google-input w-full px-6 py-3 bg-[#f1f3f4] rounded-xl text-sm font-medium outline-none focus:bg-white transition-all">
                     </div>
                     <div class="flex gap-3">
                         <select id="filter-category" class="google-input bg-white rounded-lg px-4 py-3 text-xs font-bold outline-none cursor-pointer appearance-none pr-8"></select>
@@ -256,7 +273,7 @@
                         <h2 class="font-bold text-[#3c4043] text-xl">Organized Matrix</h2>
                         <div class="flex gap-3 items-center">
                             <button id="export-csv-btn" class="google-btn hidden text-[11px] bg-[#e6f4ea] text-[#137333] hover:bg-[#137333] hover:text-white px-5 py-2 rounded-lg font-bold border border-[#ceead6]">Export CSV</button>
-                            <span id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0 Ready</span>
+                            <span id="result-count" class="text-[11px] bg-[#f1f3f4] text-[#5f6368] px-4 py-2 rounded-lg font-bold">0 Items</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto flex-grow">
@@ -292,27 +309,27 @@
                     
                     <div class="mt-8 flex gap-3">
                         <button id="close-modal-btn" class="google-btn flex-1 text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all">Close</button>
-                        <a id="external-link" target="_blank" class="google-btn flex-1 text-xs bg-[#f1f3f4] text-[#3c4043] py-3.5 rounded-xl text-center hover:bg-[#e8eaed] font-bold">YouTube URL</a>
+                        <a id="external-link" target="_blank" class="google-btn flex-1 text-xs bg-[#f1f3f4] text-[#3c4043] py-3.5 rounded-xl text-center hover:bg-[#e8eaed] font-bold">Open Link</a>
                     </div>
                 </div>
                 
-                <div id="timeline-box" class="p-10 flex-grow overflow-y-auto terminal-scroll">
+                <div id="timeline-box" class="p-10 flex-grow overflow-y-auto custom-scrollbar">
                     <div id="timeline-not-ready" class="py-16 text-center space-y-6">
-                        <p class="text-xs text-[#70757a] font-medium leading-relaxed">No timeline data available.<br><span class="text-[#bdc1c6]">Generate AI Chapters?</span></p>
-                        <button id="generate-timeline-btn" class="google-btn w-full py-4 bg-[#f8f9fa] text-[#1a73e8] text-xs font-bold rounded-xl border border-[#dadce0] hover:bg-[#f1f3f4]">Generate Timeline</button>
+                        <p class="text-xs text-[#70757a] font-medium leading-relaxed">No timeline metadata.<br><span class="text-[#bdc1c6]">Generate AI Chapters?</span></p>
+                        <button id="generate-timeline-btn" class="google-btn w-full py-4 bg-[#f8f9fa] text-[#1a73e8] text-xs font-bold rounded-xl border border-[#dadce0] hover:bg-[#f1f3f4]">Generate AI Chapters</button>
                     </div>
                     <div id="timeline-loading" class="hidden py-16 animate-pulse text-center">
                         <div class="w-10 h-10 border-4 border-[#eee] border-t-[#1a73e8] rounded-full animate-spin mx-auto mb-4"></div>
-                        <p class="text-[11px] text-[#70757a] font-bold italic">AI Processing...</p>
+                        <p class="text-[11px] text-[#70757a] font-bold italic">AI brain thinking...</p>
                     </div>
-                    <div id="timestamp-list" class="hidden space-y-4"></div>
+                    <div id="timestamp-list" class="hidden space-y-3"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // --- API & State ---
+        // --- API & Core State ---
         const ytApiKey = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs";
         const BATCH_SIZE = 50; 
         
@@ -324,17 +341,17 @@
         let accessToken = null;
 
         const PALETTE = [
-            { border: 'border-blue-200', text: 'text-blue-700', bg: 'bg-blue-50' },
-            { border: 'border-green-200', text: 'text-green-700', bg: 'bg-green-50' },
-            { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
-            { border: 'border-yellow-200', text: 'text-yellow-700', bg: 'bg-yellow-50' },
-            { border: 'border-indigo-200', text: 'text-indigo-700', bg: 'bg-indigo-50' },
-            { border: 'border-purple-200', text: 'text-purple-700', bg: 'bg-purple-50' },
-            { border: 'border-orange-200', text: 'text-orange-700', bg: 'bg-orange-50' },
-            { border: 'border-cyan-200', text: 'text-cyan-700', bg: 'bg-cyan-50' }
+            { border: 'border-blue-300', text: 'text-blue-700', bg: 'bg-blue-50' },
+            { border: 'border-green-300', text: 'text-green-700', bg: 'bg-green-50' },
+            { border: 'border-red-300', text: 'text-red-700', bg: 'bg-red-50' },
+            { border: 'border-yellow-300', text: 'text-yellow-700', bg: 'bg-yellow-50' },
+            { border: 'border-indigo-300', text: 'text-indigo-700', bg: 'bg-indigo-50' },
+            { border: 'border-purple-300', text: 'text-purple-700', bg: 'bg-purple-50' },
+            { border: 'border-orange-300', text: 'text-orange-700', bg: 'bg-orange-50' },
+            { border: 'border-cyan-300', text: 'text-cyan-700', bg: 'bg-cyan-50' }
         ];
 
-        // --- Selectors ---
+        // --- DOM Elements ---
         const csvInput = document.getElementById('csv-input');
         const geminiApiKeyInput = document.getElementById('gemini-api-key-input');
         const clientIdInput = document.getElementById('client-id-input');
@@ -354,7 +371,7 @@
         const playerModal = document.getElementById('player-modal');
         const timestampList = document.getElementById('timestamp-list');
 
-        // --- Init ---
+        // --- Init & Persistence ---
         const saveSettings = () => {
             localStorage.setItem('gemini-key', geminiApiKeyInput.value);
             localStorage.setItem('client-id', clientIdInput.value);
@@ -366,7 +383,7 @@
         geminiApiKeyInput.addEventListener('input', saveSettings);
         clientIdInput.addEventListener('input', saveSettings);
 
-        // --- Utils ---
+        // --- Utility Functions ---
         const getGeminiApiKey = () => geminiApiKeyInput.value.trim();
         const getStyleForCat = (cat) => {
             let hash = 0;
@@ -391,15 +408,15 @@
             return { id: (match && match[2].length === 11) ? match[2] : null };
         };
 
-        // --- Categories ---
+        // --- Category Management ---
         const renderCategoriesUI = () => {
             categoryTags.innerHTML = '';
-            filterCategory.innerHTML = '<option value="all">All Categories</option>';
+            filterCategory.innerHTML = '<option value="all">모든 카테고리</option>';
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             currentCategories.forEach(cat => {
                 const style = getStyleForCat(cat);
                 const container = document.createElement('div');
-                container.className = `category-tag-container border-[#dadce0] ${style.text}`;
+                container.className = `category-tag-container border-[#dadce0] ${style.text} ${style.bg}`;
                 const label = document.createElement('span');
                 label.className = "cursor-pointer"; label.textContent = cat;
                 label.onclick = () => { filterCategory.value = cat; renderResults(); };
@@ -417,34 +434,25 @@
             if (name && !currentCategories.includes(name)) { currentCategories.push(name); newCategoryInput.value = ''; renderCategoriesUI(); }
         };
 
-        // --- Data Fetching & OAuth ---
+        // --- Data Sync (OAuth & Playlist) ---
         authBtn.onclick = () => {
             const clientId = clientIdInput.value.trim();
-            if (!clientId) { addLog("OAuth Client ID가 필요합니다.", "error"); return; }
-            
-            // OAuth 디버깅: 현재 도메인 정보 출력
-            const currentOrigin = window.location.origin;
-            addLog(`인증 시도 중 (Origin: ${currentOrigin})`, "info");
-            addLog("구글 콘솔에 위 Origin이 정확히 등록되었는지 확인하세요.", "info");
-
+            if (!clientId) { addLog("OAuth Client ID is required.", "error"); return; }
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: clientId,
                     scope: 'https://www.googleapis.com/auth/youtube.readonly',
                     callback: (res) => {
-                        if (res.error) {
-                            addLog(`인증 실패: ${res.error_description || res.error}`, "error");
-                            return;
-                        }
+                        if (res.error) { addLog("Auth Failed.", "error"); return; }
                         accessToken = res.access_token;
-                        addLog("OAuth 인증 성공! 목록을 불러옵니다.", "success");
+                        authBtn.textContent = "✓ Sync Active";
+                        authBtn.classList.replace('bg-[#202124]', 'bg-[#188038]');
+                        addLog("Sync Ready. Fetching videos...", "success");
                         fetchLikedVideos();
                     }
                 });
                 tokenClient.requestAccessToken({ prompt: 'consent' });
-            } catch (err) {
-                addLog("OAuth 초기화 실패. Client ID 형식을 확인하세요.", "error");
-            }
+            } catch (err) { addLog("OAuth Init Error.", "error"); }
         };
 
         async function fetchLikedVideos() {
@@ -459,17 +467,19 @@
                         viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    addLog(`${synced.length}개의 영상을 성공적으로 로드했습니다.`, "success");
+                    addLog(`Synced ${synced.length} liked videos.`, "success");
                     document.getElementById('result-count').textContent = `${csvData.length} Items`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
+                    renderResults();
                 }
-            } catch (e) { addLog("API 호출 실패.", "error"); }
+            } catch (e) { addLog("Fetch Failed.", "error"); }
         }
 
         playlistSyncBtn.onclick = async () => {
             const pid = playlistIdInput.value.trim();
             if(!pid) return;
+            addLog("Playlist items requested...", "info");
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${pid}&maxResults=50&key=${ytApiKey}`);
                 const data = await res.json();
@@ -482,18 +492,78 @@
                         viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    addLog(`Playlist ${synced.length}개 로드 성공.`, "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Items`;
+                    playlistSyncBtn.textContent = "✓ Playlist Synced";
+                    playlistSyncBtn.classList.replace('bg-[#f1f3f4]', 'bg-[#e6f4ea]');
+                    addLog(`Synced ${synced.length} playlist items.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
+                    renderResults();
                 }
-            } catch(e) { addLog("Playlist Sync Failed.", "error"); }
+            } catch(e) { addLog("Sync Failed.", "error"); }
         };
 
-        // --- Analysis ---
+        // --- Timeline & AI Chapters ---
+        const extractNativeTimestamps = (desc) => {
+            if (!desc) return null;
+            const timeRegex = /(\d{1,2}:\d{2}(?::\d{2})?)/g;
+            const lines = desc.split('\n');
+            const items = [];
+            lines.forEach(line => {
+                const matches = line.match(timeRegex);
+                if (matches) {
+                    const time = matches[0];
+                    const rawText = line.replace(time, '').trim().replace(/^[-:.]\s*/, '').trim();
+                    if (rawText.length > 1) items.push({ time, desc: rawText });
+                }
+            });
+            return items.length > 0 ? items.slice(0, 20) : null;
+        };
+
+        const showTimestamps = (ts) => {
+            document.getElementById('timeline-not-ready').classList.add('hidden');
+            document.getElementById('timeline-loading').classList.add('hidden');
+            timestampList.innerHTML = '';
+            timestampList.classList.remove('hidden');
+            ts.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "timestamp-btn";
+                btn.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[11px] mr-2">${item.time}</span> ${item.desc}`;
+                btn.onclick = () => {
+                    const parts = item.time.split(':').map(Number);
+                    const seconds = parts.length === 3 ? parts[0] * 3600 + parts[1] * 60 + parts[2] : parts[0] * 60 + parts[1];
+                    loadStablePlayer(activeVideo.url, seconds);
+                };
+                timestampList.appendChild(btn);
+            });
+        };
+
+        document.getElementById('generate-timeline-btn').onclick = async () => {
+            const geminiKey = getGeminiApiKey();
+            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
+            document.getElementById('timeline-not-ready').classList.add('hidden');
+            document.getElementById('timeline-loading').classList.remove('hidden');
+            const prompt = `Video Summary: Title: ${activeVideo.title}, Description: ${activeVideo.description?.substring(0, 400)}. Create 5 logical chapters. Format: JSON array [{"time": "MM:SS", "desc": "Context"}] only.`;
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                });
+                const data = await res.json();
+                const result = JSON.parse(data.candidates[0].content.parts[0].text);
+                activeVideo.timestamps = result;
+                showTimestamps(result);
+            } catch (e) { 
+                addLog("AI Generation Failed.", "error");
+                document.getElementById('timeline-loading').classList.add('hidden');
+                document.getElementById('timeline-not-ready').classList.remove('hidden');
+            }
+        };
+
+        // --- Analysis Engine ---
         async function runAnalysis(limit) {
             const geminiKey = getGeminiApiKey();
-            if(!geminiKey) { addLog("Gemini API Key가 필요합니다.", "error"); return; }
+            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
             if (csvData.length === 0) return;
             analyzeBtn.disabled = true; analyze10Btn.disabled = true;
             document.getElementById('progress-card').classList.remove('hidden');
@@ -503,7 +573,7 @@
             for (let i = 0; i < total; i += BATCH_SIZE) {
                 const batch = working.slice(i, i + BATCH_SIZE);
                 try {
-                    const prompt = `Classify [${currentCategories.join(', ')}]. JSON: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
+                    const prompt = `Classify into categories: [${currentCategories.join(', ')}]. JSON: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
@@ -512,19 +582,27 @@
                     const aiResults = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     aiResults.forEach((r, idx) => { if (batch[idx]) analysisResults.push({ ...batch[idx], ...r }); });
                     renderResults(); updateTreemap();
-                } catch (e) { addLog("배치 처리 중 오류 발생.", "error"); }
+                } catch (e) { addLog("Batch failed.", "error"); }
                 const p = Math.round((analysisResults.length / total) * 100);
                 document.getElementById('progress-bar').style.width = `${p}%`;
                 document.getElementById('progress-text').textContent = `${p}%`;
             }
-            addLog("분석 완료.", "success");
+            addLog("Analysis Completed.", "success");
             analyzeBtn.disabled = false; analyze10Btn.disabled = false;
             exportCsvBtn.classList.remove('hidden');
         }
+
         analyze10Btn.onclick = () => runAnalysis(10);
         analyzeBtn.onclick = () => runAnalysis();
 
-        // --- Render ---
+        // --- View Handlers ---
+        const loadStablePlayer = (url, start = 0) => {
+            const { id } = parseYoutubeInfo(url);
+            const container = document.getElementById('player-target-container');
+            const currentOrigin = window.location.origin;
+            container.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&origin=${encodeURIComponent(currentOrigin)}&start=${start}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        };
+
         const updateTreemap = () => {
             document.getElementById('dashboard-card').classList.remove('hidden');
             const stats = {};
@@ -549,45 +627,48 @@
             const term = document.getElementById('search-input').value.toLowerCase();
             const catFilter = filterCategory.value;
             const sortVal = sortSelect.value;
-            let filtered = analysisResults.filter(v => {
-                const matchSearch = v.title.toLowerCase().includes(term) || v.channelTitle.toLowerCase().includes(term);
-                const matchCat = catFilter === 'all' || (v.categories && v.categories.includes(catFilter));
-                return matchSearch && matchCat;
-            });
+            let source = analysisResults.length > 0 ? analysisResults : csvData;
+            let filtered = source.filter(v => (v.title.toLowerCase().includes(term) || v.channelTitle.toLowerCase().includes(term)) && (catFilter === 'all' || (v.categories && v.categories.includes(catFilter))));
             if (sortVal === 'views-desc') filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-            else if (sortVal === 'views-asc') filtered.sort((a, b) => (a.viewCount || 0) - (b.viewCount || 0));
-            else if (sortVal === 'duration-desc') filtered.sort((a, b) => (b.durationSec || 0) - (a.durationSec || 0));
-            else if (sortVal === 'duration-asc') filtered.sort((a, b) => (a.durationSec || 0) - (b.durationSec || 0));
             else if (sortVal === 'newest') filtered.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
             else if (sortVal === 'title-asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
             resultBody.innerHTML = '';
+            if(filtered.length === 0) {
+                resultBody.innerHTML = '<tr><td colspan="4" class="py-20 text-center text-slate-300">No content found.</td></tr>';
+                return;
+            }
             filtered.forEach(data => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
-                const cats = (data.categories || []).map(c => {
-                    const style = getStyleForCat(c);
-                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
-                }).join('');
-                tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}</div><div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button><p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary}</p></td><td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right"><div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div></td>`;
+                const cats = (data.categories || []).map(c => { const style = getStyleForCat(c); return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`; }).join('');
+                tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}</div><div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button><p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary || 'Awaiting analysis...'}</p></td><td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right"><div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div></td>`;
                 tr.querySelector('.open-p').onclick = () => {
                     activeVideo = data;
                     document.getElementById('modal-video-title').textContent = data.title;
                     document.getElementById('modal-video-channel').textContent = data.channelTitle;
-                    document.getElementById('player-target-container').innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${parseYoutubeInfo(data.url).id}?autoplay=1&rel=0" frameborder="0" allowfullscreen></iframe>`;
-                    document.getElementById('external-link').href = data.url;
+                    loadStablePlayer(data.url);
+                    const ts = data.timestamps || extractNativeTimestamps(data.description);
+                    if (ts) {
+                        showTimestamps(ts);
+                    } else {
+                        document.getElementById('timeline-not-ready').classList.remove('hidden');
+                        timestampList.classList.add('hidden');
+                    }
                     playerModal.style.display = 'flex';
                 };
                 resultBody.appendChild(tr);
             });
         };
 
-        csvInput.onchange = e => {
-            const r = new FileReader(); r.onload = ev => {
-                const rows = ev.target.result.split('\n').filter(l => l.trim());
-                csvData = rows.slice(1).map(row => { const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() }; }).filter(v => v.url);
-                addLog(`CSV ${csvData.length}개 로드됨.`, "success");
-            }; r.readAsText(e.target.files[0]);
-        };
+        if (csvInput) {
+            csvInput.onchange = e => {
+                const r = new FileReader(); r.onload = ev => {
+                    const rows = ev.target.result.split('\n').filter(l => l.trim());
+                    csvData = rows.slice(1).map(row => { const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() }; }).filter(v => v.url);
+                    addLog(`CSV loaded.`, "success"); renderResults();
+                }; r.readAsText(e.target.files[0]);
+            };
+        }
 
         document.getElementById('close-modal-btn').onclick = () => { playerModal.style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
         loadSettings(); renderCategoriesUI();
