@@ -13,6 +13,7 @@
         body { 
             font-family: 'Inter', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             letter-spacing: -0.01em;
+            color: #202124;
         }
         
         .terminal-scroll::-webkit-scrollbar { width: 4px; }
@@ -131,7 +132,7 @@
 
     <div id="app" class="max-w-7xl mx-auto px-6 py-8">
         <!-- Header -->
-        <header class="flex items-center justify-between mb-12">
+        <header class="flex items-center justify-between mb-10">
             <div class="flex items-center gap-4">
                 <div class="p-3 bg-red-600 rounded-xl text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
@@ -187,9 +188,9 @@
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Categories</h2>
                     
-                    <div class="flex gap-2 mb-5">
+                    <div class="flex flex-nowrap gap-2 mb-5 items-center">
                         <input type="text" id="new-category-input" placeholder="Add category..." class="google-input flex-grow bg-white rounded-lg px-4 py-2 text-sm font-medium outline-none min-w-0">
-                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0">+</button>
+                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 font-bold">+</button>
                     </div>
 
                     <div id="category-tags" class="flex flex-wrap gap-2 mb-6 max-h-64 overflow-y-auto terminal-scroll"></div>
@@ -311,7 +312,7 @@
     </div>
 
     <script type="module">
-        // --- Configuration & Data ---
+        // --- API & State ---
         const ytApiKey = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs";
         const BATCH_SIZE = 50; 
         
@@ -353,7 +354,7 @@
         const playerModal = document.getElementById('player-modal');
         const timestampList = document.getElementById('timestamp-list');
 
-        // --- Initialization ---
+        // --- Init ---
         const saveSettings = () => {
             localStorage.setItem('gemini-key', geminiApiKeyInput.value);
             localStorage.setItem('client-id', clientIdInput.value);
@@ -390,89 +391,60 @@
             return { id: (match && match[2].length === 11) ? match[2] : null };
         };
 
-        // --- Category Management ---
+        // --- Categories ---
         const renderCategoriesUI = () => {
             categoryTags.innerHTML = '';
             filterCategory.innerHTML = '<option value="all">All Categories</option>';
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
-            
             currentCategories.forEach(cat => {
                 const style = getStyleForCat(cat);
                 const container = document.createElement('div');
                 container.className = `category-tag-container border-[#dadce0] ${style.text}`;
-                
                 const label = document.createElement('span');
-                label.className = "cursor-pointer";
-                label.textContent = cat;
+                label.className = "cursor-pointer"; label.textContent = cat;
                 label.onclick = () => { filterCategory.value = cat; renderResults(); };
-                
                 const del = document.createElement('span');
-                del.className = "category-tag-delete font-bold";
-                del.innerHTML = "&times;";
-                del.onclick = (e) => {
-                    e.stopPropagation();
-                    currentCategories = currentCategories.filter(c => c !== cat);
-                    renderCategoriesUI();
-                };
-                
-                container.appendChild(label);
-                container.appendChild(del);
+                del.className = "category-tag-delete font-bold"; del.innerHTML = "&times;";
+                del.onclick = (e) => { e.stopPropagation(); currentCategories = currentCategories.filter(c => c !== cat); renderCategoriesUI(); };
+                container.appendChild(label); container.appendChild(del);
                 categoryTags.appendChild(container);
                 const opt = document.createElement('option');
-                opt.value = cat; opt.textContent = cat;
-                filterCategory.appendChild(opt);
+                opt.value = cat; opt.textContent = cat; filterCategory.appendChild(opt);
             });
         };
-
         addCategoryBtn.onclick = () => {
             const name = newCategoryInput.value.trim();
-            if (name && !currentCategories.includes(name)) {
-                currentCategories.push(name);
-                newCategoryInput.value = '';
-                renderCategoriesUI();
-            }
+            if (name && !currentCategories.includes(name)) { currentCategories.push(name); newCategoryInput.value = ''; renderCategoriesUI(); }
         };
 
-        // --- Data Fetching ---
-        playlistSyncBtn.onclick = async () => {
-            const pid = playlistIdInput.value.trim();
-            if(!pid) return;
-            addLog("Playlist items requested...", "info");
-            try {
-                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${pid}&maxResults=50&key=${ytApiKey}`);
-                const data = await res.json();
-                if(data.items) {
-                    const ids = data.items.map(i => i.contentDetails.videoId);
-                    const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${ytApiKey}`);
-                    const vData = await vRes.json();
-                    
-                    const synced = vData.items.map(v => ({
-                        title: v.snippet.title,
-                        url: `https://www.youtube.com/watch?v=${v.id}`,
-                        thumbnail: v.snippet.thumbnails.high?.url,
-                        description: v.snippet.description,
-                        viewCount: parseInt(v.statistics.viewCount)||0,
-                        channelTitle: v.snippet.channelTitle,
-                        publishedAt: v.snippet.publishedAt,
-                        durationSec: parseDuration(v.contentDetails.duration)
-                    }));
-                    csvData = [...synced, ...csvData];
-                    addLog(`Successfully synced ${synced.length} playlist items.`, "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
-                    document.getElementById('toolbar').style.opacity = "1";
-                    document.getElementById('toolbar').classList.remove('pointer-events-none');
-                }
-            } catch(e) { addLog("Sync Failed.", "error"); }
-        };
-
+        // --- Data Fetching & OAuth ---
         authBtn.onclick = () => {
             const clientId = clientIdInput.value.trim();
-            if (!clientId) { addLog("Client ID missing.", "error"); return; }
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: clientId, scope: 'https://www.googleapis.com/auth/youtube.readonly',
-                callback: (res) => { if (res.error) return; accessToken = res.access_token; fetchLikedVideos(); }
-            });
-            tokenClient.requestAccessToken({ prompt: 'consent' });
+            if (!clientId) { addLog("OAuth Client ID가 필요합니다.", "error"); return; }
+            
+            // OAuth 디버깅: 현재 도메인 정보 출력
+            const currentOrigin = window.location.origin;
+            addLog(`인증 시도 중 (Origin: ${currentOrigin})`, "info");
+            addLog("구글 콘솔에 위 Origin이 정확히 등록되었는지 확인하세요.", "info");
+
+            try {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: clientId,
+                    scope: 'https://www.googleapis.com/auth/youtube.readonly',
+                    callback: (res) => {
+                        if (res.error) {
+                            addLog(`인증 실패: ${res.error_description || res.error}`, "error");
+                            return;
+                        }
+                        accessToken = res.access_token;
+                        addLog("OAuth 인증 성공! 목록을 불러옵니다.", "success");
+                        fetchLikedVideos();
+                    }
+                });
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } catch (err) {
+                addLog("OAuth 초기화 실패. Client ID 형식을 확인하세요.", "error");
+            }
         };
 
         async function fetchLikedVideos() {
@@ -487,31 +459,51 @@
                         viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
                     }));
                     csvData = [...synced, ...csvData];
-                    addLog(`Synced ${synced.length} liked videos.`, "success");
-                    document.getElementById('result-count').textContent = `${csvData.length} Ready`;
+                    addLog(`${synced.length}개의 영상을 성공적으로 로드했습니다.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length} Items`;
                     document.getElementById('toolbar').style.opacity = "1";
                     document.getElementById('toolbar').classList.remove('pointer-events-none');
                 }
-            } catch (e) { addLog("OAuth Data Fetch Failed.", "error"); }
+            } catch (e) { addLog("API 호출 실패.", "error"); }
         }
 
-        // --- Analysis Engine ---
+        playlistSyncBtn.onclick = async () => {
+            const pid = playlistIdInput.value.trim();
+            if(!pid) return;
+            try {
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&playlistId=${pid}&maxResults=50&key=${ytApiKey}`);
+                const data = await res.json();
+                if(data.items) {
+                    const ids = data.items.map(i => i.contentDetails.videoId);
+                    const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${ytApiKey}`);
+                    const vData = await vRes.json();
+                    const synced = vData.items.map(v => ({
+                        title: v.snippet.title, url: `https://www.youtube.com/watch?v=${v.id}`, thumbnail: v.snippet.thumbnails.high?.url, description: v.snippet.description, 
+                        viewCount: parseInt(v.statistics.viewCount)||0, channelTitle: v.snippet.channelTitle, publishedAt: v.snippet.publishedAt, durationSec: parseDuration(v.contentDetails.duration)
+                    }));
+                    csvData = [...synced, ...csvData];
+                    addLog(`Playlist ${synced.length}개 로드 성공.`, "success");
+                    document.getElementById('result-count').textContent = `${csvData.length} Items`;
+                    document.getElementById('toolbar').style.opacity = "1";
+                    document.getElementById('toolbar').classList.remove('pointer-events-none');
+                }
+            } catch(e) { addLog("Playlist Sync Failed.", "error"); }
+        };
+
+        // --- Analysis ---
         async function runAnalysis(limit) {
             const geminiKey = getGeminiApiKey();
-            if(!geminiKey) { addLog("Gemini API Key Required.", "error"); return; }
+            if(!geminiKey) { addLog("Gemini API Key가 필요합니다.", "error"); return; }
             if (csvData.length === 0) return;
-            
             analyzeBtn.disabled = true; analyze10Btn.disabled = true;
             document.getElementById('progress-card').classList.remove('hidden');
-            resultBody.innerHTML = '';
-            analysisResults = [];
+            resultBody.innerHTML = ''; analysisResults = [];
             const working = csvData.slice(0, limit || csvData.length);
             const total = working.length;
-
             for (let i = 0; i < total; i += BATCH_SIZE) {
                 const batch = working.slice(i, i + BATCH_SIZE);
                 try {
-                    const prompt = `Classify these ${batch.length} titles into: [${currentCategories.join(', ')}]. JSON only: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
+                    const prompt = `Classify [${currentCategories.join(', ')}]. JSON: [{"categories":["Name"],"subTags":["#Tag"],"summary":"요약"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
@@ -519,22 +511,20 @@
                     const aiData = await res.json();
                     const aiResults = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     aiResults.forEach((r, idx) => { if (batch[idx]) analysisResults.push({ ...batch[idx], ...r }); });
-                    renderResults();
-                    updateTreemap();
-                } catch (e) { addLog("Batch failed. Checking API Key or Network.", "error"); }
+                    renderResults(); updateTreemap();
+                } catch (e) { addLog("배치 처리 중 오류 발생.", "error"); }
                 const p = Math.round((analysisResults.length / total) * 100);
                 document.getElementById('progress-bar').style.width = `${p}%`;
                 document.getElementById('progress-text').textContent = `${p}%`;
             }
-            addLog("Library analysis engine completed.", "success");
+            addLog("분석 완료.", "success");
             analyzeBtn.disabled = false; analyze10Btn.disabled = false;
             exportCsvBtn.classList.remove('hidden');
         }
-
         analyze10Btn.onclick = () => runAnalysis(10);
         analyzeBtn.onclick = () => runAnalysis();
 
-        // --- Visualization & Sorting ---
+        // --- Render ---
         const updateTreemap = () => {
             document.getElementById('dashboard-card').classList.remove('hidden');
             const stats = {};
@@ -559,20 +549,17 @@
             const term = document.getElementById('search-input').value.toLowerCase();
             const catFilter = filterCategory.value;
             const sortVal = sortSelect.value;
-            
             let filtered = analysisResults.filter(v => {
                 const matchSearch = v.title.toLowerCase().includes(term) || v.channelTitle.toLowerCase().includes(term);
                 const matchCat = catFilter === 'all' || (v.categories && v.categories.includes(catFilter));
                 return matchSearch && matchCat;
             });
-
             if (sortVal === 'views-desc') filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
             else if (sortVal === 'views-asc') filtered.sort((a, b) => (a.viewCount || 0) - (b.viewCount || 0));
             else if (sortVal === 'duration-desc') filtered.sort((a, b) => (b.durationSec || 0) - (a.durationSec || 0));
             else if (sortVal === 'duration-asc') filtered.sort((a, b) => (a.durationSec || 0) - (b.durationSec || 0));
             else if (sortVal === 'newest') filtered.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
             else if (sortVal === 'title-asc') filtered.sort((a, b) => a.title.localeCompare(b.title));
-
             resultBody.innerHTML = '';
             filtered.forEach(data => {
                 const tr = document.createElement('tr');
@@ -581,21 +568,7 @@
                     const style = getStyleForCat(c);
                     return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
                 }).join('');
-                tr.innerHTML = `
-                    <td class="px-8 py-6 align-top">
-                        <div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">
-                            ${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}
-                        </div>
-                        <div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div>
-                    </td>
-                    <td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td>
-                    <td class="px-8 py-6 align-top">
-                        <button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button>
-                        <p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary}</p>
-                    </td>
-                    <td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right">
-                        <div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div>
-                    </td>`;
+                tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-[#eee] overflow-hidden mb-3 border border-[#dadce0]">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}</div><div class="text-[10px] font-bold text-[#5f6368] text-center uppercase">${data.channelTitle}</div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base tracking-tight">${data.title}</button><p class="text-xs text-[#5f6368] mt-3 leading-relaxed font-medium">${data.summary}</p></td><td class="px-8 py-6 align-top text-xs text-[#70757a] font-bold text-right"><div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div></td>`;
                 tr.querySelector('.open-p').onclick = () => {
                     activeVideo = data;
                     document.getElementById('modal-video-title').textContent = data.title;
@@ -608,25 +581,16 @@
             });
         };
 
-        document.getElementById('close-modal-btn').onclick = () => { playerModal.style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
-        
         csvInput.onchange = e => {
-            const r = new FileReader();
-            r.onload = ev => {
+            const r = new FileReader(); r.onload = ev => {
                 const rows = ev.target.result.split('\n').filter(l => l.trim());
-                csvData = rows.slice(1).map(row => {
-                    const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() };
-                }).filter(v => v.url);
-                document.getElementById('file-info').classList.remove('hidden');
-                document.getElementById('file-name').textContent = e.target.files[0].name;
-            };
-            r.readAsText(e.target.files[0]);
+                csvData = rows.slice(1).map(row => { const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return { title: p[0]?.replace(/"/g, '').trim(), url: p[1]?.replace(/"/g, '').trim() }; }).filter(v => v.url);
+                addLog(`CSV ${csvData.length}개 로드됨.`, "success");
+            }; r.readAsText(e.target.files[0]);
         };
 
-        // --- Start ---
-        loadSettings();
-        renderCategoriesUI();
+        document.getElementById('close-modal-btn').onclick = () => { playerModal.style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
+        loadSettings(); renderCategoriesUI();
         document.getElementById('search-input').oninput = renderResults;
         document.getElementById('filter-category').onchange = renderResults;
         document.getElementById('sort-select').onchange = renderResults;
