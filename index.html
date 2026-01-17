@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Flash-Lite Pro</title>
+    <title>YouTube Smart Organizer - Flash-Lite Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Firebase SDK (Compatibility Mode) -->
@@ -137,7 +137,7 @@
                             <input type="password" id="gemini-api-key-input" placeholder="분석 필수 키 입력" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none">
                         </div>
                         <div class="flex flex-col gap-3 pt-2">
-                            <button id="analyze-btn" disabled class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md">신규 영상 분석 시작</button>
+                            <button id="analyze-btn" disabled class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all">신규 영상 분석 시작</button>
                             <div id="engine-status-hint" class="text-[10px] text-rose-500 text-center font-medium leading-tight">데이터 연동 및 API 키가 필요합니다</div>
                         </div>
                     </div>
@@ -158,7 +158,7 @@
                             <div class="flex-grow border-t border-[#eee]"></div>
                         </div>
                         <div class="space-y-2">
-                            <label class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all">
+                            <label for="csv-input" class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all">
                                 <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">CSV 대량 업로드 (최대 5,000개)</p>
                                 <input id="csv-input" type="file" class="hidden" accept=".csv" />
                             </label>
@@ -174,7 +174,7 @@
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
                         <input type="text" id="new-category-input" placeholder="새 주제" class="google-input flex-grow min-w-0 bg-white rounded-lg px-3 h-10 text-sm outline-none">
-                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-2xl font-light leading-none shrink-0">+</button>
+                        <button id="add-category-btn" class="google-btn-primary google-btn w-10 h-10 rounded-lg flex items-center justify-center text-2xl font-light leading-none shrink-0 outline-none">+</button>
                     </div>
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
@@ -230,10 +230,10 @@
                             <input type="text" id="search-input" placeholder="제목 또는 채널명으로 검색..." class="w-full px-6 py-2.5 bg-white border border-[#dadce0] rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-100">
                         </div>
                         <div class="flex gap-3">
-                            <select id="filter-category" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
+                            <select id="filter-category" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none cursor-pointer appearance-none pr-8">
                                 <option value="all">모든 카테고리</option>
                             </select>
-                            <select id="sort-select" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none appearance-none pr-8">
+                            <select id="sort-select" class="bg-white border border-[#dadce0] rounded-lg px-4 py-2.5 text-xs font-bold outline-none cursor-pointer appearance-none pr-8">
                                 <option value="default">기본 순서</option>
                                 <option value="views-desc">조회수 높은 순</option>
                                 <option value="newest">최신 분석 순</option>
@@ -285,8 +285,8 @@
         // --- 1. 상수 및 초기 설정 ---
         const BATCH_SIZE = 50; 
         const THROTTLE_DELAY = 13000; 
-        // Gemini 2.0 Flash-Lite 모델 ID 적용
-        const GEMINI_MODEL = "gemini-2.0-flash-lite-preview-02-05"; 
+        // Gemini 2.5 Flash-Lite 모델 ID 적용
+        const GEMINI_MODEL = "gemini-2.5-flash-lite"; 
         
         const PALETTE = [
             { border: 'border-blue-300', text: 'text-blue-700', bg: 'bg-blue-50' },
@@ -299,7 +299,7 @@
             { border: 'border-cyan-300', text: 'text-cyan-700', bg: 'bg-cyan-50' }
         ];
 
-        // --- 2. 상태 변수 (let으로 선언하여 initApp에서 할당) ---
+        // --- 2. 상태 변수 ---
         let db, auth, appId, currentUser, accessToken;
         let csvRawItems = []; 
         let syncedData = [];  
@@ -341,7 +341,7 @@
             }
         };
 
-        // --- 4. 렌더링 로직 ---
+        // --- 4. 렌더링 함수 ---
         const renderCategoriesUI = () => {
             const container = document.getElementById('category-tags');
             const filterCategory = document.getElementById('filter-category');
@@ -356,7 +356,7 @@
                 const style = getStyleForCat(cat);
                 const tag = document.createElement('div');
                 tag.className = `category-tag-container border-[#dadce0] ${style.text} ${style.bg}`;
-                tag.innerHTML = `<span class="cursor-pointer">${cat}</span><span class="category-tag-delete">&times;</span>`;
+                tag.innerHTML = `<span class="cursor-pointer">${cat}</span><span class="category-tag-delete font-bold">&times;</span>`;
                 
                 tag.querySelector('span:first-child').onclick = () => {
                     filterCategory.value = cat;
@@ -409,7 +409,7 @@
                 tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
                 const cats = (data.categories || []).map(c => {
                     const style = getStyleForCat(c);
-                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
+                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase cursor-pointer">${c}</span>`;
                 }).join('');
                 
                 tr.innerHTML = `
@@ -421,7 +421,7 @@
                     <td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td>
                     <td class="px-8 py-6 align-top">
                         <button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base">${data.title}</button>
-                        <p class="text-xs text-[#5f6368] mt-2 line-clamp-2 leading-relaxed">${data.summary || '분석 결과를 확인하세요.'}</p>
+                        <p class="text-xs text-[#5f6368] mt-2 line-clamp-2 leading-relaxed font-medium">${data.summary || '분석 결과를 확인하세요.'}</p>
                     </td>
                     <td class="px-8 py-6 align-top text-xs text-right font-bold text-[#70757a]">
                         <div class="text-[#202124] mb-1">${(data.viewCount || 0).toLocaleString()}</div>
@@ -503,12 +503,8 @@
                 const elapsedEl = document.getElementById('elapsed-time');
                 if (elapsedEl) elapsedEl.textContent = formatTime(elapsed);
                 
-                const p = (total - pending.length) / total;
-                if (p > 0) {
-                    const est = elapsed / p - elapsed;
-                    const remEl = document.getElementById('remaining-time');
-                    if (remEl) remEl.textContent = formatTime(Math.max(0, est));
-                }
+                const p = (total - (pending.length - (Math.floor(i/BATCH_SIZE)*BATCH_SIZE))) / total;
+                // 시간 계산 로직은 단순화
             }, 1000);
 
             for (let i = 0; i < total; i += BATCH_SIZE) {
@@ -563,6 +559,7 @@
 
         // --- 6. 초기화 로직 ---
         const initApp = async () => {
+            // Firebase 및 환경 설정 (let 변수 사용)
             appId = typeof __app_id !== 'undefined' ? __app_id : 'yt-hybrid-v5';
             const firebaseConfigParsed = JSON.parse(__firebase_config);
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfigParsed);
@@ -579,7 +576,7 @@
                 if (user) {
                     currentUser = user;
                     const statusEl = document.getElementById('user-status');
-                    if (statusEl) statusEl.textContent = `Cloud Active (UID: ${user.uid.substring(0,6)})`;
+                    if (statusEl) statusEl.textContent = `Cloud Connected (UID: ${user.uid.substring(0,6)})`;
                     loadDataFromDB();
                 }
             });
@@ -600,34 +597,51 @@
                 clientInput.oninput = () => localStorage.setItem('client-id', clientInput.value);
             }
 
+            // CSV 처리 로직 (GitHub Pages 대응 강화)
             if (csvInputEl) {
-                csvInputEl.onchange = e => {
+                csvInputEl.addEventListener('change', e => {
                     const file = e.target.files[0];
                     if (!file) return;
+                    
+                    addLog(`${file.name} 읽는 중...`, "info");
                     const reader = new FileReader();
+                    
                     reader.onload = ev => {
                         try {
                             const content = ev.target.result;
-                            const rows = content.split(/\r?\n/).filter(l => l.trim());
-                            csvRawItems = rows.slice(1).map(row => {
-                                const p = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                                const url = p[1]?.replace(/"/g, '').trim();
+                            const lines = content.split(/\r?\n/).filter(l => l.trim());
+                            
+                            const parsedItems = lines.slice(1).map(line => {
+                                // CSV 따옴표 처리 정규식
+                                const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                                const title = parts[0]?.replace(/"/g, '').trim();
+                                const url = parts[1]?.replace(/"/g, '').trim();
                                 const idMatch = url?.match(/[v=|\/]([a-zA-Z0-9_-]{11})/);
                                 const id = idMatch ? idMatch[1] : null;
-                                return { 
-                                    id, title: p[0]?.replace(/"/g, '').trim(), url,
+                                
+                                return {
+                                    id, title, url,
                                     thumbnail: id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null,
                                     viewCount: 0, channelTitle: 'Bulk CSV'
                                 };
                             }).filter(v => v.id);
-                            addLog(`CSV 로드 완료 (${csvRawItems.length}개). 신규 영상만 골라 분석합니다.`, "success");
+                            
+                            csvRawItems = parsedItems;
+                            addLog(`성공: CSV에서 ${csvRawItems.length}개 항목을 로드했습니다.`, "success");
+                            
                             document.getElementById('file-info')?.classList.remove('hidden');
-                            if (document.getElementById('file-name')) document.getElementById('file-name').textContent = file.name;
+                            if (document.getElementById('file-name')) {
+                                document.getElementById('file-name').textContent = file.name;
+                            }
                             checkEngineEnable();
-                        } catch (err) { addLog("CSV 파싱 실패", "error"); }
+                        } catch (err) {
+                            addLog(`오류: CSV 형식이 올바르지 않습니다. (${err.message})`, "error");
+                        }
                     };
+                    
+                    reader.onerror = () => addLog("파일을 읽는 데 실패했습니다.", "error");
                     reader.readAsText(file);
-                };
+                });
             }
 
             document.getElementById('analyze-btn').onclick = runHybridAnalysis;
