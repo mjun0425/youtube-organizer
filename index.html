@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Flash-Lite Edition</title>
+    <title>YouTube Smart Organizer - Local Hybrid Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Firebase SDK (Compatibility Mode) -->
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -108,6 +104,15 @@
             border-color: #1a73e8;
             box-shadow: 0 0 0 2px rgba(26,115,232,0.1);
         }
+
+        /* 버튼 중앙 정렬 보정 */
+        #add-category-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 0;
+        }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen">
@@ -121,7 +126,7 @@
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
             </div>
-            <div id="user-status" class="text-xs font-bold text-slate-400 italic">Cloud Sync Ready...</div>
+            <div id="storage-status" class="text-xs font-bold text-slate-400 italic">Local Storage Mode</div>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -130,7 +135,7 @@
                 
                 <!-- 1. 분석 엔진 제어 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-emerald-500">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">AI 분석 엔진 (Flash-Lite)</h2>
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">AI 분석 엔진 (2.5 Flash-Lite)</h2>
                     <div class="space-y-4">
                         <div class="space-y-1.5">
                             <label class="text-[10px] text-[#70757a] font-bold ml-1 uppercase tracking-tight">Gemini API 키 (필수)</label>
@@ -143,23 +148,35 @@
                     </div>
                 </div>
 
-                <!-- 2. 데이터 통합 관리 -->
+                <!-- 2. 데이터 관리 및 소스 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 소스 통합</h2>
-                    <div class="space-y-5">
-                        <div class="space-y-2">
-                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">실시간 동기화</p>
-                            <input type="text" id="client-id-input" placeholder="OAuth Client ID 입력" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none mb-2">
-                            <button id="auth-btn" class="google-btn w-full py-2.5 bg-[#202124] text-white rounded-lg text-xs font-medium hover:bg-black transition-all">좋아요 영상 가져오기</button>
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 관리</h2>
+                    <div class="space-y-4">
+                        <!-- 백업/복구 -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="export-json-btn" class="google-btn py-2 bg-slate-100 text-[#5f6368] rounded-lg text-[10px] font-bold hover:bg-slate-200">데이터 백업 (JSON)</button>
+                            <label class="google-btn py-2 bg-slate-100 text-[#5f6368] rounded-lg text-[10px] font-bold hover:bg-slate-200 text-center cursor-pointer">
+                                데이터 복구
+                                <input id="import-json-input" type="file" class="hidden" accept=".json" />
+                            </label>
                         </div>
-                        <div class="relative flex items-center">
-                            <div class="flex-grow border-t border-[#eee]"></div>
-                            <span class="flex-shrink mx-3 text-[9px] text-[#bdc1c6] font-bold uppercase tracking-widest">or Bulk</span>
+                        
+                        <div class="relative flex items-center py-1">
                             <div class="flex-grow border-t border-[#eee]"></div>
                         </div>
+
+                        <!-- 좋아요 동기화 -->
                         <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">Google 동기화</p>
+                            <input type="text" id="client-id-input" placeholder="OAuth Client ID 입력" class="google-input w-full bg-white rounded-lg px-4 py-2 text-sm outline-none mb-1">
+                            <button id="auth-btn" class="google-btn w-full py-2 bg-[#202124] text-white rounded-lg text-xs font-medium hover:bg-black transition-all">좋아요 영상 가져오기</button>
+                        </div>
+
+                        <!-- CSV 업로드 -->
+                        <div class="space-y-2">
+                            <p class="text-[10px] text-[#bdc1c6] font-bold ml-1 uppercase">CSV 벌크 업로드</p>
                             <label for="csv-input" class="flex flex-col items-center justify-center w-full h-16 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all">
-                                <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">CSV 대량 업로드 (최대 5,000개)</p>
+                                <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">파일 선택 (최대 5,000개)</p>
                                 <input id="csv-input" type="file" class="hidden" accept=".csv" />
                             </label>
                             <div id="file-info" class="hidden bg-[#f1f3f4] p-2 rounded-lg border border-[#e8eaed]">
@@ -169,7 +186,7 @@
                     </div>
                 </div>
 
-                <!-- 3. 카테고리 관리 (UI Fix: min-w-0 applied to input) -->
+                <!-- 3. 카테고리 관리 -->
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
@@ -183,7 +200,7 @@
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2">System Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2">
-                        <div class="text-[#81c995] font-bold">> 엔진 초기화 완료.</div>
+                        <div class="text-[#81c995] font-bold">> 로컬 저장소 모드 준비 완료.</div>
                     </div>
                 </div>
             </div>
@@ -210,7 +227,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <span class="block text-[10px] font-black text-[#1a73e8] uppercase tracking-widest animate-pulse">Flash-Lite 분석 중</span>
+                            <span class="block text-[10px] font-black text-[#1a73e8] uppercase tracking-widest animate-pulse">분석 데이터 로컬 저장 중</span>
                         </div>
                     </div>
                     <div class="w-full bg-[#f1f3f4] h-3 rounded-full overflow-hidden shadow-inner">
@@ -254,7 +271,7 @@
                             </thead>
                             <tbody id="result-body" class="divide-y divide-[#eee]">
                                 <tr id="empty-state">
-                                    <td colspan="4" class="py-40 text-center text-[#bdc1c6] font-medium italic">CSV 로드 또는 계정 연동으로 데이터를 구축하세요.</td>
+                                    <td colspan="4" class="py-40 text-center text-[#bdc1c6] font-medium italic">CSV 로드 또는 데이터를 백업 파일(JSON)로 복구하세요.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -270,8 +287,8 @@
             <div class="player-wrapper" id="player-target-container"></div>
             <div class="flex flex-col h-full bg-white border-l border-[#eee]">
                 <div class="p-10 border-b border-[#f1f3f4]">
-                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목 로드 중</h3>
-                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">채널 정보</p>
+                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-lg line-clamp-2 leading-snug">제목</h3>
+                    <p id="modal-video-channel" class="text-xs text-[#5f6368] font-medium mt-4 tracking-wide uppercase">채널</p>
                     <div class="mt-8">
                         <button id="close-modal-btn" class="google-btn w-full text-xs bg-[#202124] text-white py-3.5 rounded-xl hover:bg-black transition-all">닫기</button>
                     </div>
@@ -282,10 +299,10 @@
     </div>
 
     <script type="module">
-        // --- 1. 상수 및 초기 설정 ---
+        // --- 1. 환경 설정 ---
         const BATCH_SIZE = 50; 
         const THROTTLE_DELAY = 13000; 
-        // Gemini 2.5 Flash-Lite 모델 ID 적용
+        // 2.5 Flash-Lite 모델 명칭 (필요시 업데이트된 모델 ID 사용)
         const GEMINI_MODEL = "gemini-2.5-flash-lite"; 
         
         const PALETTE = [
@@ -299,8 +316,7 @@
             { border: 'border-cyan-300', text: 'text-cyan-700', bg: 'bg-cyan-50' }
         ];
 
-        // --- 2. 상태 변수 ---
-        let db, auth, appId, currentUser, accessToken;
+        // --- 2. 로컬 상태 변수 ---
         let csvRawItems = []; 
         let syncedData = [];  
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "성장", "자기관리", "미디어", "디자인", "예술"];
@@ -319,16 +335,12 @@
             div.className = type === 'error' ? 'text-rose-500 font-bold' : type === 'success' ? 'text-emerald-500 font-bold' : 'text-slate-400';
             div.textContent = `> ${msg}`;
             const logBox = document.getElementById('log-console');
-            if (logBox) {
-                logBox.appendChild(div);
-                logBox.scrollTop = logBox.scrollHeight;
-            }
+            if (logBox) { logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight; }
         };
 
         const checkEngineEnable = () => {
             const analyzeBtn = document.getElementById('analyze-btn');
             const hint = document.getElementById('engine-status-hint');
-            
             const processedIds = new Set(syncedData.map(d => d.id));
             const pendingCount = csvRawItems.filter(item => !processedIds.has(item.id)).length;
             const hasKey = getGeminiApiKey().length > 0;
@@ -336,19 +348,41 @@
             if (analyzeBtn) analyzeBtn.disabled = !(pendingCount > 0 && hasKey);
             if (hint) {
                 if (pendingCount > 0 && hasKey) hint.textContent = `${pendingCount}개의 새로운 영상 분석 가능`;
-                else if (pendingCount === 0 && syncedData.length > 0) hint.textContent = "모든 항목이 동기화되었습니다.";
+                else if (pendingCount === 0 && syncedData.length > 0) hint.textContent = "모든 항목 분석 완료됨";
                 else hint.textContent = "데이터 연동 및 API 키가 필요합니다";
             }
         };
 
-        // --- 4. 렌더링 함수 ---
+        // --- 4. 데이터 저장 및 로드 로직 ---
+        const LOCAL_STORAGE_KEY = 'yt_organized_data_v1';
+
+        const saveToLocal = () => {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+            } catch (e) {
+                addLog("저장 공간 부족: 데이터 백업(JSON) 기능을 사용하세요.", "error");
+            }
+        };
+
+        const loadFromLocal = () => {
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (saved) {
+                syncedData = JSON.parse(saved);
+                addLog(`로컬 저장소에서 ${syncedData.length}개의 데이터를 불러왔습니다.`, "success");
+                renderResults();
+                updateTreemap();
+            }
+            checkEngineEnable();
+        };
+
+        // --- 5. 렌더링 함수 ---
         const renderCategoriesUI = () => {
             const container = document.getElementById('category-tags');
             const filterCategory = document.getElementById('filter-category');
             if (!container || !filterCategory) return;
 
             container.innerHTML = '';
-            const currentFilterVal = filterCategory.value || "all";
+            const curVal = filterCategory.value || "all";
             filterCategory.innerHTML = '<option value="all">모든 카테고리</option>';
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             
@@ -356,13 +390,8 @@
                 const style = getStyleForCat(cat);
                 const tag = document.createElement('div');
                 tag.className = `category-tag-container border-[#dadce0] ${style.text} ${style.bg}`;
-                tag.innerHTML = `<span class="cursor-pointer">${cat}</span><span class="category-tag-delete font-bold">&times;</span>`;
-                
-                tag.querySelector('span:first-child').onclick = () => {
-                    filterCategory.value = cat;
-                    renderResults();
-                };
-                
+                tag.innerHTML = `<span class="cursor-pointer font-bold">${cat}</span><span class="category-tag-delete font-bold">&times;</span>`;
+                tag.querySelector('span:first-child').onclick = () => { filterCategory.value = cat; renderResults(); };
                 tag.querySelector('.category-tag-delete').onclick = (e) => {
                     e.stopPropagation();
                     currentCategories = currentCategories.filter(c => c !== cat);
@@ -373,25 +402,21 @@
                 opt.value = cat; opt.textContent = cat;
                 filterCategory.appendChild(opt);
             });
-            filterCategory.value = currentFilterVal;
+            filterCategory.value = curVal;
         };
 
         const renderResults = () => {
             const resultBody = document.getElementById('result-body');
-            const resultCount = document.getElementById('result-count');
-            const searchInput = document.getElementById('search-input');
-            const filterCategory = document.getElementById('filter-category');
-            const sortSelect = document.getElementById('sort-select');
+            const term = document.getElementById('search-input')?.value.toLowerCase() || "";
+            const catFilter = document.getElementById('filter-category')?.value || "all";
+            const sortVal = document.getElementById('sort-select')?.value || "default";
+
             if (!resultBody) return;
 
-            const term = searchInput?.value.toLowerCase() || "";
-            const catFilter = filterCategory?.value || "all";
-            const sortVal = sortSelect?.value || "default";
-
             let filtered = syncedData.filter(v => {
-                const matchesTerm = v.title.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term);
-                const matchesCat = catFilter === "all" || (v.categories && v.categories.includes(catFilter));
-                return matchesTerm && matchesCat;
+                const mTerm = v.title.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term);
+                const mCat = catFilter === "all" || (v.categories && v.categories.includes(catFilter));
+                return mTerm && mCat;
             });
 
             if (sortVal === "views-desc") filtered.sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0));
@@ -400,7 +425,7 @@
 
             resultBody.innerHTML = '';
             if (filtered.length === 0) {
-                resultBody.innerHTML = '<tr><td colspan="4" class="py-32 text-center text-slate-300 italic">표시할 데이터가 없습니다.</td></tr>';
+                resultBody.innerHTML = '<tr><td colspan="4" class="py-32 text-center text-slate-300 italic">데이터가 없습니다.</td></tr>';
                 return;
             }
 
@@ -409,7 +434,7 @@
                 tr.className = "hover:bg-[#f8f9fa] border-b border-[#eee] transition-colors";
                 const cats = (data.categories || []).map(c => {
                     const style = getStyleForCat(c);
-                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase cursor-pointer">${c}</span>`;
+                    return `<span class="inline-block px-2 py-1 ${style.bg} border-[#dadce0] border ${style.text} text-[10px] font-bold rounded-lg mr-1 mb-1 uppercase">${c}</span>`;
                 }).join('');
                 
                 tr.innerHTML = `
@@ -421,23 +446,23 @@
                     <td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td>
                     <td class="px-8 py-6 align-top">
                         <button class="open-p font-bold text-[#202124] text-left hover:text-[#1a73e8] line-clamp-2 leading-tight text-base">${data.title}</button>
-                        <p class="text-xs text-[#5f6368] mt-2 line-clamp-2 leading-relaxed font-medium">${data.summary || '분석 결과를 확인하세요.'}</p>
+                        <p class="text-xs text-[#5f6368] mt-2 line-clamp-2 leading-relaxed">${data.summary || '분석 완료'}</p>
                     </td>
                     <td class="px-8 py-6 align-top text-xs text-right font-bold text-[#70757a]">
-                        <div class="text-[#202124] mb-1">${(data.viewCount || 0).toLocaleString()}</div>
-                        <div class="text-[9px] opacity-40 uppercase truncate">${data.channelTitle || ''}</div>
+                        <div class="text-[#202124]">${(data.viewCount || 0).toLocaleString()}</div>
+                        <div class="text-[9px] opacity-40 truncate">${data.channelTitle || ''}</div>
                     </td>
                 `;
                 tr.querySelector('.open-p').onclick = () => {
-                    const playerContainer = document.getElementById('player-target-container');
-                    playerContainer.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${data.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+                    const cont = document.getElementById('player-target-container');
+                    cont.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${data.id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
                     document.getElementById('modal-video-title').textContent = data.title;
                     document.getElementById('modal-video-channel').textContent = data.channelTitle || '';
                     document.getElementById('player-modal').style.display = 'flex';
                 };
                 resultBody.appendChild(tr);
             });
-            if (resultCount) resultCount.textContent = `${filtered.length}개 표시 중`;
+            document.getElementById('result-count').textContent = `${syncedData.length}개 항목 저장됨`;
         };
 
         const updateTreemap = () => {
@@ -445,12 +470,9 @@
             syncedData.forEach(item => { (item.categories || []).forEach(cat => { stats[cat] = (stats[cat] || 0) + 1; }); });
             const sorted = Object.entries(stats).sort((a,b) => b[1] - a[1]);
             const container = document.getElementById('treemap-content');
-            const card = document.getElementById('dashboard-card');
             if (!container) return;
-
             container.innerHTML = '';
-            if (sorted.length > 0 && card) card.classList.remove('hidden');
-            
+            if (sorted.length > 0) document.getElementById('dashboard-card').classList.remove('hidden');
             sorted.forEach(([cat, count]) => {
                 const perc = Math.round((count / (syncedData.length || 1)) * 100);
                 if (perc < 1) return;
@@ -460,71 +482,52 @@
                 tile.style.flex = `1 1 ${perc}%`;
                 tile.innerHTML = `<div class="font-bold text-[10px] uppercase opacity-60">${cat}</div><div class="text-2xl font-black">${perc}%</div>`;
                 tile.onclick = () => {
-                    const filterCat = document.getElementById('filter-category');
-                    if (filterCat) { filterCat.value = cat; renderResults(); }
+                    const filter = document.getElementById('filter-category');
+                    if (filter) { filter.value = cat; renderResults(); }
                 };
                 container.appendChild(tile);
             });
         };
 
-        // --- 5. 데이터 동기화 및 엔진 ---
-        const loadDataFromDB = async () => {
-            if (!currentUser) return;
-            try {
-                const snapshot = await db.collection('artifacts').doc(appId)
-                    .collection('users').doc(currentUser.uid)
-                    .collection('analyzed_videos').get();
-                
-                syncedData = snapshot.docs.map(doc => doc.data());
-                addLog(`Cloud DB에서 분석 이력 ${syncedData.length}개를 불러왔습니다.`, "success");
-                renderResults();
-                updateTreemap();
-                checkEngineEnable();
-            } catch (e) { addLog(`데이터 로드 실패`, "error"); }
-        };
-
-        async function runHybridAnalysis() {
-            const geminiKey = getGeminiApiKey();
-            if (!geminiKey) return;
+        // --- 6. 분석 엔진 로직 ---
+        async function runLocalAnalysis() {
+            const key = getGeminiApiKey();
+            if (!key) return;
             
             const processedIds = new Set(syncedData.map(d => d.id));
             const pending = csvRawItems.filter(item => !processedIds.has(item.id));
             if (pending.length === 0) return;
 
-            const analyzeBtn = document.getElementById('analyze-btn');
-            if (analyzeBtn) analyzeBtn.disabled = true;
-            document.getElementById('progress-card')?.classList.remove('hidden');
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            document.getElementById('progress-card').classList.remove('hidden');
             
             const total = pending.length;
             const startTime = Date.now();
 
             const timer = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
-                const elapsedEl = document.getElementById('elapsed-time');
-                if (elapsedEl) elapsedEl.textContent = formatTime(elapsed);
-                
-                const p = (total - (pending.length - (Math.floor(i/BATCH_SIZE)*BATCH_SIZE))) / total;
-                // 시간 계산 로직은 단순화
+                document.getElementById('elapsed-time').textContent = formatTime(elapsed);
+                const progress = (total - pending.length + 1) / total;
+                if (progress > 0) {
+                    const est = elapsed / progress - elapsed;
+                    document.getElementById('remaining-time').textContent = formatTime(Math.max(0, est));
+                }
             }, 1000);
 
             for (let i = 0; i < total; i += BATCH_SIZE) {
                 if (i > 0) await new Promise(res => setTimeout(res, THROTTLE_DELAY));
                 const batch = pending.slice(i, i + BATCH_SIZE);
                 try {
-                    const prompt = `Task: Classify these YouTube videos into [${currentCategories.join(', ')}]. JSON Array ONLY: [{"categories":["Name"],"summary":"Short Korean summary"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
-                    
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`, {
+                    const prompt = `Task: Classify ${batch.length} YouTube videos into [${currentCategories.join(', ')}]. JSON Array ONLY: [{"categories":["Name"],"summary":"Short Korean summary"}] Titles: ${batch.map((d,idx)=>`${idx+1}.${d.title}`).join('\n')}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
                     });
-                    
                     const aiData = await res.json();
-                    if (!res.ok) throw new Error(aiData.error?.message || "API Request Failed");
-
-                    const rawText = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
-                    const jsonStart = rawText.indexOf("[");
-                    const jsonEnd = rawText.lastIndexOf("]") + 1;
-                    const aiResults = JSON.parse(rawText.substring(jsonStart, jsonEnd));
+                    if (!res.ok) throw new Error(aiData.error?.message || "API Error");
+                    const rawText = aiData.candidates[0].content.parts[0].text;
+                    const aiResults = JSON.parse(rawText.substring(rawText.indexOf("["), rawText.lastIndexOf("]") + 1));
                     
                     const newlyAnalyzed = batch.map((item, idx) => ({
                         ...item,
@@ -532,61 +535,34 @@
                         analyzedAt: new Date().toISOString()
                     }));
 
-                    const fireBatch = db.batch();
-                    newlyAnalyzed.forEach(item => {
-                        const ref = db.collection('artifacts').doc(appId).collection('users').doc(currentUser.uid).collection('analyzed_videos').doc(item.id);
-                        fireBatch.set(ref, item);
-                    });
-                    await fireBatch.commit();
-                    
                     syncedData = [...syncedData, ...newlyAnalyzed];
+                    saveToLocal(); 
                     renderResults();
                     updateTreemap();
-                } catch (e) { addLog(`배치 분석 오류: ${e.message}`, "error"); }
+                } catch (e) { addLog(`배치 오류: ${e.message}`, "error"); }
                 
                 const p = Math.round(((i + batch.length) / total) * 100);
-                const bar = document.getElementById('progress-bar');
-                const text = document.getElementById('progress-text');
-                if (bar) bar.style.width = `${p}%`;
-                if (text) text.textContent = `${p}%`;
+                document.getElementById('progress-bar').style.width = `${p}%`;
+                document.getElementById('progress-text').textContent = `${p}%`;
             }
             
             clearInterval(timer);
-            if (analyzeBtn) analyzeBtn.disabled = false;
-            addLog("하이브리드 동기화 분석 및 DB 저장이 완료되었습니다!", "success");
+            btn.disabled = false;
+            addLog("모든 분석 완료 및 로컬 저장됨!", "success");
             checkEngineEnable();
-        };
+        }
 
-        // --- 6. 초기화 로직 ---
-        const initApp = async () => {
-            // Firebase 및 환경 설정 (let 변수 사용)
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'yt-hybrid-v5';
-            const firebaseConfigParsed = JSON.parse(__firebase_config);
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfigParsed);
-            db = firebase.firestore();
-            auth = firebase.auth();
+        // --- 7. 초기화 및 이벤트 바인딩 ---
+        window.onload = () => {
+            loadFromLocal();
+            renderCategoriesUI();
 
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await auth.signInWithCustomToken(__initial_auth_token);
-            } else {
-                await auth.signInAnonymously();
-            }
-
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    currentUser = user;
-                    const statusEl = document.getElementById('user-status');
-                    if (statusEl) statusEl.textContent = `Cloud Connected (UID: ${user.uid.substring(0,6)})`;
-                    loadDataFromDB();
-                }
-            });
-            
             const geminiInput = document.getElementById('gemini-api-key-input');
             const clientInput = document.getElementById('client-id-input');
             const csvInputEl = document.getElementById('csv-input');
             const searchInput = document.getElementById('search-input');
-            const filterCat = document.getElementById('filter-category');
-            const sortSel = document.getElementById('sort-select');
+            const exportBtn = document.getElementById('export-json-btn');
+            const importInput = document.getElementById('import-json-input');
 
             if (geminiInput) {
                 geminiInput.value = localStorage.getItem('gemini-key') || '';
@@ -597,7 +573,42 @@
                 clientInput.oninput = () => localStorage.setItem('client-id', clientInput.value);
             }
 
-            // CSV 처리 로직 (GitHub Pages 대응 강화)
+            // JSON 백업
+            if (exportBtn) {
+                exportBtn.onclick = () => {
+                    const blob = new Blob([JSON.stringify(syncedData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `youtube_organized_backup.json`;
+                    a.click();
+                    addLog("백업 파일이 생성되었습니다.", "success");
+                };
+            }
+
+            // JSON 복구
+            if (importInput) {
+                importInput.addEventListener('change', e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        try {
+                            const data = JSON.parse(ev.target.result);
+                            if (Array.isArray(data)) {
+                                syncedData = data;
+                                saveToLocal();
+                                renderResults();
+                                updateTreemap();
+                                addLog(`복구 성공: ${data.length}개 항목`, "success");
+                            }
+                        } catch (err) { addLog("JSON 파싱 오류", "error"); }
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            // CSV 업로드 (GitHub Pages 대응 강화)
             if (csvInputEl) {
                 csvInputEl.addEventListener('change', e => {
                     const file = e.target.files[0];
@@ -612,7 +623,6 @@
                             const lines = content.split(/\r?\n/).filter(l => l.trim());
                             
                             const parsedItems = lines.slice(1).map(line => {
-                                // CSV 따옴표 처리 정규식
                                 const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                                 const title = parts[0]?.replace(/"/g, '').trim();
                                 const url = parts[1]?.replace(/"/g, '').trim();
@@ -627,28 +637,32 @@
                             }).filter(v => v.id);
                             
                             csvRawItems = parsedItems;
-                            addLog(`성공: CSV에서 ${csvRawItems.length}개 항목을 로드했습니다.`, "success");
+                            addLog(`성공: CSV에서 ${csvRawItems.length}개 항목 로드.`, "success");
                             
-                            document.getElementById('file-info')?.classList.remove('hidden');
-                            if (document.getElementById('file-name')) {
-                                document.getElementById('file-name').textContent = file.name;
-                            }
+                            const infoBox = document.getElementById('file-info');
+                            if (infoBox) infoBox.classList.remove('hidden');
+                            const nameEl = document.getElementById('file-name');
+                            if (nameEl) nameEl.textContent = file.name;
+                            
                             checkEngineEnable();
                         } catch (err) {
-                            addLog(`오류: CSV 형식이 올바르지 않습니다. (${err.message})`, "error");
+                            addLog("CSV 파싱 중 오류가 발생했습니다.", "error");
                         }
                     };
                     
-                    reader.onerror = () => addLog("파일을 읽는 데 실패했습니다.", "error");
-                    reader.readAsText(file);
+                    // 명시적으로 UTF-8로 읽기 처리 (GitHub Pages 인코딩 안정성)
+                    reader.readAsText(file, 'UTF-8');
                 });
             }
 
-            document.getElementById('analyze-btn').onclick = runHybridAnalysis;
+            document.getElementById('analyze-btn').onclick = runLocalAnalysis;
             if (searchInput) searchInput.oninput = renderResults;
-            if (filterCat) filterCat.onchange = renderResults;
-            if (sortSel) sortSel.onchange = renderResults;
-            document.getElementById('reset-filter-btn').onclick = () => { if(filterCat) { filterCat.value = "all"; renderResults(); } };
+            document.getElementById('filter-category').onchange = renderResults;
+            document.getElementById('sort-select').onchange = renderResults;
+            document.getElementById('reset-filter-btn').onclick = () => { 
+                const fc = document.getElementById('filter-category');
+                if (fc) { fc.value = "all"; renderResults(); }
+            };
 
             document.getElementById('add-category-btn').onclick = () => {
                 const val = document.getElementById('new-category-input')?.value.trim();
@@ -664,11 +678,8 @@
                 document.getElementById('player-target-container').innerHTML = '';
             };
 
-            renderCategoriesUI();
             checkEngineEnable();
         };
-
-        window.onload = initApp;
     </script>
 </body>
 </html>
