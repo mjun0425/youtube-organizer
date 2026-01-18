@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Refined UI Edition</title>
+    <title>YouTube Smart Organizer - Refined Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -65,7 +65,7 @@
         .collapsible-content:not(.collapsed) {
             max-height: 3000px;
             opacity: 1;
-            margin-bottom: 1.5rem; /* 열렸을 때만 하단 여백 추가 */
+            margin-bottom: 1.5rem;
         }
         .collapsible-content.collapsed {
             max-height: 0 !important;
@@ -151,10 +151,17 @@
         .category-tag-delete { cursor: pointer; opacity: 0.5; font-size: 16px; margin-left: 4px; line-height: 1; }
         .category-tag-delete:hover { opacity: 1; color: #d93025; }
 
+        /* 토글 스위치 스타일 */
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        input:checked + .slider { background-color: #1a73e8; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
         .google-input { border: 1px solid #dadce0; transition: all 0.2s; }
         .google-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
 
-        /* 모던한 SVG X 아이콘 버튼 */
         #clear-search-btn {
             display: none; 
             position: absolute; 
@@ -239,7 +246,7 @@
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Sidebar (space-y-6 유지) -->
+            <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 
                 <!-- 1. 분석 대기열 -->
@@ -265,9 +272,10 @@
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
                         <input type="text" id="url-import-input" placeholder="영상 또는 재생목록 주소" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none">
-                        <div class="flex items-center gap-2 px-1">
-                            <input type="checkbox" id="immediate-analyze-toggle" class="w-3.5 h-3.5 accent-blue-600">
-                            <label for="immediate-analyze-toggle" class="text-[10px] font-bold text-slate-600 uppercase cursor-pointer">단일 영상 즉시 분석</label>
+                        <!-- 수정: 자동 갱신과 높이/비율을 동일하게 맞춤 (p-3, text-[11px]) -->
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 mt-1">
+                            <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 영상 즉시 분석</span>
+                            <label class="switch"><input type="checkbox" id="immediate-analyze-toggle"><span class="slider"></span></label>
                         </div>
                         <button id="url-import-btn" class="google-btn-primary google-btn w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md">불러오기</button>
                     </div>
@@ -326,10 +334,10 @@
                 </div>
             </div>
 
-            <!-- 메인 영역 (여백 촘촘하게 축소) -->
+            <!-- 메인 영역 -->
             <div class="lg:col-span-3">
                 
-                <!-- 아코디언 버튼 그룹 및 콘텐츠 (하나의 래퍼로 묶음) -->
+                <!-- 아코디언 버튼 그룹 및 콘텐츠 -->
                 <div class="mb-5">
                     <div class="flex flex-wrap md:flex-nowrap gap-4 items-start mb-4">
                         <div class="accordion-header" onclick="window.toggleCard('credentials-details', 'credentials-toggle-icon')">
@@ -357,7 +365,6 @@
                         </div>
                     </div>
 
-                    <!-- 아코디언 상세 내용들 -->
                     <div id="credentials-details" class="collapsible-content collapsed">
                         <div class="bg-white p-8 rounded-[32px] border border-[#dadce0] shadow-sm space-y-6">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -427,7 +434,7 @@
                     <div class="w-full bg-[#f1f3f4] h-2.5 rounded-full overflow-hidden shadow-inner"><div id="progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-500"></div></div>
                 </div>
 
-                <!-- 통합 라이브러리 (상단과의 간격 최소화) -->
+                <!-- 통합 라이브러리 -->
                 <div class="bg-white rounded-3xl shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px] mb-0">
                     <div class="px-8 py-6 border-b border-[#f1f3f4] flex justify-between items-center bg-white">
                         <h2 class="font-bold text-[#3c4043] text-xl">통합 라이브러리</h2>
@@ -439,7 +446,7 @@
                             <div class="flex-grow relative flex items-center group">
                                 <input type="text" id="search-input" placeholder="제목, 채널명, 태그로 검색..." class="w-full pl-6 pr-14 py-3 bg-white border border-[#dadce0] rounded-xl text-sm font-medium outline-none focus:ring-4 ring-blue-500/5 focus:border-blue-500 transition-all">
                                 <button id="clear-search-btn" title="Clear Search">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
                                 </button>
                             </div>
                             <div class="flex gap-3">
@@ -512,6 +519,18 @@
         </div>
     </div>
 
+    <!-- 재분류 확인 모달 -->
+    <div id="reanalyze-modal">
+        <div class="confirm-content shadow-2xl">
+            <h3 class="text-xl font-bold text-slate-900 mb-4 tracking-tighter">기존 목록 갱신</h3>
+            <p class="text-sm text-slate-500 mb-10 font-medium leading-relaxed">이미 분석된 모든 영상을 최신 정밀 기준으로 다시 분류하시겠습니까?</p>
+            <div class="flex gap-4">
+                <button id="close-reanalyze-modal" class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold shadow-sm" onclick="document.getElementById('reanalyze-modal').style.display='none'">취소</button>
+                <button id="confirm-reanalyze-btn" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl uppercase text-xs" onclick="window.confirmReanalyze()">갱신 시작</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
@@ -573,7 +592,20 @@
             window.resetPageAndRender(); 
         };
         window.clearQueue = function() { csvRawItems = []; window.addLog("대기열 삭제됨", "info"); refreshQueueUI(); };
-        window.resetLibrary = function() { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; renderResults(); updateCharts(); document.getElementById('dashboard-group').classList.add('hidden'); document.getElementById('confirm-modal').style.display = 'none'; refreshQueueUI(); };
+        
+        window.resetLibrary = function() { 
+            localStorage.removeItem(LOCAL_STORAGE_KEY); 
+            syncedData = []; 
+            renderResults(); 
+            updateCharts(); 
+            const group = document.getElementById('dashboard-group');
+            if(group) group.classList.add('hidden'); 
+            const modal = document.getElementById('confirm-modal');
+            if(modal) modal.style.display = 'none'; 
+            window.addLog("라이브러리 초기화 완료", "success");
+            refreshQueueUI(); 
+        };
+        
         window.confirmReanalyze = function() { document.getElementById('reanalyze-modal').style.display = 'none'; runAnalysis(syncedData, true); };
         window.closePlayer = function() { document.getElementById('player-modal').style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
 
@@ -635,28 +667,33 @@
             const resultBody = document.getElementById('result-body'), term = document.getElementById('search-input')?.value.toLowerCase() || "";
             const catFilter = document.getElementById('filter-category')?.value || "all", sortVal = document.getElementById('sort-select')?.value || "default", pagination = document.getElementById('pagination-container');
             const clearBtn = document.getElementById('clear-search-btn');
+            
             if (!resultBody) return;
             if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none'; 
+
             let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))) && (catFilter === "all" || (v.categories && v.categories.includes(catFilter))));
             if (sortVal === "views-desc") filtered.sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0));
             else if (sortVal === "newest") filtered.sort((a,b) => new Date(b.analyzedAt || 0) - new Date(a.analyzedAt || 0));
             else if (sortVal === "title-asc") filtered.sort((a,b) => a.title.localeCompare(b.title));
+            
             const total = filtered.length, pages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
             if(currentPage > pages) currentPage = pages;
             const start = (currentPage - 1) * ITEMS_PER_PAGE, pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
+            
             if (pagination) {
                 if (total > 0) {
                     pagination.classList.remove('hidden');
                     const totCount = document.getElementById('total-results-count'), rangeTxt = document.getElementById('current-range-text'), currNum = document.getElementById('current-page-num');
+                    const prevBtn = document.getElementById('prev-page-btn'), nextBtn = document.getElementById('next-page-btn');
                     if(totCount) totCount.textContent = total.toLocaleString();
                     if(rangeTxt) rangeTxt.textContent = `${(start + 1).toLocaleString()} - ${Math.min(start + ITEMS_PER_PAGE, total).toLocaleString()}`;
                     if(currNum) currNum.textContent = currentPage;
-                    const prevBtn = document.getElementById('prev-page-btn'), nextBtn = document.getElementById('next-page-btn');
                     if(prevBtn) prevBtn.disabled = (currentPage === 1);
                     if(nextBtn) nextBtn.disabled = (currentPage === pages);
                 } else pagination.classList.add('hidden');
             }
-            resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is empty.</td></tr>';
+            
+            resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr>';
             pageData.forEach(data => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50"; tr.onclick = () => openPlayer(data);
                 const cats = (data.categories || []).map(c => { const st = getStyleForCat(c); return `<span class="inline-block px-2.5 py-1 bg-white border-2 ${st.border} ${st.text} text-[10px] font-black rounded-lg mr-1 mb-1 uppercase">${c}</span>`; }).join('');
@@ -669,20 +706,26 @@
         }
 
         function updateCharts() {
-            const group = document.getElementById('dashboard-group'), treemapCont = document.getElementById('treemap-content'), cloudCont = document.getElementById('word-cloud-content');
+            const group = document.getElementById('dashboard-group');
+            const treemapCont = document.getElementById('treemap-content');
+            const cloudCont = document.getElementById('word-cloud-content');
+            
             if (syncedData.length === 0) {
                 if(treemapCont) treemapCont.innerHTML = '<div class="col-span-12 py-10 text-center text-slate-300 italic font-medium">분석된 데이터가 없습니다. 먼저 영상을 분석해 주세요.</div>';
                 if(cloudCont) cloudCont.innerHTML = '<div class="py-10 text-center text-slate-300 italic font-medium">분석된 키워드가 없습니다.</div>';
                 return;
             }
+            
             if(group) group.classList.remove('hidden');
             const catStats = {}; syncedData.forEach(item => { (item.categories || []).forEach(cat => { catStats[cat] = (catStats[cat] || 0) + 1; }); });
+            
             if(treemapCont) {
                 treemapCont.innerHTML = '';
                 const sortedCats = Object.entries(catStats).sort((a,b) => b[1] - a[1]);
                 sortedCats.forEach(([cat, count]) => {
                     const perc = Math.round((count / syncedData.length) * 100); if (perc < 1) return;
-                    const style = getStyleForCat(cat), tile = document.createElement('div');
+                    const style = getStyleForCat(cat);
+                    const tile = document.createElement('div');
                     tile.className = `treemap-tile bg-white border-2 ${style.border} ${style.text}`;
                     const span = Math.max(2, Math.round((perc / 100) * 12));
                     tile.style.gridColumn = `span ${span}`;
@@ -716,7 +759,8 @@
             cont.innerHTML = ''; filter.innerHTML = '<option value="all">모든 카테고리</option>';
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             currentCategories.forEach(cat => {
-                const style = getStyleForCat(cat), tag = document.createElement('div');
+                const style = getStyleForCat(cat);
+                const tag = document.createElement('div');
                 tag.className = `category-tag-container bg-white border-2 ${style.border} ${style.text}`;
                 tag.innerHTML = `<span>${cat}</span><span class="category-tag-delete font-bold cursor-pointer" onclick="event.stopPropagation(); window.removeCategory('${cat}')">&times;</span>`;
                 cont.appendChild(tag);
@@ -730,6 +774,7 @@
             const pb = document.getElementById('progress-bar'), pic = document.getElementById('progress-item-count'), pt = document.getElementById('progress-text'), card = document.getElementById('progress-card');
             if(card) card.classList.remove('hidden');
             let processed = 0, total = items.length, start = Date.now();
+            
             const timer = setInterval(() => {
                 if (!isAnalysisActive) { clearInterval(timer); return; }
                 const elapsed = Math.floor((Date.now() - start) / 1000);
@@ -741,6 +786,7 @@
                     if(remTime) remTime.textContent = formatTime(remaining);
                 }
             }, 1000);
+
             const enriched = await enrichMetadataBulk(items);
             for (let item of enriched) {
                 if (!isAnalysisActive) break;
@@ -749,8 +795,10 @@
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) });
                     const aiData = await res.json(), result = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     const final = { ...item, ...result, analyzedAt: new Date().toISOString() };
+                    
                     if (isReanalyze) { const idx = syncedData.findIndex(v => v.id === item.id); if (idx !== -1) syncedData[idx] = final; } 
                     else { syncedData.push(final); csvRawItems = csvRawItems.filter(i => i.id !== item.id); }
+                    
                     processed++; saveToLocal(); renderResults(); updateCharts(); refreshQueueUI();
                     const p = Math.round((processed / total) * 100);
                     if(pb) pb.style.width = `${p}%`; if(pt) pt.textContent = `${p}%`; if(pic) pic.textContent = `${processed} / ${total} items`;
