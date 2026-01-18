@@ -342,10 +342,10 @@
                             <button id="note-save-btn" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
                         </div>
                     </div>
-                    <div id="personal-memo-edit-view" class="flex-grow flex flex-col pt-2 min-h-0">
+                    <div id="personal-memo-edit-view" class="flex-grow flex flex-col p-6 pt-2 min-h-0">
                         <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed custom-scrollbar" placeholder="지식을 기록하세요..."></textarea>
                     </div>
-                    <div id="personal-memo-rendered-view" class="hidden flex-grow pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 p-6"></div>
+                    <div id="personal-memo-rendered-view" class="hidden flex-grow p-6 pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 mx-6 mb-6"></div>
                 </div>
                 <div id="note-ai" class="hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar">
                     <div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8">
@@ -358,11 +358,11 @@
     </div>
 
     <!-- Modals -->
-    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" x2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth ID</label><input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
+    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth ID</label><input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
     <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
 
     <script type="module">
-        // --- 0. CONSTANTS & UTILITIES ---
+        // --- 0. CONSTANTS & UTILITIES (TOP) ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
@@ -398,7 +398,7 @@
 
         window.refreshQueueUI = function() {
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
-            const news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
+            const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
             if(csvRawItems.length === 0 || isAnalysisActive) { qBox.style.display = 'none'; }
             else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
@@ -462,7 +462,7 @@
             }
         };
 
-        // --- 3. SIDEBAR TAB & DATA LOGIC (보존) ---
+        // --- 3. SIDEBAR TAB & SYNC (보존) ---
         window.switchSidebarTab = function(type) {
             ['url', 'csv', 'sync', 'manage'].forEach(t => { 
                 const cont = window.el(`tab-content-${t}`); if(cont) cont.classList.add('hidden');
@@ -598,13 +598,14 @@
             const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 엔진 가동 중...";
             try {
                 const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                const prompt = `Google Search 도구를 사용하여 다음 YouTube 영상의 실제 자막(Transcript)과 핵심 내용을 철저히 정독 분석하세요.
+                // "Search/Tool" 기반 분석을 명시적으로 요구하여 자막과 정보를 정확하게 대조하도록 함
+                const prompt = `Google Search 기능을 활용하여 다음 YouTube 영상의 실제 자막(Transcript) 전체를 정독 분석하세요.
 영상 URL: "${url}"
 제목: "${activeVideo.title}"
 채널: "${activeVideo.channelTitle}"
-영상 설명(Description): "${(activeVideo.description || '').slice(0, 1000)}"
+영상 설명 전문: "${(activeVideo.description || '').slice(0, 1500)}"
 
-위의 모든 메타데이터와 URL 도구 분석 결과를 결합하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 타임라인을 기반으로 정확한 정보를 추출해야 합니다. 
+위의 메타데이터와 URL을 통해 조회한 실제 영상 자막을 결합하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 타임라인을 기반으로 정확한 정보를 추출해야 합니다. 
 
 [작성 양식]
 ## [00:00] 섹션 제목
@@ -618,7 +619,7 @@
                     headers: {'Content-Type':'application/json'}, 
                     body: JSON.stringify({ 
                         contents: [{ parts: [{ text: prompt }] }],
-                        tools: [{ "google_search": {} }]
+                        tools: [{ "google_search": {} }] // Grounding을 통해 실시간 영상 정보 접근 유도
                     }) 
                 }).then(r => r.json());
                 
@@ -635,7 +636,7 @@
             lines.forEach(line => {
                 const sM = line.match(/^##\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), hM = line.match(/^>\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), lM = line.match(/^-\s*(.*)/);
                 if (sM) {
-                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block';
+                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block p-6 border rounded-3xl mb-4 bg-white hover:border-blue-500 cursor-pointer transition-all';
                     currentCard.onclick = () => window.seekToVideo(sM[1]);
                     currentCard.innerHTML = `<div class="ai-card-time">▶ ${sM[1]}</div><div class="ai-card-title text-base font-black">${sM[2]}</div><div class="ai-card-body-area space-y-2 mt-3"></div>`;
                     display.appendChild(currentCard);
