@@ -27,7 +27,7 @@
         
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
@@ -189,6 +189,7 @@
         .video-card .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
         .video-card img { width: 100%; height: 100%; object-fit: cover; }
         
+        /* 썸네일 우하단 길이 배지 */
         .duration-badge {
             position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); 
             color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
@@ -197,6 +198,7 @@
         .card-content { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-size: 14px; font-weight: 800; line-height: 1.4; color: #202124; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
+        /* 카드 우하단 조회수 정렬 */
         .card-meta { font-size: 11px; font-weight: 700; color: #9aa0a6; display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
         .card-viewcount { color: #5f6368; font-weight: 800; }
 
@@ -313,6 +315,7 @@
         <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <!-- Sidebar -->
             <div id="sidebar-column" class="lg:col-span-1 space-y-5 transition-all duration-300">
+                <!-- 1. 분석 대기열 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">분석 대기열</h2>
                     <div class="space-y-4">
@@ -326,6 +329,7 @@
                     </div>
                 </div>
 
+                <!-- 2. 라이브러리 동기화 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">라이브러리 동기화</h2>
                     <div class="space-y-4">
@@ -350,23 +354,25 @@
                                 </div>
                                 <div id="sync-all-label" class="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-blue-600 bg-blue-50/80 opacity-0 pointer-events-none transition-all duration-300">전체 목록 불러오기</div>
                             </div>
-                            <button id="auth-btn" class="google-btn-primary google-btn w-full py-2.5 rounded-xl text-[11px] font-black shadow-md hidden animate-pop-in" onclick="window.initiateManualSync()">불러오기</button>
+                            <button id="auth-btn" class="google-btn-primary google-btn w-full py-2.5 rounded-xl text-[11px] font-black shadow-md hidden animate-pop-in" onclick="window.fetchLikedVideosWithToken()">불러오기</button>
                         </div>
                     </div>
                 </div>
 
+                <!-- 3. URL 추가 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
                         <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="영상/재생목록 URL 입력" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 mt-1">
-                            <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 즉시 분석</span>
+                            <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 영상 즉시 분석</span>
                             <label class="switch"><input type="checkbox" id="immediate-analyze-toggle"><span class="slider"></span></label>
                         </div>
                         <button id="url-import-btn" class="google-btn-primary google-btn w-full py-3.5 rounded-xl text-sm font-bold shadow-md hidden animate-pop-in" onclick="window.importFromUrl()">불러오기</button>
                     </div>
                 </div>
 
+                <!-- 4. CSV 불러오기 -->
                 <div id="csv-import-panel" class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">CSV 불러오기</h2>
                     <div class="space-y-4">
@@ -378,6 +384,7 @@
                     </div>
                 </div>
 
+                <!-- 5. 카테고리 설정 -->
                 <div id="category-panel" class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-4 flex-nowrap">
@@ -387,6 +394,7 @@
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
+                <!-- 6. 데이터 관리 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">데이터 관리</h2>
                     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -455,7 +463,7 @@
                             <div class="flex gap-3">
                                 <input type="text" id="chat-input" placeholder="무엇이든 물어보세요..." class="flex-grow bg-slate-50 rounded-2xl px-5 h-14 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm font-bold shadow-inner">
                                 <button id="send-chat-btn" class="bg-emerald-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:bg-emerald-700 shrink-0" onclick="window.askLibrarian()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" x2="11" x2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -603,7 +611,7 @@
     </div>
 
     <script type="module">
-        // --- 0. 핵심 상태 및 제어 함수 즉시 정의 (TypeError 방지) ---
+        // --- 0. 핵심 상태 및 상수 (TypeError 방지용 최상단 선언) ---
         const PALETTE = [
             { border: 'border-blue-400', text: 'text-blue-800', bg: 'bg-blue-50/50' },
             { border: 'border-emerald-400', text: 'text-emerald-800', bg: 'bg-emerald-50/50' },
@@ -644,18 +652,17 @@
         let isAnalysisActive = false; 
         let ytPlayer = null; 
         let accessToken = null; 
-        let tokenClient = null;
         let isLiteView = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
-        // 유틸리티
+        // --- 1. 전역 제어 함수 즉시 등록 (TypeError 해결 핵심) ---
         window.el = id => document.getElementById(id);
-        
+
         window.getStyleForCat = (cat) => {
             let hash = 0; for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
             return PALETTE[Math.abs(hash) % PALETTE.length];
         };
-
+        
         window.addLog = (msg, type) => {
             const logBox = window.el('log-console'); if(!logBox) return;
             const div = document.createElement('div'); 
@@ -676,6 +683,38 @@
             } catch(e) { return null; }
         };
 
+        window.parseTimelineToButtons = (text) => {
+            if(!text) return '';
+            return text.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (match, time) => {
+                return `<span class="timestamp-link" onclick="window.seekToVideo('${time}')">${match}</span>`;
+            });
+        };
+
+        window.seekToVideo = (timeStr) => {
+            if(!ytPlayer || !ytPlayer.seekTo) return;
+            const parts = timeStr.split(':').map(Number);
+            let seconds = 0;
+            if(parts.length === 2) seconds = parts[0] * 60 + parts[1];
+            else if(parts.length === 3) seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+            ytPlayer.seekTo(seconds, true);
+            ytPlayer.playVideo();
+        };
+
+        // --- 2. UI 렌더링 및 상태 관리 함수 ---
+        window.renderCategoriesUI = function() {
+            const cont = window.el('category-tags'), filter = window.el('filter-category'); 
+            if (!cont || !filter) return;
+            cont.innerHTML = ''; filter.innerHTML = '<option value="all">전체 카테고리</option>';
+            localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
+            currentCategories.forEach(cat => {
+                const st = window.getStyleForCat(cat);
+                const tag = document.createElement('div');
+                tag.className = `category-tag-container bg-white border-2 ${st.border} ${st.text} px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-2 animate-pop-in`;
+                tag.innerHTML = `<span>${cat}</span><span class="cursor-pointer font-bold opacity-50 hover:opacity-100" onclick="window.removeCategory('${cat}')">&times;</span>`;
+                cont.appendChild(tag); filter.appendChild(new Option(cat, cat));
+            });
+        };
+
         window.refreshQueueUI = function() {
             const qBox = window.el('queue-count'), anaBtn = window.el('analyze-btn'), clrBtn = window.el('clear-queue-btn');
             const news = csvRawItems.filter(i => !i.isDuplicate);
@@ -693,25 +732,12 @@
             if(csvRawItems.length > 0) clrBtn?.classList.remove('hidden'); else clrBtn?.classList.add('hidden');
         };
 
-        window.renderCategoriesUI = function() {
-            const cont = window.el('category-tags'), filter = window.el('filter-category'); 
-            if (!cont || !filter) return;
-            cont.innerHTML = ''; filter.innerHTML = '<option value="all">전체 카테고리</option>';
-            localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
-            currentCategories.forEach(cat => {
-                const st = window.getStyleForCat(cat);
-                const tag = document.createElement('div');
-                tag.className = `category-tag-container bg-white border-2 ${st.border} ${st.text} px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-2 animate-pop-in`;
-                tag.innerHTML = `<span>${cat}</span><span class="cursor-pointer font-bold opacity-50 hover:opacity-100" onclick="window.removeCategory('${cat}')">&times;</span>`;
-                cont.appendChild(tag); filter.appendChild(new Option(cat, cat));
-            });
-        };
-
         window.renderResults = function() {
             const term = window.el('search-input')?.value.toLowerCase() || "";
             const catFilter = window.el('filter-category')?.value || "all";
             const sortVal = window.el('sort-select')?.value || "default";
             
+            // 검색 초기화 'X' 버튼 가시성
             const clearSearchBtn = window.el('clear-search-btn');
             if (term.length > 0) clearSearchBtn?.classList.remove('hidden'); else clearSearchBtn?.classList.add('hidden');
 
@@ -755,7 +781,12 @@
                 pageItems.forEach(item => {
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors";
                     tr.onclick = () => window.openPlayer(item);
-                    const cats = (item.categories||[]).map(c => { const st = window.getStyleForCat(c); return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-2 mb-2" style="font-size: 10px;">${c}</span>`; }).join('');
+                    // 카테고리 스타일 통일 (Pill 디자인)
+                    const cats = (item.categories||[]).map(c => { 
+                        const st = window.getStyleForCat(c); 
+                        return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-2 mb-2" style="font-size: 10px;">${c}</span>`; 
+                    }).join('');
+                    // 태그 가독성 및 클릭 검색 기능
                     const tags = (item.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; window.renderResults(); window.el('library-anchor').scrollIntoView({ behavior: 'smooth' });">${t}</span>`).join('');
                     tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${item.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${window.formatDurationDisplay(item.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-4">${item.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td>`;
                     tableBody.appendChild(tr);
@@ -763,105 +794,67 @@
             }
         };
 
-        // --- 3. 구글 OAuth 2.0 및 유튜브 연동 엔진 ---
-        window.handleAuthCallback = (response) => {
-            if (response.access_token) {
-                accessToken = response.access_token;
-                localStorage.setItem('yt_access_token', accessToken);
-                window.addLog("구글 인증 성공.", "success");
-                if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(50);
-            }
-        };
-
-        const initAuth = () => {
-            const clientId = localStorage.getItem('google-client-id');
-            if (clientId && window.google) {
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: clientId,
-                    scope: 'https://www.googleapis.com/auth/youtube.readonly',
-                    callback: window.handleAuthCallback
-                });
-            }
-        };
-
-        window.saveCredentials = () => {
-            const clientId = window.el('client-id-input').value.trim();
-            const geminiKey = window.el('gemini-api-key-input').value.trim();
-            localStorage.setItem('google-client-id', clientId);
-            localStorage.setItem('gemini-key', geminiKey);
-            window.addLog("인증 정보 저장됨.", "success");
-            initAuth();
-            if (tokenClient) tokenClient.requestAccessToken();
-        };
-
-        window.fetchLikedVideos = async (targetLimit, pageToken = "") => {
-            if (!accessToken) {
-                if (tokenClient) tokenClient.requestAccessToken({ prompt: '' });
-                else window.addLog("로그인이 필요합니다.", "error");
-                return;
-            }
-            window.addLog("라이브러리 동기화 중...", "info");
-            let totalFetched = 0;
-            let nextToken = pageToken;
-            const seenIds = new Set(syncedData.map(d => d.id));
-            const queueIds = new Set(csvRawItems.map(i => i.id));
+        // --- 3. 고성능 분석 시스템 (링크 및 상세정보 기반) ---
+        window.fetchYouTubeMetadata = async (ids) => {
+            if(!ids || ids.length === 0) return [];
             try {
-                while (true) {
-                    const limit = targetLimit === -1 ? 50 : Math.min(50, targetLimit - totalFetched);
-                    if (limit <= 0 && targetLimit !== -1) break;
-                    const url = `https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails,statistics&maxResults=${limit}&pageToken=${nextToken}`;
-                    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } }).then(r => r.json());
-                    if (res.error) throw new Error(res.error.message);
-                    res.items.forEach(v => {
-                        if (!seenIds.has(v.id) && !queueIds.has(v.id)) {
-                            csvRawItems.push({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, viewCount: parseInt(v.statistics.viewCount) || 0, description: v.snippet.description, isDuplicate: false });
-                            queueIds.add(v.id);
-                        }
-                    });
-                    totalFetched += res.items.length;
-                    nextToken = res.nextPageToken;
-                    if (!nextToken || (targetLimit !== -1 && totalFetched >= targetLimit)) break;
-                }
-                window.refreshQueueUI();
-                window.addLog(`동기화 완료. 대기열 확인 요망.`, "success");
-            } catch (e) {
-                window.addLog(`동기화 실패: ${e.message}`, "error");
-                if (e.message.includes('401')) { accessToken = null; tokenClient.requestAccessToken({ prompt: '' }); }
-            }
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${YT_API_KEY}`).then(r => r.json());
+                return res.items.map(v => ({
+                    id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration,
+                    thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, 
+                    viewCount: parseInt(v.statistics.viewCount) || 0, 
+                    description: v.snippet.description 
+                }));
+            } catch(e) { return []; }
         };
 
-        window.initiateManualSync = () => {
-            const isAll = window.el('all-toggle-badge').classList.contains('active');
-            const count = parseInt(window.el('sync-target-count').value) || 0;
-            window.fetchLikedVideos(isAll ? -1 : count);
-        };
-
-        // --- 4. 분석 엔진 (Gemini 3 링크 기반 요약) ---
         window.runAnalysis = async function() {
-            const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("API Key 필요.", "error"); return; }
+            const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("API Key를 입력하세요.", "error"); return; }
+            
+            // 중복 분석 철저 방지
             const seenIds = new Set(syncedData.map(d => d.id));
-            csvRawItems = csvRawItems.filter(item => { if (seenIds.has(item.id)) return false; seenIds.add(item.id); return true; });
-            if(csvRawItems.length === 0) { window.refreshQueueUI(); return; }
+            csvRawItems = csvRawItems.filter(item => {
+                if (seenIds.has(item.id)) return false;
+                seenIds.add(item.id);
+                return true;
+            });
+
+            if(csvRawItems.length === 0) { window.addLog("새로운 영상이 없습니다.", "info"); window.refreshQueueUI(); return; }
+            
             const total = csvRawItems.length;
             let count = 0;
             isAnalysisActive = true;
+            const startTime = Date.now();
             window.el('analysis-status-box').style.display = 'block';
             window.refreshQueueUI();
+
             while(csvRawItems.length > 0) {
                 const item = csvRawItems[0];
                 try {
-                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 상세 설명: "${item.description || ''}". 위 정보를 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 응답: {"categories":["분류"],"summary":"팩트 기반 한글 요약","tags":["#태그"]}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json());
-                    const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
+                    // [핵심] 링크 기반 고성능 정밀 분석 프롬프트
+                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 상세 설명: "${item.description || ''}". 위 정보를 정독하고 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 구조로 응답하세요: {"categories":["분류결과"],"summary":"한글 팩트 요약","tags":["#태그"]}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
+                    }).then(r=>r.json());
+                    
+                    const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
+                    const result = window.extractJson(text);
                     if (result) {
                         const finalObj = { ...item, ...result, analyzedAt: new Date().toISOString() };
                         syncedData.unshift(finalObj);
                         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
                     }
-                } catch(e) {} finally {
+                } catch(e) {} 
+                finally {
                     csvRawItems.shift(); count++;
-                    window.el('analysis-progress-bar-inner').style.width = `${(count/total)*100}%`;
+                    const percent = (count/total)*100;
+                    window.el('analysis-progress-bar-inner').style.width = `${percent}%`;
                     window.el('analysis-progress-text').textContent = `${count} / ${total} VIDEOS COMPLETED`;
+                    const elapsed = Math.floor((Date.now()-startTime)/1000);
+                    const remaining = count > 0 ? Math.floor((elapsed/count)*(total-count)) : 0;
+                    const formatTime = s => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
+                    window.el('analysis-timer').textContent = `경과: ${formatTime(elapsed)} | 예상: ${formatTime(remaining)}`;
                     window.renderResults(); window.refreshQueueUI();
                 }
             }
@@ -870,12 +863,37 @@
             window.updateCharts();
         };
 
+        // --- 4. 심층 분석 및 타임라인 (링크 직접 분석) ---
+        window.renderDeepAnalysisResult = (sections) => {
+            const area = window.el('deep-analysis-display-area');
+            area.innerHTML = '<h4 class="text-lg font-black text-slate-800 mb-4 border-l-4 border-blue-600 pl-3">AI 고도화 분석 리포트</h4>';
+            sections.forEach(section => {
+                const card = document.createElement('div');
+                card.className = 'deep-analysis-card';
+                // [핵심] 박스 자체 클릭 시 이동 로직 추가
+                const timestamp = section.timestamp || (section.title.match(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/) || [])[1];
+                if (timestamp) card.onclick = () => window.seekToVideo(timestamp);
+
+                const titleWithButtons = window.parseTimelineToButtons(section.title || "분석 섹션");
+                card.innerHTML = `
+                    <div class="mb-3 font-bold">${titleWithButtons}</div>
+                    <div class="text-[13px] text-slate-600 leading-relaxed font-medium">${section.content ? section.content.replace(/\n/g, '<br>') : '내용 없음'}</div>
+                `;
+                area.appendChild(card);
+            });
+            window.el('deep-analyze-btn').style.display = 'none';
+        };
+
         window.runDetailedAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
-            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
+            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI가 영상을 정밀 분석 중...";
             try {
-                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 상세 설명: "${activeVideo.description || ''}". 위 실제 영상을 정독 분석하여 타임라인 리포트를 만드세요. 반드시 JSON 응답: {"sections": [{"title": "[00:00] 소제목", "content": "상세 분석"}]}. 한국어로 답변하고 허위 금지.`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
+                // [핵심] 링크 기반 심층 분석 유도
+                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 상세 설명: "${activeVideo.description || ''}". 위 실제 정보를 바탕으로 아주 상세하게 분석하세요. 반드시 다음 JSON 구조로 응답하세요: {"sections": [{"timestamp": "01:23", "title": "[01:23] 소제목", "content": "분석 내용"}]}. 한국어로 답변하고 허위 기재 금지.`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) 
+                }).then(r=>r.json());
                 const data = JSON.parse(res.candidates[0].content.parts[0].text);
                 if (data && data.sections) {
                     activeVideo.detailedAnalysis = data.sections;
@@ -885,23 +903,66 @@
             } catch(e) {} finally { btn.disabled = false; btn.textContent = "AI 심층 분석 및 타임라인 생성"; }
         };
 
-        // --- 5. 초기 구동 및 핵심 이벤트 연동 ---
+        // --- 5. 초기 구동 및 이벤트 연동 ---
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if(saved) syncedData = JSON.parse(saved);
             const key = localStorage.getItem('gemini-key'); if(key) window.el('gemini-api-key-input').value = key;
             const cid = localStorage.getItem('google-client-id'); if(cid) window.el('client-id-input').value = cid;
             
-            initAuth();
             window.renderCategoriesUI();
             const viewToggle = window.el('view-mode-toggle');
             window.toggleViewMode(viewToggle ? viewToggle.checked : false);
             window.renderResults();
             window.refreshQueueUI();
             window.updateCharts();
-            if (window.el('auto-sync-toggle').checked && accessToken) window.fetchLikedVideos(50);
         };
 
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; currentPageNum = 1; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.addLog("초기화 완료.", "success"); window.updateCharts(); };
+        window.resetLibrary = () => {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            syncedData = [];
+            currentPageNum = 1;
+            window.renderResults();
+            window.el('confirm-modal').style.display = 'none';
+            window.addLog("라이브러리가 초기화되었습니다.", "success");
+            window.updateCharts();
+        };
+
+        window.openPlayer = (video) => {
+            activeVideo = video;
+            window.el('player-modal').style.display = 'flex';
+            window.el('modal-video-title').textContent = video.title;
+            window.el('modal-video-channel').textContent = video.channelTitle;
+            window.el('modal-video-summary').textContent = video.summary || "분석 정보가 없습니다.";
+            window.el('video-memo-textarea').value = video.memo || "";
+            
+            const btn = window.el('deep-analyze-btn');
+            const deepArea = window.el('deep-analysis-display-area');
+            if (video.detailedAnalysis) { 
+                window.renderDeepAnalysisResult(video.detailedAnalysis); 
+                btn.style.display = 'none'; 
+            } else { 
+                deepArea.innerHTML = ''; 
+                btn.style.display = 'flex'; 
+            }
+            
+            if(video.memo) {
+                window.el('video-memo-view').innerHTML = window.parseTimelineToButtons(video.memo.replace(/\n/g, '<br>'));
+                window.el('video-memo-textarea').classList.add('hidden'); window.el('video-memo-view').classList.remove('hidden');
+                window.el('memo-save-btn').classList.add('hidden'); window.el('memo-edit-btn').classList.remove('hidden');
+            } else {
+                window.el('video-memo-textarea').classList.remove('hidden'); window.el('video-memo-view').classList.add('hidden');
+                window.el('memo-save-btn').classList.remove('hidden'); window.el('memo-edit-btn').classList.add('hidden');
+            }
+            if (ytPlayer && ytPlayer.loadVideoById) { ytPlayer.loadVideoById(video.id); } 
+            else { ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: video.id, playerVars: { 'autoplay': 1, 'rel': 0, 'enablejsapi': 1 } }); }
+        };
+
+        // 보조 기능 정의
+        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('video-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.el('video-memo-view').innerHTML = window.parseTimelineToButtons(activeVideo.memo.replace(/\n/g, '<br>')); window.el('video-memo-textarea').classList.add('hidden'); window.el('video-memo-view').classList.remove('hidden'); window.el('memo-save-btn').classList.add('hidden'); window.el('memo-edit-btn').classList.remove('hidden'); };
+        window.editMemo = () => { window.el('video-memo-textarea').classList.remove('hidden'); window.el('video-memo-view').classList.add('hidden'); window.el('memo-save-btn').classList.remove('hidden'); window.el('memo-edit-btn').classList.add('hidden'); window.el('video-memo-textarea').focus(); };
+        window.insertCurrentTimestamp = () => { if(!ytPlayer || !ytPlayer.getCurrentTime) return; const curr = ytPlayer.getCurrentTime(); const ts = `[${Math.floor(curr/60).toString().padStart(2,'0')}:${Math.floor(curr%60).toString().padStart(2,'0')}] `; window.el('video-memo-textarea').value += ts; window.el('video-memo-textarea').focus(); };
+        window.saveCredentials = () => { const c = el('client-id-input').value, k = el('gemini-api-key-input').value; localStorage.setItem('gemini-key', k); localStorage.setItem('google-client-id', c); window.addLog("저장됨.", "success"); window.el('credentials-details').classList.add('collapsed'); };
+        window.removeCategory = cat => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
         window.toggleViewMode = function(checked) { isLiteView = checked; const body = window.el('main-body'); if (checked) { body.classList.add('lite-view-mode'); body.style.backgroundColor = '#ffffff'; } else { body.classList.remove('lite-view-mode'); body.style.backgroundColor = '#f8f9fa'; } window.renderResults(); };
         window.toggleCard = (bodyId, iconId) => { const b = window.el(bodyId), i = window.el(iconId); if(b) b.classList.toggle('collapsed'); if(i) i.classList.toggle('rotated'); if(bodyId === 'dashboard-details' && !b.classList.contains('collapsed')) window.updateCharts(); };
         window.closePlayer = () => { if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo(); window.el('player-modal').style.display = 'none'; };
@@ -912,17 +973,29 @@
         window.addNewCategory = () => { const val = window.el('new-category-input').value.trim(); if(val && !currentCategories.includes(val)) { currentCategories.push(val); el('new-category-input').value=''; window.renderCategoriesUI(); } };
         window.clearCategoryFilter = () => { window.el('filter-category').value = "all"; window.renderResults(); };
         window.clearSearch = () => { window.el('search-input').value = ""; window.renderResults(); };
-        window.handleSearchInput = (val) => { window.renderResults(); };
+        window.handleSearchInput = (val) => { window.renderResults(); if(val.length > 0) window.el('clear-search-btn').classList.remove('hidden'); else window.el('clear-search-btn').classList.add('hidden'); };
         window.handleUrlBtnVisibility = val => { const btn = window.el('url-import-btn'); if(val.trim().length > 0) btn?.classList.remove('hidden'); else btn?.classList.add('hidden'); };
-        window.showAuthBtn = () => { window.el('auth-btn')?.classList.remove('hidden'); };
+        window.showAuthBtn = () => { window.el('auth-btn')?.classList.remove('hidden'); window.el('auth-btn')?.classList.add('animate-pop-in'); };
         window.changePage = (dir) => { const total = syncedData.length, max = Math.ceil(total / itemsPerPage) || 1; if(currentPageNum + dir > 0 && currentPageNum + dir <= max) { currentPageNum += dir; window.renderResults(); window.el('library-anchor').scrollIntoView({ behavior: 'smooth' }); } };
         window.updateItemsPerPage = (val) => { itemsPerPage = parseInt(val); currentPageNum = 1; window.renderResults(); };
         window.handleSyncModeTransition = isAll => { const controls = window.el('sync-count-controls'), label = window.el('sync-all-label'), badge = window.el('all-toggle-badge'); if(!controls || !label || !badge) return; if(isAll) { controls.style.opacity = '0'; controls.style.pointerEvents = 'none'; label.style.opacity = '1'; label.style.pointerEvents = 'auto'; badge.classList.add('active'); window.showAuthBtn(); } else { controls.style.opacity = '1'; controls.style.pointerEvents = 'auto'; label.style.opacity = '0'; label.style.pointerEvents = 'none'; badge.classList.remove('active'); } };
-        window.handleCsvUpload = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = async ev => { const ids = ev.target.result.split('\n').map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }).filter(x=>x); if(ids.length > 0) { window.addLog(`${ids.length}개 조회 중...`, "info"); const meta = await window.fetchYouTubeMetadata(ids); meta.forEach(item => { if(!syncedData.some(d => d.id === item.id)) csvRawItems.push({ ...item, isDuplicate: false }); }); window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name; } }; r.readAsText(f); };
-        window.importFromUrl = async () => { const urlInput = window.el('url-import-input'); const vid = urlInput.value.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); if(vid) { const meta = await window.fetchYouTubeMetadata([vid[1]]); if(meta.length > 0) { const item = meta[0]; if(window.el('immediate-analyze-toggle')?.checked) { csvRawItems = [{ ...item, isDuplicate: false }]; await window.runAnalysis(); } else { csvRawItems.push({ ...item, isDuplicate: false }); window.refreshQueueUI(); } } } urlInput.value = ""; window.el('url-import-btn').classList.add('hidden'); };
-        window.askLibrarian = async function() { const key = window.el('gemini-api-key-input')?.value; if (!key) return; const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return; const q = input.value.trim(); if (!q) return; const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q; messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight; const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '생성 중...'; messages.appendChild(aiLoading); try { const dbContext = syncedData.slice(0, 30).map(v => `[${v.title}]: ${v.summary}`).join('\n'); const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: `질문: ${q} [DB]\n${dbContext}` }] }] }) }).then(r=>r.json()); messages.removeChild(aiLoading); const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text; messages.appendChild(aiMsg); } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; } };
-        window.parseTimelineToButtons = (text) => { if(!text) return ''; return text.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (match, time) => `<span class="timestamp-link" onclick="event.stopPropagation(); window.seekToVideo('${time}')">${match}</span>`); };
-        window.renderDeepAnalysisResult = (sections) => { const area = window.el('deep-analysis-display-area'); area.innerHTML = '<h4 class="text-lg font-black text-slate-800 mb-4 border-l-4 border-blue-600 pl-3">AI 고도화 리포트</h4>'; sections.forEach(section => { const card = document.createElement('div'); card.className = 'deep-analysis-card'; const timestamp = (section.title.match(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/) || [])[1]; if (timestamp) card.onclick = () => window.seekToVideo(timestamp); card.innerHTML = `<div class="mb-3 font-bold">${window.parseTimelineToButtons(section.title)}</div><div class="text-[13px] text-slate-600 leading-relaxed font-medium">${section.content ? section.content.replace(/\n/g, '<br>') : ''}</div>`; area.appendChild(card); }); window.el('deep-analyze-btn').style.display = 'none'; };
+        window.handleCsvUpload = e => { 
+            const f = e.target.files[0]; if(!f) return; 
+            const r = new FileReader(); r.onload = async ev => { 
+                const ids = ev.target.result.split('\n').map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }).filter(x=>x); 
+                if(ids.length > 0) { 
+                    window.addLog(`${ids.length}개 정보 조회 중...`, "info"); 
+                    const meta = await window.fetchYouTubeMetadata(ids); 
+                    meta.forEach(item => {
+                        const isDuplicate = syncedData.some(d => d.id === item.id);
+                        csvRawItems.push({ ...item, isDuplicate });
+                    }); 
+                    window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name; 
+                } 
+            }; r.readAsText(f); 
+        };
+        window.importFromUrl = async () => { const urlInput = window.el('url-import-input'); const url = urlInput.value.trim(); if(!url) return; const vid = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); if(vid) { const meta = await window.fetchYouTubeMetadata([vid[1]]); if(meta.length > 0) { const item = meta[0]; if(window.el('immediate-analyze-toggle')?.checked) { csvRawItems = [{ ...item, isDuplicate: false }]; await window.runAnalysis(); } else { csvRawItems.push({ ...item, isDuplicate: syncedData.some(d => d.id === item.id) }); window.refreshQueueUI(); } } } urlInput.value = ""; window.el('url-import-btn').classList.add('hidden'); };
+        window.askLibrarian = async function() { const key = window.el('gemini-api-key-input')?.value; if (!key) return; const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return; const q = input.value.trim(); if (!q) return; const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q; messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight; const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...'; messages.appendChild(aiLoading); try { const dbContext = syncedData.slice(0, 30).map(v => `[${v.title}]: ${v.summary}`).join('\n'); const prompt = `질문: ${q} [DB]\n${dbContext}`; const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json()); messages.removeChild(aiLoading); const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text; messages.appendChild(aiMsg); } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; } };
         window.updateCharts = function() { 
             const treemap = window.el('treemap-content'), cloud = window.el('word-cloud-content'); 
             if(!treemap || !cloud || syncedData.length === 0) return; 
@@ -942,13 +1015,11 @@
                 const weight = count / arr[0][1]; 
                 const tagEl = document.createElement('span'); tagEl.className = 'cloud-tag text-slate-500 font-black'; 
                 tagEl.style.fontSize = `${12 + weight*30}px`; tagEl.style.opacity = 0.4 + weight*0.6; tagEl.textContent = tag; 
-                tagEl.onclick = () => { el('search-input').value = tag; window.renderResults(); el('library-anchor').scrollIntoView({ behavior: 'smooth' }); }; 
+                tagEl.onclick = () => { el('search-input').value = tag; window.handleSearchInput(tag); el('library-anchor').scrollIntoView({ behavior: 'smooth' }); }; 
                 cloud.appendChild(tagEl); 
             }); 
         };
-        window.removeCategory = cat => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
-        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('video-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.el('video-memo-view').innerHTML = window.parseTimelineToButtons(activeVideo.memo.replace(/\n/g, '<br>')); window.el('video-memo-textarea').classList.add('hidden'); window.el('video-memo-view').classList.remove('hidden'); window.el('memo-save-btn').classList.add('hidden'); window.el('memo-edit-btn').classList.remove('hidden'); };
-        window.editMemo = () => { window.el('video-memo-textarea').classList.remove('hidden'); window.el('video-memo-view').classList.add('hidden'); window.el('memo-save-btn').classList.remove('hidden'); window.el('memo-edit-btn').classList.add('hidden'); window.el('video-memo-textarea').focus(); };
+        window.fetchLikedVideosWithToken = () => { window.addLog("API 로그인 연동이 필요합니다.", "info"); };
     </script>
 </body>
 </html>
