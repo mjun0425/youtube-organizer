@@ -24,12 +24,19 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
+        /* 애니메이션 효과 */
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
         /* 트리맵 스타일 */
         .treemap-container {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             grid-auto-rows: minmax(100px, auto);
-            gap: 10px;
+            gap: 12px;
             width: 100%;
         }
         
@@ -89,7 +96,7 @@
         }
 
         /* 모달 시스템 - 1.4:1 비율 고정 */
-        #player-modal, #confirm-modal, #reanalyze-modal, #csv-guide-modal {
+        #player-modal, #confirm-modal, #reanalyze-modal {
             display: none;
             position: fixed;
             inset: 0;
@@ -107,7 +114,7 @@
             border-radius: 32px;
             overflow: hidden;
             display: grid;
-            grid-template-columns: 1.4fr 1fr;
+            grid-template-columns: 1.4fr 1fr; 
             height: 90vh;
             box-shadow: 0 40px 100px rgba(0,0,0,0.3);
             position: relative;
@@ -115,8 +122,8 @@
 
         .modal-close-x {
             position: absolute;
-            top: 16px;
-            right: 16px;
+            top: 20px;
+            right: 20px;
             width: 40px;
             height: 40px;
             background: #fff;
@@ -134,6 +141,7 @@
 
         .player-panel { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: #f8fafc; border-right: 1px solid #e2e8f0; }
         .player-wrapper { position: sticky; top: 0; width: 100%; aspect-ratio: 16 / 9; background: #000; z-index: 10; }
+        .video-info-area { padding: 32px; flex-grow: 1; }
         .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; padding: 32px; padding-top: 70px; }
 
         .google-btn-primary { background-color: #1a73e8; color: white; transition: all .2s; font-weight: 600; }
@@ -167,7 +175,23 @@
         .google-input { border: 1px solid #dadce0; transition: all 0.2s; }
         .google-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
 
-        /* 라이트 뷰 갤러리 그리드 */
+        /* 심층 분석 블록 스타일 */
+        .summary-block {
+            margin-bottom: 16px; padding: 20px; background: #ffffff; border-radius: 20px;
+            border: 1px solid #e2e8f0; box-shadow: 0 40px 100px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;
+        }
+        .summary-block:hover { border-color: #1a73e8; background: #f1f6ff; transform: translateX(8px); }
+
+        .memo-jump-btn-pill {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #eef4ff; color: #1a73e8; font-weight: 800; font-size: 13px;
+            padding: 3px 10px; border-radius: 8px; border: 1.5px solid #dbeafe;
+            cursor: pointer; transition: all 0.2s; margin: 0 4px;
+            vertical-align: middle;
+        }
+
+        /* 라이트 뷰 갤러리 그리드 - 한줄에 5개 */
         .lite-view-mode main { grid-template-columns: 1fr; }
         .lite-view-mode #sidebar-column, .lite-view-mode #header-brand, .lite-view-mode #standard-settings-area { display: none !important; }
         .lite-view-mode header { margin-bottom: 1rem; justify-content: flex-end; }
@@ -179,7 +203,7 @@
             padding: 16px;
         }
         @media (min-width: 640px) { #gallery-body { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { #gallery-body { grid-template-columns: repeat(5, 1fr); } }
+        @media (min-width: 1024px) { #gallery-body { grid-template-columns: repeat(5, 1fr); } } 
 
         .video-card {
             background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #eef0f2;
@@ -191,10 +215,10 @@
         
         .card-content { padding: 14px 16px; flex-grow: 1; display: flex; flex-direction: column; }
         .card-title { font-size: 14px; font-weight: 800; line-height: 1.4; color: #202124; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-channel { font-size: 11px; font-weight: 700; color: #5f6368; }
+        .card-meta { font-size: 11px; font-weight: 700; color: #5f6368; display: flex; justify-content: space-between; align-items: center; }
 
-        .step-btn { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; background: #f1f3f4; color: #5f6368; border-radius: 6px; font-size: 16px; font-weight: 900; cursor: pointer; transition: all 0.2s; }
-        .step-btn:hover { background: #e2e8f0; color: #1a73e8; }
+        .step-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: #f1f3f4; color: #5f6368; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; transition: all 0.2s; flex-shrink: 0; border: 1px solid #dadce0; }
+        .step-btn:hover { background: #e2e8f0; color: #1a73e8; border-color: #1a73e8; transform: scale(1.05); }
         
         /* 카테고리 태그 알약형 통일 */
         .category-tag-container {
@@ -205,9 +229,9 @@
         }
         
         .library-tag-pill {
-            display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px;
+            display: inline-block; padding: 3px 10px; border-radius: 8px; font-size: 11px;
             font-weight: 700; background: #f1f3f4; color: #5f6368; margin-right: 4px; margin-bottom: 4px;
-            cursor: pointer;
+            cursor: pointer; transition: all 0.2s;
         }
         .library-tag-pill:hover { background: #e2e8f0; color: #1a73e8; }
 
@@ -233,6 +257,16 @@
         .lite-view-mode #pagination-container-top { display: none !important; }
         #pagination-container-bottom { display: none !important; }
         .lite-view-mode #pagination-container-bottom { display: flex !important; }
+        
+        .chat-bubble { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
+        .chat-user { background: #1a73e8; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-ai { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #dadce0; }
+
+        #video-memo-view {
+            white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.8; color: #3c4043;
+            padding: 24px; background: #fdfdfd; border: 1px solid #f1f3f4; border-radius: 24px;
+            height: 100%; overflow-y: auto; font-weight: 500;
+        }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen" id="main-body">
@@ -259,25 +293,28 @@
             </div>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div id="sidebar-column" class="lg:col-span-1 space-y-6 transition-all duration-300">
-                <!-- 1. 분석 대기열 (동적 버튼 노출) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider mb-4">분석 대기열</h2>
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <!-- Sidebar -->
+            <div id="sidebar-column" class="lg:col-span-1 space-y-5 transition-all duration-300">
+                <!-- 1. 분석 대기열 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider mb-3">분석 대기열</h2>
                     <div class="space-y-4">
-                        <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center relative overflow-hidden">
-                            <div id="queue-count" class="text-3xl font-black text-slate-700">0</div>
-                            <div id="engine-status-hint" class="text-[10px] font-bold text-slate-400 uppercase mt-1">대기 항목 없음</div>
+                        <div id="queue-display-box" class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center relative overflow-hidden">
+                            <div id="queue-count" class="text-3xl font-black text-slate-700 flex items-center justify-center gap-3">
+                                <span id="new-count-badge" class="text-emerald-500 animate-pop-in">0</span>
+                                <span id="dup-split-pipe" class="text-slate-200 font-thin hidden">|</span>
+                                <span id="dup-count-badge" class="text-rose-400 text-xl hidden">0</span>
+                            </div>
                         </div>
-                        <!-- 초기 상태 Hidden -->
                         <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all hidden">분석 시작</button>
                         <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline hidden" onclick="window.clearQueue()">대기열 비우기</button>
                     </div>
                 </div>
 
-                <!-- 2. 좋아요 영상 불러오기 (기본 0개 및 동적 노출) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">좋아요 영상 불러오기</h2>
+                <!-- 2. 좋아요 영상 불러오기 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">좋아요 영상 불러오기</h2>
                     <div class="space-y-4">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                             <div class="flex flex-col">
@@ -294,38 +331,39 @@
                                     <input type="checkbox" id="sync-all-toggle" class="w-4 h-4 rounded accent-blue-600" onchange="window.handleSyncModeTransition(this.checked)">
                                 </div>
                             </div>
-                            <div class="relative h-11 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center pr-3">
-                                <div id="sync-count-controls" class="flex-grow flex items-center px-3 gap-2 opacity-100 transition-all duration-300 transform scale-100 pointer-events-auto">
-                                    <button class="step-btn" onclick="const i = document.getElementById('sync-target-count'); if(i.value > 0) { i.stepDown(); window.showAuthBtn(); }">-</button>
-                                    <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="flex-grow text-center text-[11px] font-black text-slate-700 outline-none bg-transparent">
-                                    <span id="sync-unit-label" class="text-[11px] font-bold text-slate-500 shrink-0">개</span>
-                                    <button class="step-btn" onclick="const i = document.getElementById('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
+                            <!-- 수정: + 버튼 및 레이아웃 복구 -->
+                            <div class="relative h-11 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center px-1">
+                                <div id="sync-count-controls" class="w-full flex items-center justify-between opacity-100 transition-all duration-300 transform scale-100 pointer-events-auto">
+                                    <button class="step-btn" onclick="const i = window.el('sync-target-count'); if(parseInt(i.value) > 0) { i.stepDown(); window.showAuthBtn(); }">-</button>
+                                    <div class="flex items-center justify-center flex-grow">
+                                        <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="w-10 text-center text-[11px] font-black text-slate-700 outline-none bg-transparent">
+                                        <span id="sync-unit-label" class="text-[11px] font-bold text-slate-500">개</span>
+                                    </div>
+                                    <button class="step-btn" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
                                 </div>
-                                <div id="sync-all-label" class="absolute inset-0 w-full h-full flex items-center px-4 text-[11px] font-bold text-blue-600 bg-blue-50/80 transition-all duration-300 opacity-0 transform scale-95 pointer-events-none text-center justify-center">전체 목록 불러오기</div>
+                                <div id="sync-all-label" class="absolute inset-0 w-full h-full flex items-center justify-center px-4 text-[11px] font-bold text-blue-600 bg-blue-50/80 transition-all duration-300 opacity-0 transform scale-95 pointer-events-none">전체 목록 불러오기</div>
                             </div>
-                            <!-- 초기 상태 Hidden -->
                             <button id="auth-btn" class="google-btn-primary google-btn w-full py-2.5 rounded-xl text-[11px] font-black shadow-md hidden">불러오기</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- 3. URL 추가 (동적 버튼 노출) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">URL 추가</h2>
+                <!-- 3. URL 추가 -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
-                        <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="영상/재생목록 URL 입력" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none">
+                        <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="영상/재생목록 URL 입력" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none font-medium">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 mt-1">
                             <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 영상 즉시 분석</span>
                             <label class="switch"><input type="checkbox" id="immediate-analyze-toggle"><span class="slider"></span></label>
                         </div>
-                        <!-- 초기 상태 Hidden -->
                         <button id="url-import-btn" class="google-btn-primary google-btn w-full py-3.5 rounded-xl text-sm font-bold shadow-md hidden">불러오기</button>
                     </div>
                 </div>
 
                 <!-- 4. CSV 불러오기 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">CSV 불러오기</h2>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">CSV 불러오기</h2>
                     <div class="space-y-4">
                         <label for="csv-input" class="flex flex-col items-center justify-center w-full h-24 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all text-center">
                             <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">CSV 파일 선택</p>
@@ -336,9 +374,9 @@
                 </div>
 
                 <!-- 5. 카테고리 설정 -->
-                <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
-                    <div class="flex items-center gap-2 mb-5 flex-nowrap">
+                <div id="category-panel" class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">카테고리 설정</h2>
+                    <div class="flex items-center gap-2 mb-4 flex-nowrap">
                         <input type="text" id="new-category-input" placeholder="새 주제" class="google-input flex-grow min-w-0 bg-slate-50 rounded-xl px-4 h-11 text-sm outline-none font-bold">
                         <button id="add-category-btn" class="google-btn-primary w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0 shadow-lg shadow-blue-500/10">+</button>
                     </div>
@@ -346,8 +384,8 @@
                 </div>
 
                 <!-- 6. 데이터 관리 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 관리</h2>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">데이터 관리</h2>
                     <div class="grid grid-cols-2 gap-2 mb-2">
                         <button id="export-json-btn" class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 shadow-sm">백업 (JSON)</button>
                         <label class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 text-center cursor-pointer shadow-sm">복구 (JSON)<input id="import-json-input" type="file" class="hidden" accept=".json" /></label>
@@ -359,14 +397,14 @@
                 </div>
 
                 <!-- 7. 엔진 로그 -->
-                <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
+                <div class="bg-[#202124] rounded-2xl p-5 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2"><div class="text-[#81c995] font-bold">> Ready.</div></div>
                 </div>
             </div>
 
-            <!-- Library Content Column -->
-            <div id="library-column" class="lg:col-span-3 space-y-6">
+            <!-- Library Content Column (4/5) -->
+            <div id="library-column" class="lg:col-span-4 space-y-6">
                 
                 <div id="standard-settings-area" class="space-y-4">
                     <div class="flex flex-wrap md:flex-nowrap gap-4">
@@ -390,7 +428,7 @@
                                 <input type="password" id="gemini-api-key-input" placeholder="Gemini API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm">
                                 <input type="text" id="client-id-input" placeholder="OAuth Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm">
                             </div>
-                            <button id="save-config-btn" class="google-btn-primary w-full h-14 rounded-2xl text-sm font-black">설정 저장 및 로그인</button>
+                            <button id="save-config-btn" class="google-btn-primary w-full h-14 rounded-2xl text-sm font-black shadow-xl">설정 저장 및 로그인</button>
                         </div>
                     </div>
 
@@ -420,7 +458,6 @@
                     </div>
                 </div>
 
-                <!-- 라이브러리 목록 카드 -->
                 <div class="bg-white rounded-[32px] shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="p-6 bg-white flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
                         <div class="flex-grow w-full relative flex items-center">
@@ -450,10 +487,10 @@
                         <table id="table-mode-body" class="w-full text-sm text-left table-fixed">
                             <thead class="bg-[#f8f9fa] text-[#5f6368] font-black text-[10px] uppercase border-b border-[#dadce0]">
                                 <tr>
-                                    <th class="px-8 py-3 w-64 text-center">썸네일</th>
-                                    <th class="px-6 py-3 w-48">카테고리</th>
-                                    <th class="px-6 py-3">요약 정보</th>
-                                    <th class="px-8 py-3 w-40 text-right">상세 정보</th>
+                                    <th class="px-8 py-6 w-64 text-center">썸네일</th>
+                                    <th class="px-6 py-6 w-48">카테고리</th>
+                                    <th class="px-6 py-6">요약 및 태그</th>
+                                    <th class="px-8 py-6 w-40 text-right">정보</th>
                                 </tr>
                             </thead>
                             <tbody id="result-body" class="divide-y divide-[#eee]"></tbody>
@@ -482,13 +519,25 @@
             <div class="player-panel custom-scrollbar">
                 <div class="player-wrapper"><div id="yt-player-frame"></div></div>
                 <div class="video-info-area">
-                    <h3 id="modal-video-title" class="font-black text-2xl mb-1 truncate">제목</h3>
-                    <p id="modal-video-channel" class="text-xs text-blue-600 font-black mb-8 uppercase">채널</p>
+                    <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-1">비디오 제목</h3>
+                    <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase tracking-widest mb-6">채널명</p>
                     <div class="space-y-6">
-                        <button class="google-btn-primary w-full py-4 rounded-2xl text-sm font-black shadow-lg" onclick="window.runDetailedAnalysis()">AI 심층 분석 및 타임라인 생성</button>
-                        <div id="script-loading" class="hidden py-10 text-center"><div class="w-10 h-10 border-4 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div><p class="text-[10px] font-bold">분석 중...</p></div>
-                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm"><p id="modal-video-summary" class="text-sm leading-relaxed font-medium italic opacity-70">정보를 불러오는 중...</p></div>
-                        <div id="modal-timeline-container" class="space-y-3"></div>
+                        <button id="detailed-summary-btn" class="google-btn-primary w-full py-4 rounded-2xl text-sm font-black shadow-lg shadow-blue-500/10 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]" onclick="window.runDetailedAnalysis()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                            AI 심층 분석 및 타임라인 생성
+                        </button>
+                        <div id="script-loading" class="hidden py-10 text-center animate-pulse flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100 shadow-inner">
+                            <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                            <p class="text-[11px] text-slate-400 font-black uppercase tracking-widest">지식 추출 중...</p>
+                        </div>
+                        <div id="insight-card" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hidden">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.38 8.38 0 0 1 3.9.9"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                AI Content Insight
+                            </p>
+                            <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium italic"></p>
+                        </div>
+                        <div id="modal-timeline-container" class="space-y-4"></div>
                     </div>
                 </div>
             </div>
@@ -496,39 +545,39 @@
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="text-lg font-black text-slate-800">퍼스널 노트</h4>
                     <div class="flex gap-2">
-                        <button id="memo-timestamp-btn" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[11px] font-black" onclick="window.insertCurrentTimestamp()">시간 삽입</button>
-                        <button id="memo-save-btn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-[11px] font-black" onclick="window.saveMemoMode()">저장</button>
-                        <button id="memo-edit-btn" class="hidden bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black" onclick="window.editMemoMode()">수정</button>
+                        <button id="memo-timestamp-btn" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-100 transition-all border border-blue-100" onclick="window.insertCurrentTimestamp()">시간 삽입</button>
+                        <button id="memo-save-btn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-[11px] font-black hover:bg-black transition-all" onclick="window.saveMemoMode()">저장</button>
+                        <button id="memo-edit-btn" class="hidden bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-slate-200 transition-all border border-slate-200" onclick="window.editMemoMode()">수정</button>
                     </div>
                 </div>
                 <div class="flex-grow flex flex-col h-full overflow-hidden">
-                    <textarea id="video-memo-textarea" class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none text-sm font-medium resize-none shadow-inner" placeholder="기록을 남기세요..."></textarea>
+                    <textarea id="video-memo-textarea" class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm font-medium leading-relaxed resize-none shadow-inner custom-scrollbar text-slate-700" placeholder="기록하세요..."></textarea>
                     <div id="video-memo-view" class="hidden custom-scrollbar h-full"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 확인 모달 -->
-    <div id="confirm-modal">
-        <div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-            <h3 class="text-xl font-bold mb-4">데이터 초기화</h3>
-            <p class="text-sm text-slate-500 mb-10">모든 분석 데이터를 삭제하시겠습니까?</p>
-            <div class="flex gap-4">
-                <button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="document.getElementById('confirm-modal').style.display='none'">취소</button>
-                <button class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold" onclick="window.resetLibrary()">초기화</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
+        // --- 1. 유틸리티 (전역 노출) ---
+        window.el = id => document.getElementById(id);
+        window.bind = (id, evt, fn) => window.el(id)?.addEventListener(evt, fn);
+        window.binds = (cls, evt, fn) => document.querySelectorAll(cls).forEach(e => e.addEventListener(evt, fn));
+
+        // --- 2. 상수 및 상태 ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3.0-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
         const ITEMS_PER_PAGE = 50; 
 
-        let syncedData = []; let csvRawItems = []; let activeVideo = null; let currentPage = 1; 
-        let isAnalysisActive = false; let ytPlayer = null; let accessToken = null; let tokenClient = null;
+        let syncedData = []; 
+        let csvRawItems = []; 
+        let activeVideo = null; 
+        let currentPage = 1; 
+        let isAnalysisActive = false; 
+        let ytPlayer = null; 
+        let accessToken = null; 
+        let tokenClient = null;
         let isLiteView = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
@@ -543,42 +592,86 @@
             { border: 'border-cyan-400', text: 'text-cyan-800', bg: 'bg-cyan-50/50' }
         ];
 
+        // --- 3. 핵심 로직 함수들 ---
         function getStyleForCat(cat) {
             let hash = 0; for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
             return PALETTE[Math.abs(hash) % PALETTE.length];
         }
 
-        const el = id => document.getElementById(id);
-        const bind = (id, evt, fn) => el(id)?.addEventListener(evt, fn);
-        const binds = (cls, evt, fn) => document.querySelectorAll(cls).forEach(e => e.addEventListener(evt, fn));
+        function parseTimestampsToButtons(text) {
+            if(!text) return '<span class="text-slate-300 italic">내용이 없습니다.</span>';
+            let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            const regex = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g;
+            return escaped.replace(regex, (match, time) => `<span class="memo-jump-btn-pill" onclick="window.seekTo('${time}')">${match}</span>`);
+        }
 
-        // URL 버튼 노출 제어
-        window.handleUrlBtnVisibility = function(val) {
-            const btn = el('url-import-btn');
-            if(val.trim().length > 0) btn?.classList.remove('hidden');
+        function formatDurationDisplay(dur) { 
+            if(!dur) return "00:00"; 
+            if(dur.includes(':')) return dur; 
+            return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); 
+        }
+
+        window.renderCategoriesUI = function() {
+            const cont = window.el('category-tags'), filter = window.el('filter-category'); 
+            if (!cont || !filter) return;
+            cont.innerHTML = ''; filter.innerHTML = '<option value="all">전체 카테고리</option>';
+            localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
+            currentCategories.forEach(cat => {
+                const st = getStyleForCat(cat);
+                const tag = document.createElement('div');
+                tag.className = `category-tag-container bg-white border-2 ${st.border} ${st.text} px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-2 animate-pop-in`;
+                tag.innerHTML = `<span>${cat}</span><span class="cursor-pointer font-bold opacity-50 hover:opacity-100" onclick="window.removeCategory('${cat}')">&times;</span>`;
+                cont.appendChild(tag); filter.appendChild(new Option(cat, cat));
+            });
+        };
+
+        function refreshQueueUI() {
+            const newCountBadge = window.el('new-count-badge');
+            const dupCountBadge = window.el('dup-count-badge');
+            const splitPipe = window.el('dup-split-pipe');
+            const analyzeBtn = window.el('analyze-btn');
+            const clearBtn = window.el('clear-queue-btn');
+
+            const newItems = csvRawItems.filter(i => !i.isDuplicate);
+            const dupItems = csvRawItems.filter(i => i.isDuplicate);
+
+            if(newCountBadge) newCountBadge.textContent = newItems.length;
+            
+            if (dupItems.length > 0 && !isAnalysisActive) {
+                if(dupCountBadge) { 
+                    dupCountBadge.textContent = dupItems.length; 
+                    dupCountBadge.classList.remove('hidden'); 
+                    dupCountBadge.classList.add('animate-pop-in');
+                }
+                if(splitPipe) splitPipe.classList.remove('hidden');
+            } else {
+                if(dupCountBadge) dupCountBadge.classList.add('hidden');
+                if(splitPipe) splitPipe.classList.add('hidden');
+            }
+
+            if(newItems.length > 0) {
+                analyzeBtn?.classList.remove('hidden'); analyzeBtn?.classList.add('animate-pop-in');
+            } else {
+                analyzeBtn?.classList.add('hidden');
+            }
+
+            if(csvRawItems.length > 0) {
+                clearBtn?.classList.remove('hidden'); clearBtn?.classList.add('animate-pop-in');
+            } else {
+                clearBtn?.classList.add('hidden');
+            }
+        }
+
+        window.handleUrlBtnVisibility = val => {
+            const btn = window.el('url-import-btn');
+            if(val.trim().length > 0) { btn?.classList.remove('hidden'); btn?.classList.add('animate-pop-in'); }
             else btn?.classList.add('hidden');
         };
 
-        // 수동 불러오기 버튼 노출 제어
-        window.showAuthBtn = function() {
-            el('auth-btn')?.classList.remove('hidden');
-        };
+        window.showAuthBtn = () => { window.el('auth-btn')?.classList.remove('hidden'); window.el('auth-btn')?.classList.add('animate-pop-in'); };
 
-        window.toggleViewMode = function(checked) {
-            isLiteView = checked;
-            const body = el('main-body'), sidebar = el('sidebar-column'), settings = el('standard-settings-area'), brand = el('header-brand');
-            if (checked) {
-                body.classList.add('lite-view-mode'); body.style.backgroundColor = '#ffffff';
-                if(sidebar) sidebar.style.display = 'none'; if(settings) settings.style.display = 'none'; if(brand) brand.style.display = 'none';
-            } else {
-                body.classList.remove('lite-view-mode'); body.style.backgroundColor = '#f8f9fa';
-                if(sidebar) sidebar.style.display = 'block'; if(settings) settings.style.display = 'block'; if(brand) brand.style.display = 'flex';
-            }
-            renderResults();
-        };
-
-        window.handleSyncModeTransition = function(isAll) {
-            const controls = el('sync-count-controls'), label = el('sync-all-label'), input = el('sync-target-count'), unit = el('sync-unit-label');
+        window.handleSyncModeTransition = isAll => {
+            const controls = window.el('sync-count-controls'), label = window.el('sync-all-label'), input = window.el('sync-target-count'), unit = window.el('sync-unit-label');
             if(!controls || !label || !input || !unit) return;
             if(isAll) {
                 controls.style.opacity = '0'; controls.style.pointerEvents = 'none'; label.style.opacity = '1'; label.style.transform = 'scale(1)'; label.style.pointerEvents = 'auto'; input.disabled = true; unit.style.opacity = '0';
@@ -588,70 +681,173 @@
             }
         };
 
-        window.toggleCard = (bodyId, iconId) => {
-            const b = el(bodyId), i = el(iconId);
-            if(b) b.classList.toggle('collapsed'); if(i) i.classList.toggle('rotated');
-            if(bodyId === 'dashboard-details' && !b.classList.contains('collapsed')) updateCharts();
+        async function addToQueue(newItems) {
+            const existingIds = new Set(syncedData.map(d => d.id));
+            const itemsWithStatus = newItems.map(item => ({ ...item, isDuplicate: existingIds.has(item.id) }));
+            const currentQueueIds = new Set(csvRawItems.map(i => i.id));
+            const filteredNewOnes = itemsWithStatus.filter(i => !currentQueueIds.has(i.id));
+            csvRawItems = [...csvRawItems, ...filteredNewOnes];
+            refreshQueueUI();
+        }
+
+        window.runAnalysis = async function() {
+            const key = window.el('gemini-api-key-input')?.value;
+            if(!key) return;
+            csvRawItems = csvRawItems.filter(i => !i.isDuplicate);
+            if(csvRawItems.length === 0) return;
+            isAnalysisActive = true; refreshQueueUI();
+            while(csvRawItems.length > 0) {
+                const item = csvRawItems[0];
+                try {
+                    const prompt = `분석: "${item.title}". JSON: {"categories":["Name"],"summary":"요약", "tags":["#태그"]}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
+                    const result = JSON.parse(res.candidates[0].content.parts[0].text);
+                    syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() });
+                    csvRawItems.shift(); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+                    renderResults(); refreshQueueUI();
+                } catch(e) { csvRawItems.shift(); refreshQueueUI(); }
+            }
+            isAnalysisActive = false; refreshQueueUI();
         };
 
         window.renderResults = function() {
-            const term = el('search-input')?.value.toLowerCase() || "";
-            const catFilter = el('filter-category')?.value || "all";
-            const sortVal = el('sort-select')?.value || "default";
-            
-            let filtered = syncedData.filter(v => (
-                v.title?.toLowerCase().includes(term) || 
-                v.channelTitle?.toLowerCase().includes(term) ||
-                (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))
-            ) && (catFilter === "all" || v.categories?.includes(catFilter)));
-
+            const term = window.el('search-input')?.value.toLowerCase() || "";
+            const catFilter = window.el('filter-category')?.value || "all";
+            const sortVal = window.el('sort-select')?.value || "default";
+            let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))) && (catFilter === "all" || v.categories?.includes(catFilter)));
             if (sortVal === "views-desc") filtered.sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0));
             else if (sortVal === "title-asc") filtered.sort((a,b) => a.title.localeCompare(b.title));
-            
             const total = filtered.length, pages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
             if (currentPage > pages) currentPage = pages;
             const pageData = filtered.slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE);
-
             document.querySelectorAll('#total-results-count-top, #total-results-count-bottom').forEach(e => e.textContent = total.toLocaleString());
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPage);
             document.querySelectorAll('.page-btn-prev').forEach(e => e.disabled = currentPage === 1);
             document.querySelectorAll('.page-btn-next').forEach(e => e.disabled = currentPage === pages);
-
-            const tableBody = el('result-body'), galleryContainer = el('gallery-body'), tableMode = el('table-mode-body'), galleryMode = el('gallery-mode-body'), emptyState = el('empty-state');
-            if(total === 0) { emptyState?.classList.remove('hidden'); tableMode?.classList.add('hidden'); galleryMode?.classList.add('hidden'); return; }
+            const tableBody = window.el('result-body'), galleryContainer = window.el('gallery-body'), emptyState = window.el('empty-state');
+            if(total === 0) { emptyState?.classList.remove('hidden'); window.el('table-mode-body')?.classList.add('hidden'); window.el('gallery-mode-body')?.classList.add('hidden'); return; }
             emptyState?.classList.add('hidden');
-
             if(isLiteView) {
-                tableMode?.classList.add('hidden'); galleryMode?.classList.remove('hidden');
+                window.el('table-mode-body')?.classList.add('hidden'); window.el('gallery-mode-body')?.classList.remove('hidden');
                 if(galleryContainer) {
                     galleryContainer.innerHTML = '';
                     pageData.forEach(data => {
                         const card = document.createElement('div'); card.className = 'video-card animate-fadeIn'; card.onclick = () => openPlayer(data);
-                        card.innerHTML = `<div class="relative"><img src="${data.thumbnail}" loading="lazy"><span class="absolute bottom-2 right-2 bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded font-black tracking-tighter">${(data.viewCount || 0).toLocaleString()} Views</span></div><div class="card-content"><div class="card-title">${data.title}</div><div class="card-channel">${data.channelTitle}</div></div>`;
+                        card.innerHTML = `<div class="relative aspect-video"><img src="${data.thumbnail}" loading="lazy" class="w-full h-full object-cover"><span class="absolute bottom-2 right-2 bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded font-black tracking-tighter">${formatDurationDisplay(data.duration)}</span></div><div class="card-content"><div class="card-title">${data.title}</div><div class="card-meta"><span class="truncate">${data.channelTitle}</span><span class="text-blue-600 font-black shrink-0">${(data.viewCount || 0).toLocaleString()} Views</span></div></div>`;
                         galleryContainer.appendChild(card);
                     });
                 }
             } else {
-                galleryMode?.classList.add('hidden'); tableMode?.classList.remove('hidden');
+                window.el('gallery-mode-body')?.classList.add('hidden'); window.el('table-mode-body')?.classList.remove('hidden');
                 if(tableBody) {
                     tableBody.innerHTML = '';
                     pageData.forEach(data => {
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors";
-                        tr.onclick = () => openPlayer(data);
+                        const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors"; tr.onclick = () => openPlayer(data);
                         const cats = (data.categories||[]).map(c => { const st = getStyleForCat(c); return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; }).join('');
-                        const tags = (data.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); el('search-input').value='${t}'; renderResults();">${t}</span>`).join('');
-                        tr.innerHTML = `<td class="px-8 py-3 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${data.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${formatDurationDisplay(data.duration)}</span></div></td><td class="px-6 py-3 align-top"><div class="flex flex-wrap gap-1">${cats}</div></td><td class="px-6 py-3 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1">${data.title}</div><p class="text-xs text-slate-400 line-clamp-1 leading-relaxed font-medium mb-2">${data.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-3 align-top text-right"><div class="text-slate-900 font-black text-base">${(data.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${data.channelTitle}</div></td>`;
+                        const tags = (data.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; renderResults();">${t}</span>`).join('');
+                        tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${data.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${formatDurationDisplay(data.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap gap-1">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${data.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-3">${data.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(data.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${data.channelTitle}</div></td>`;
                         tableBody.appendChild(tr);
                     });
                 }
             }
         };
 
-        function formatDurationDisplay(dur) { if(!dur) return "00:00"; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); }
+        window.openPlayer = video => {
+            activeVideo = video; window.el('player-modal').style.display='flex';
+            if(ytPlayer) { try{ytPlayer.destroy();}catch(e){} }
+            ytPlayer = new YT.Player('yt-player-frame', {
+                height: '100%', width: '100%', videoId: video.id, playerVars: { 'autoplay': 1, 'modestbranding': 1, 'rel': 0 },
+                events: { 'onReady': () => {
+                    window.el('modal-video-title').textContent = video.title; window.el('modal-video-channel').textContent = video.channelTitle;
+                    const area = window.el('video-memo-textarea');
+                    if(video.memo) { area.value = video.memo; window.el('video-memo-view').innerHTML = parseTimestampsToButtons(video.memo); window.saveMemoMode(); } 
+                    else { area.value = ""; window.editMemoMode(); }
+                    renderSummaryUI();
+                }}
+            });
+        };
+
+        window.closePlayer = () => { window.el('player-modal').style.display = 'none'; if(ytPlayer) { try { ytPlayer.destroy(); } catch (e) {} ytPlayer = null; } activeVideo = null; };
+
+        window.saveMemoMode = () => {
+            if(!activeVideo) return;
+            const textarea = window.el('video-memo-textarea'), viewArea = window.el('video-memo-view');
+            activeVideo.memo = textarea.value;
+            const idx = syncedData.findIndex(v => v.id === activeVideo.id); if(idx!==-1) syncedData[idx]=activeVideo;
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+            viewArea.innerHTML = parseTimestampsToButtons(textarea.value);
+            textarea.classList.add('hidden'); viewArea.classList.remove('hidden');
+            window.el('memo-timestamp-btn')?.classList.add('hidden'); window.el('memo-save-btn')?.classList.add('hidden'); window.el('memo-edit-btn')?.classList.remove('hidden');
+        };
+
+        window.editMemoMode = () => {
+            const textarea = window.el('video-memo-textarea'), viewArea = window.el('video-memo-view');
+            textarea.classList.remove('hidden'); viewArea.classList.add('hidden');
+            window.el('memo-timestamp-btn')?.classList.remove('hidden'); window.el('memo-save-btn')?.classList.remove('hidden'); window.el('memo-edit-btn')?.classList.add('hidden');
+            textarea.focus();
+        };
+
+        window.insertCurrentTimestamp = () => {
+            if(!ytPlayer || !ytPlayer.getCurrentTime) return;
+            const cur = Math.floor(ytPlayer.getCurrentTime()), m = Math.floor(cur/60), s = cur%60;
+            const ts = `[${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}] `;
+            const area = window.el('video-memo-textarea'); area.value = area.value.substring(0, area.selectionStart) + ts + area.value.substring(area.selectionEnd); area.focus();
+        };
+
+        window.seekTo = timeStr => {
+            const parts = timeStr.replace(/[\[\]]/g, '').split(':').map(Number);
+            const sec = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
+            if(ytPlayer) { ytPlayer.seekTo(sec, true); ytPlayer.playVideo(); }
+        };
+
+        window.runDetailedAnalysis = async function() {
+            const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
+            window.el('script-loading')?.classList.remove('hidden'); window.el('detailed-summary-btn')?.classList.add('hidden'); window.el('insight-card')?.classList.add('hidden');
+            try {
+                const prompt = `분석: "${activeVideo.title}". JSON: {"longSummary": "상세 요약", "detailedBlocks": [{"time": "MM:SS", "subtitle": "제목", "content": "내용"}]}`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
+                const result = JSON.parse(res.candidates[0].content.parts[0].text);
+                activeVideo.detailedBlocks = result.detailedBlocks; activeVideo.longSummary = result.longSummary;
+                const idx = syncedData.findIndex(v => v.id === activeVideo.id); if(idx!==-1) syncedData[idx]=activeVideo;
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); renderSummaryUI();
+            } catch(e) { window.el('detailed-summary-btn')?.classList.remove('hidden'); }
+            finally { window.el('script-loading')?.classList.add('hidden'); }
+        };
+
+        function renderSummaryUI() {
+            const container = window.el('modal-timeline-container'); if(!container) return; container.innerHTML = '';
+            const insightCard = window.el('insight-card');
+            if (activeVideo.longSummary || activeVideo.summary) {
+                window.el('modal-video-summary').textContent = activeVideo.longSummary || activeVideo.summary;
+                insightCard?.classList.remove('hidden');
+            } else insightCard?.classList.add('hidden');
+            if (activeVideo.detailedBlocks && activeVideo.detailedBlocks.length > 0) {
+                activeVideo.detailedBlocks.forEach((block, index) => {
+                    const div = document.createElement('div'); div.className = 'summary-block'; div.style.animationDelay = `${index * 0.1}s`;
+                    div.onclick = () => window.seekTo(block.time);
+                    div.innerHTML = `<div class="flex items-center gap-3 mb-2"><span class="bg-blue-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px] pointer-events-none">${block.time}</span><span class="font-bold text-slate-800">${block.subtitle}</span></div><p class="text-slate-500 text-xs font-medium leading-relaxed">${block.content}</p>`;
+                    container.appendChild(div);
+                });
+                window.el('detailed-summary-btn')?.classList.add('hidden'); 
+            } else window.el('detailed-summary-btn')?.classList.remove('hidden');
+        }
+
+        window.clearQueue = () => { csvRawItems = []; refreshQueueUI(); window.addLog("대기열 삭제됨", "info"); };
+        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; renderResults(); window.el('confirm-modal').style.display='none'; window.addLog("라이브러리 초기화됨", "success"); };
+        window.addLog = function(msg, type) {
+            const logBox = window.el('log-console'); if(!logBox) return;
+            const div = document.createElement('div'); div.className = type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400';
+            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight;
+        };
+
+        window.toggleCard = (bodyId, iconId) => {
+            const b = window.el(bodyId), i = window.el(iconId);
+            if(b) b.classList.toggle('collapsed'); if(i) i.classList.toggle('rotated');
+            if(bodyId === 'dashboard-details' && !b.classList.contains('collapsed')) updateCharts();
+        };
 
         function updateCharts() {
-            const treemap = el('treemap-content'), cloud = el('word-cloud-content');
+            const treemap = window.el('treemap-content'), cloud = window.el('word-cloud-content');
             if(!treemap || !cloud) return;
             if(syncedData.length === 0) { treemap.innerHTML = cloud.innerHTML = '<p class="text-xs text-slate-300 italic text-center w-full">데이터가 없습니다.</p>'; return; }
             const catStats = {}; syncedData.forEach(v => (v.categories||[]).forEach(c => catStats[c] = (catStats[c] || 0) + 1));
@@ -662,7 +858,7 @@
                 tile.className = `treemap-tile border-2 ${st.border} ${st.text}`;
                 tile.style.gridColumn = `span ${Math.max(2, Math.round((perc/100)*12))}`;
                 tile.innerHTML = `<div class="text-[10px] font-black">${cat}</div><div class="text-[14px] font-black">${perc}%</div>`;
-                tile.onclick = () => { el('filter-category').value = cat; renderResults(); };
+                tile.onclick = () => { window.el('filter-category').value = cat; renderResults(); };
                 treemap.appendChild(tile);
             });
             const tagStats = {}; syncedData.forEach(v => (v.tags||[]).forEach(t => tagStats[t] = (tagStats[t] || 0) + 1));
@@ -671,112 +867,16 @@
                 const weight = count / arr[0][1], tagEl = document.createElement('span');
                 tagEl.className = 'cloud-tag font-black text-slate-600';
                 tagEl.style.fontSize = `${10 + weight*30}px`; tagEl.style.opacity = 0.4 + weight*0.6;
-                tagEl.textContent = tag; tagEl.onclick = () => { el('search-input').value = tag; renderResults(); };
+                tagEl.textContent = tag; tagEl.onclick = () => { window.el('search-input').value = tag; renderResults(); };
                 cloud.appendChild(tagEl);
             });
         }
-
-        window.openPlayer = function(video) {
-            activeVideo = video; el('player-modal').style.display='flex';
-            if(ytPlayer) { try{ytPlayer.destroy();}catch(e){} }
-            ytPlayer = new YT.Player('yt-player-frame', {
-                height: '100%', width: '100%', videoId: video.id, playerVars: { 'autoplay': 1, 'modestbranding': 1, 'rel': 0 },
-                events: { 'onReady': () => {
-                    if(el('modal-video-title')) el('modal-video-title').textContent = video.title;
-                    if(el('modal-video-channel')) el('modal-video-channel').textContent = video.channelTitle;
-                    const area = el('video-memo-textarea');
-                    if(video.memo) { area.value = video.memo; window.saveMemoMode(); } else { area.value = ""; window.editMemoMode(); }
-                    renderSummaryUI();
-                }}
-            });
-        };
-
-        window.closePlayer = function() { el('player-modal').style.display = 'none'; if(ytPlayer) { try { ytPlayer.destroy(); } catch (e) {} ytPlayer = null; } activeVideo = null; };
-
-        window.saveMemoMode = function() {
-            if(!activeVideo) return;
-            const textarea = el('video-memo-textarea'), viewArea = el('video-memo-view');
-            activeVideo.memo = textarea.value;
-            const idx = syncedData.findIndex(v => v.id === activeVideo.id); if(idx!==-1) syncedData[idx]=activeVideo;
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
-            viewArea.innerHTML = parseTimestampsToButtons(textarea.value);
-            textarea.classList.add('hidden'); viewArea.classList.remove('hidden');
-            el('memo-timestamp-btn')?.classList.add('hidden'); el('memo-save-btn')?.classList.add('hidden'); el('memo-edit-btn')?.classList.remove('hidden');
-        };
-
-        window.editMemoMode = function() {
-            const textarea = el('video-memo-textarea'), viewArea = el('video-memo-view');
-            textarea.classList.remove('hidden'); viewArea.classList.add('hidden');
-            el('memo-timestamp-btn')?.classList.remove('hidden'); el('memo-save-btn')?.classList.remove('hidden'); el('memo-edit-btn')?.classList.add('hidden');
-            textarea.focus();
-        };
-
-        function parseTimestampsToButtons(text) {
-            if(!text) return '<span class="text-slate-300 italic">내용이 없습니다.</span>';
-            let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            return escaped.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (match, time) => `<span class="memo-jump-btn-pill" onclick="window.seekTo('${time}')">${match}</span>`);
-        }
-
-        window.insertCurrentTimestamp = function() {
-            if(!ytPlayer || !ytPlayer.getCurrentTime) return;
-            const cur = Math.floor(ytPlayer.getCurrentTime()), m = Math.floor(cur/60), s = cur%60;
-            const ts = `[${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}] `;
-            const area = el('video-memo-textarea'); area.value = area.value.substring(0, area.selectionStart) + ts + area.value.substring(area.selectionEnd); area.focus();
-        };
-
-        window.seekTo = function(timeStr) {
-            const parts = timeStr.replace(/[\[\]]/g, '').split(':').map(Number);
-            const sec = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
-            if(ytPlayer) { ytPlayer.seekTo(sec, true); ytPlayer.playVideo(); }
-        };
-
-        window.runDetailedAnalysis = async function() {
-            const key = el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
-            el('script-loading')?.classList.remove('hidden');
-            try {
-                const prompt = `구조 분석: "${activeVideo.title}". 상세 타임라인 생성. JSON: {"detailedBlocks": [{"time": "MM:SS", "subtitle": "제목", "content": "내용"}]}`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
-                const result = JSON.parse(res.candidates[0].content.parts[0].text);
-                activeVideo.detailedBlocks = result.detailedBlocks;
-                const idx = syncedData.findIndex(v => v.id === activeVideo.id); if(idx!==-1) syncedData[idx]=activeVideo;
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); renderSummaryUI();
-            } catch(e) {} finally { el('script-loading')?.classList.add('hidden'); }
-        };
-
-        function renderSummaryUI() {
-            const container = el('modal-timeline-container'); if(!container) return; container.innerHTML = '';
-            if (activeVideo.detailedBlocks) {
-                activeVideo.detailedBlocks.forEach(block => {
-                    const div = document.createElement('div'); div.className = 'summary-block animate-fadeIn'; div.onclick = () => window.seekTo(block.time);
-                    div.innerHTML = `<div class="flex items-center gap-3 mb-2"><span class="bg-blue-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px] pointer-events-none">${block.time}</span><span class="font-bold text-slate-800">${block.subtitle}</span></div><p class="text-slate-500 text-xs font-medium">${block.content}</p>`;
-                    container.appendChild(div);
-                });
-            }
-        }
-
-        window.askLibrarian = async function() {
-            const key = el('gemini-api-key-input')?.value; if (!key) return;
-            const input = el('chat-input'), messages = el('chat-messages'); if(!input || !messages) return;
-            const q = input.value.trim(); if (!q) return;
-            const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q;
-            messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight;
-            const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...';
-            messages.appendChild(aiLoading);
-            try {
-                const dbContext = syncedData.map(v => `[${v.title}]: ${v.summary}`).join('\n');
-                const prompt = `라이브러리 기반 답변: ${q} [DB]\n${dbContext.substring(0, 15000)}`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json());
-                messages.removeChild(aiLoading);
-                const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text;
-                messages.appendChild(aiMsg);
-            } catch (e) { aiLoading.textContent = "에러가 발생했습니다."; } finally { messages.scrollTop = messages.scrollHeight; }
-        };
 
         function initGoogleAuth(clientId, showPopup = false) {
             try {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: clientId, scope: 'https://www.googleapis.com/auth/youtube.readonly',
-                    callback: (response) => { if(response.access_token) { accessToken = response.access_token; if(el('auto-sync-toggle')?.checked) fetchLikedVideosBatch(accessToken, true); }}
+                    callback: (response) => { if(response.access_token) { accessToken = response.access_token; if(window.el('auto-sync-toggle')?.checked) fetchLikedVideosBatch(accessToken, true); }}
                 });
                 if(showPopup) tokenClient.requestAccessToken();
             } catch(e){}
@@ -787,122 +887,86 @@
             try {
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&myRating=like&maxResults=50`, { headers: { Authorization: `Bearer ${token}` } }).then(r=>r.json());
                 const items = res.items.map(v => ({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: (v.contentDetails.duration), thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount), description: v.snippet.description }));
-                const existing = new Set([...syncedData.map(d=>d.id), ...csvRawItems.map(i=>i.id)]), filtered = items.filter(i => !existing.has(i.id));
-                csvRawItems = [...csvRawItems, ...filtered]; refreshQueueUI(); if(autoStart && filtered.length > 0) runAnalysis(filtered);
+                addToQueue(items);
+                if(autoStart) window.runAnalysis();
             } catch(e){}
         }
 
-        window.runAnalysis = async function(items) {
-            const key = el('gemini-api-key-input')?.value; if(!key) return;
-            isAnalysisActive = true; refreshQueueUI();
-            for(let item of items) {
-                if(!isAnalysisActive) break;
-                try {
-                    const prompt = `영상 분석: "${item.title}". JSON: {"categories":["Name"],"summary":"요약", "tags":["#태그"]}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
-                    const result = JSON.parse(res.candidates[0].content.parts[0].text);
-                    const final = {...item, ...result, analyzedAt: new Date().toISOString()};
-                    syncedData.unshift(final); csvRawItems = csvRawItems.filter(i=>i.id!==item.id); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); renderResults(); refreshQueueUI();
-                } catch(e){}
-            }
-            isAnalysisActive = false; refreshQueueUI();
-        };
-
-        function renderCategoriesUI() {
-            const cont = el('category-tags'), filter = el('filter-category'); if (!cont || !filter) return;
-            cont.innerHTML = ''; filter.innerHTML = '<option value="all">전체 카테고리</option>';
-            localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
-            currentCategories.forEach(cat => {
-                const st = getStyleForCat(cat);
-                const tag = document.createElement('div');
-                tag.className = `category-tag-container bg-white border-2 ${st.border} ${st.text} px-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-2`;
-                tag.innerHTML = `<span>${cat}</span><span class="cursor-pointer font-bold opacity-50 hover:opacity-100" onclick="window.removeCategory('${cat}')">&times;</span>`;
-                cont.appendChild(tag); filter.appendChild(new Option(cat, cat));
-            });
-        }
-        window.removeCategory = cat => { currentCategories = currentCategories.filter(c => c !== cat); renderCategoriesUI(); };
-        window.clearQueue = () => { csvRawItems = []; refreshQueueUI(); window.addLog("대기열 삭제됨", "info"); };
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; renderResults(); el('confirm-modal').style.display='none'; window.addLog("라이브러리 초기화됨", "success"); };
-
-        function refreshQueueUI() {
-            const count = csvRawItems.length;
-            if(el('queue-count')) el('queue-count').textContent = count;
-            
-            // 대기열 버튼 동적 노출
-            const anaBtn = el('analyze-btn');
-            const clrBtn = el('clear-queue-btn');
-            if(count > 0) {
-                anaBtn?.classList.remove('hidden');
-                clrBtn?.classList.remove('hidden');
-            } else {
-                anaBtn?.classList.add('hidden');
-                clrBtn?.classList.add('hidden');
-            }
-            if(el('engine-status-hint')) el('engine-status-hint').textContent = count > 0 ? `${count}개 대기 중` : "대기 항목 없음";
-        }
-
-        window.addLog = function(msg, type) {
-            const logBox = el('log-console'); if(!logBox) return;
-            const div = document.createElement('div'); div.className = type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400';
-            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight;
+        window.askLibrarian = async function() {
+            const key = window.el('gemini-api-key-input')?.value; if (!key) return;
+            const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return;
+            const q = input.value.trim(); if (!q) return;
+            const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q;
+            messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight;
+            const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...';
+            messages.appendChild(aiLoading);
+            try {
+                const dbContext = syncedData.map(v => `[${v.title}]: ${v.summary}`).join('\n');
+                const prompt = `데이터 기반 답변: ${q} [DB]\n${dbContext.substring(0, 15000)}`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json());
+                messages.removeChild(aiLoading);
+                const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text;
+                messages.appendChild(aiMsg);
+            } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; }
         };
 
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if(saved) syncedData = JSON.parse(saved);
-            const key = localStorage.getItem('gemini-key'); if(key && el('gemini-api-key-input')) el('gemini-api-key-input').value = key;
-            const cid = localStorage.getItem('google-client-id'); if(cid && el('client-id-input')) { el('client-id-input').value = cid; setTimeout(() => initGoogleAuth(cid, false), 1000); }
+            const key = localStorage.getItem('gemini-key'); if(key && window.el('gemini-api-key-input')) window.el('gemini-api-key-input').value = key;
+            const cid = localStorage.getItem('google-client-id'); if(cid && window.el('client-id-input')) { window.el('client-id-input').value = cid; setTimeout(() => initGoogleAuth(cid, false), 1000); }
             
-            bind('search-input', 'input', () => { currentPage = 1; renderResults(); });
-            bind('filter-category', 'change', () => { currentPage = 1; renderResults(); });
-            bind('sort-select', 'change', () => { currentPage = 1; renderResults(); });
-            
-            bind('save-config-btn', 'click', () => {
-                const c = el('client-id-input').value, k = el('gemini-api-key-input').value;
+            window.bind('search-input', 'input', () => { currentPage = 1; renderResults(); });
+            window.bind('filter-category', 'change', () => { currentPage = 1; renderResults(); });
+            window.bind('sort-select', 'change', () => { currentPage = 1; renderResults(); });
+            window.bind('save-config-btn', 'click', () => {
+                const c = window.el('client-id-input').value, k = window.el('gemini-api-key-input').value;
                 localStorage.setItem('gemini-key', k); localStorage.setItem('google-client-id', c); initGoogleAuth(c, true);
             });
-            bind('auth-btn', 'click', () => fetchLikedVideosBatch(accessToken, false));
-            bind('analyze-btn', 'click', () => runAnalysis(csvRawItems));
+            window.bind('auth-btn', 'click', () => fetchLikedVideosBatch(accessToken, false));
+            window.bind('analyze-btn', 'click', () => window.runAnalysis());
+            window.binds('.page-btn-prev', 'click', () => { if(currentPage > 1) { currentPage--; renderResults(); window.el('library-results-container').scrollTop = 0; }});
+            window.binds('.page-btn-next', 'click', () => { const total = syncedData.length; if(currentPage < Math.ceil(total/ITEMS_PER_PAGE)) { currentPage++; renderResults(); window.el('library-results-container').scrollTop = 0; }});
             
-            binds('.page-btn-prev', 'click', () => { if(currentPage > 1) { currentPage--; renderResults(); el('library-results-container').scrollTop = 0; }});
-            binds('.page-btn-next', 'click', () => { const total = syncedData.length; if(currentPage < Math.ceil(total/ITEMS_PER_PAGE)) { currentPage++; renderResults(); el('library-results-container').scrollTop = 0; }});
-            
-            bind('url-import-btn', 'click', () => {
-                const url = el('url-import-input')?.value.trim(); if (!url) return; 
+            window.bind('url-import-btn', 'click', () => {
+                const url = window.el('url-import-input')?.value.trim(); if (!url) return; 
                 const vid = url.match(/[v=|\/]([a-zA-Z0-9_-]{11})/); 
                 if (vid) {
                     fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${vid[1]}&key=${YT_API_KEY}`).then(res => res.json()).then(data => {
-                        const v = data.items[0], item = { id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount), description: v.snippet.description };
-                        if (el('immediate-analyze-toggle').checked) runAnalysis([item]); else { csvRawItems.push(item); refreshQueueUI(); }
+                        if(data.items && data.items[0]) {
+                            const v = data.items[0], item = { id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount), description: v.snippet.description };
+                            addToQueue([item]);
+                        }
                     });
                 }
-                el('url-import-input').value = ""; el('url-import-btn').classList.add('hidden');
+                window.el('url-import-input').value = ""; window.el('url-import-btn').classList.add('hidden');
             });
-            bind('export-json-btn', 'click', () => { const b = new Blob([JSON.stringify(syncedData)], { type: 'application/json' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'youtube_library.json'; a.click(); });
-            bind('import-json-input', 'change', e => {
+
+            window.bind('export-json-btn', 'click', () => { const b = new Blob([JSON.stringify(syncedData)], { type: 'application/json' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'youtube_library.json'; a.click(); });
+            window.bind('import-json-input', 'change', e => {
                 const f = e.target.files[0]; if(!f) return;
                 const r = new FileReader(); r.onload = ev => { syncedData = JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY, ev.target.result); renderResults(); }; r.readAsText(f);
             });
-            bind('reanalyze-btn-trigger', 'click', () => { if(syncedData.length) runAnalysis(syncedData); });
-            bind('reset-library-btn-trigger', 'click', () => el('confirm-modal').style.display='flex');
-            bind('send-chat-btn', 'click', window.askLibrarian);
-            bind('add-category-btn', 'click', () => {
-                const val = el('new-category-input').value.trim();
-                if(val && !currentCategories.includes(val)) { currentCategories.push(val); el('new-category-input').value=''; renderCategoriesUI(); }
+            window.bind('reanalyze-btn-trigger', 'click', () => { if(syncedData.length) { csvRawItems = syncedData.map(i => ({...i, isDuplicate: false})); window.runAnalysis(); } });
+            window.bind('reset-library-btn-trigger', 'click', () => window.el('confirm-modal').style.display='flex');
+            window.bind('send-chat-btn', 'click', window.askLibrarian);
+            window.bind('add-category-btn', 'click', () => {
+                const val = window.el('new-category-input').value.trim();
+                if(val && !currentCategories.includes(val)) { currentCategories.push(val); window.el('new-category-input').value=''; window.renderCategoriesUI(); }
             });
-            bind('csv-input', 'change', e => {
+            window.bind('csv-input', 'change', e => {
                 const f = e.target.files[0]; if(!f) return;
                 const r = new FileReader(); r.onload = ev => {
                     const lines = ev.target.result.split('\n');
-                    const news = lines.map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? {id: m[1], title: '불러온 영상'} : null; }).filter(x=>x);
-                    csvRawItems = [...csvRawItems, ...news]; refreshQueueUI();
-                    el('file-info').classList.remove('hidden'); el('file-name').textContent = f.name;
+                    const news = lines.map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? {id: m[1], title: 'CSV 영상'} : null; }).filter(x=>x);
+                    addToQueue(news);
+                    window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name;
                 }; r.readAsText(f);
             });
 
-            renderCategoriesUI();
+            window.renderCategoriesUI();
             window.handleSyncModeTransition(false); 
             renderResults();
-            refreshQueueUI(); // 대기열 버튼 초기 상태 체크
+            refreshQueueUI();
         };
     </script>
 </body>
