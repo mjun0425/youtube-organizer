@@ -16,9 +16,11 @@
             font-family: 'Inter', 'Noto Sans KR', sans-serif; 
             letter-spacing: -0.01em;
             color: #202124;
-            padding-bottom: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
             transition: background-color 0.3s ease;
             overflow-x: hidden;
+            background-color: #f8f9fa;
         }
         
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -31,61 +33,74 @@
         }
         .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-        /* 사이드바 애니메이션 레이아웃 */
-        #main-layout-grid {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 2rem;
-            transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .sidebar-collapsed #main-layout-grid {
-            grid-template-columns: 0px 1fr;
-            gap: 0;
-        }
-        #sidebar-column {
-            transition: opacity 0.3s ease;
-            opacity: 1;
-            min-width: 320px;
-        }
-        .sidebar-collapsed #sidebar-column {
-            opacity: 0;
-            pointer-events: none;
-            overflow: hidden;
-            min-width: 0;
+        /* 메인 레이아웃 및 사이드바 애니메이션 */
+        #app-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: calc(100vh - 60px);
+            position: relative;
         }
 
-        /* 구분선 리사이저 (접기 트리거) */
+        #sidebar-column {
+            width: 320px;
+            flex-shrink: 0;
+            padding: 1.5rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8f9fa;
+            position: relative;
+            z-index: 50;
+        }
+
+        .sidebar-collapsed #sidebar-column {
+            transform: translateX(-320px);
+            margin-left: -320px;
+        }
+
+        #main-content-area {
+            flex-grow: 1;
+            padding: 0 2rem 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 100%;
+            position: relative;
+        }
+
+        /* 세로 구분선 리사이저 (접기 트리거) - 클릭 범위 확대 */
         .sidebar-divider-trigger {
             position: absolute;
             top: 0;
-            right: -1.5rem;
-            width: 24px;
+            right: -20px;
+            width: 50px; /* 클릭 범위 대폭 확대 */
             height: 100%;
             cursor: pointer;
             display: flex;
-            align-items: center;
+            align-items: flex-start; 
             justify-content: center;
-            z-index: 50;
+            z-index: 100;
             opacity: 0;
             transition: opacity 0.2s;
         }
         .sidebar-divider-trigger:hover { opacity: 1; }
         .divider-line {
-            width: 3px;
+            width: 6px;
             height: 100%;
-            background: #e2e8f0;
+            background: rgba(26, 115, 232, 0.08);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
+            padding-top: 100px; /* 상단 배치 */
         }
         .divider-icon {
             background: #fff;
-            border: 2px solid #cbd5e1;
+            border: 2.5px solid #1a73e8;
             border-radius: 50%;
-            padding: 4px;
+            width: 42px; /* 더 큰 원 */
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #1a73e8;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transform: translateX(-1px);
+            box-shadow: 0 6px 16px rgba(26,115,232,0.2);
+            z-index: 110;
         }
 
         /* 펼치기 트리거 (화면 맨 왼쪽) */
@@ -93,9 +108,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 12px;
+            width: 30px; /* 반응 범위 확대 */
             height: 100vh;
-            z-index: 1000;
+            z-index: 2000;
             cursor: pointer;
             display: none;
         }
@@ -104,15 +119,27 @@
         .expand-line {
             width: 6px;
             height: 100%;
-            background: #1a73e8;
+            background: rgba(26, 115, 232, 0.15);
             opacity: 0;
             transition: 0.2s;
             display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 100px;
+        }
+        .expand-icon {
+            background: #1a73e8;
+            color: white;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 6px 0 20px rgba(26,115,232,0.3);
         }
 
-        /* 대시보드 위젯 확장 */
+        /* 대시보드 위젯 확장 (여백 제거) */
         #dashboard-widget { 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             overflow: hidden; 
@@ -123,287 +150,263 @@
             max-height: 1000px; 
             opacity: 1; 
             border-bottom: 1px solid #eee;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 0;
         }
 
-        /* 트리맵 및 태그 클라우드 */
-        .treemap-container { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; width: 100%; }
-        .treemap-tile { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 12px; text-align: center; transition: all 0.3s ease; cursor: pointer; border-radius: 16px; background: #fff; border: 2px solid #dadce0; }
-        .treemap-tile:hover { transform: scale(0.98); filter: brightness(0.98); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); }
-
-        .tag-cloud-item { transition: all 0.3s ease; cursor: pointer; display: inline-block; line-height: 1; margin: 8px; }
-        .tag-cloud-item:hover { color: #1a73e8 !important; transform: scale(1.15); }
-
-        /* 카테고리 칩 스타일 (파스텔 통일) */
+        /* 카테고리 칩 및 리스트 스타일 (파스텔 통일) */
         .filter-chips-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .category-chip { 
-            flex-shrink: 0; padding: 7px 16px; border-radius: 14px; border: 2.5px solid #cbd5e1; 
-            background: #fff; color: #5f6368; font-size: 12px; font-weight: 800; 
+            flex-shrink: 0; padding: 7px 16px; border-radius: 14px; border: 2.5px solid #ebf8ff; 
+            background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 800; 
             cursor: pointer; transition: all 0.2s; position: relative;
         }
-        .category-chip.active { background: #ebf8ff !important; border-color: #1a73e8 !important; color: #1a73e8 !important; }
-        .chip-delete-btn { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; background: #ff4d4f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 30; }
-        
-        .chip-input-container { display: flex; align-items: center; background: #f1f3f4; border-radius: 12px; overflow: hidden; border: 2.5px solid #eee; transition: all 0.2s; margin-right: 8px; }
-        .chip-input-field { background: transparent; border: none; outline: none; padding: 6px 12px; font-size: 12px; font-weight: 800; width: 120px; color: #1e293b; }
-        .chip-add-btn { background: #1a73e8; color: white; padding: 6px 12px; font-weight: 900; transition: 0.2s; }
+        .category-chip.active { background: #1a73e8 !important; border-color: #1a73e8 !important; color: #fff !important; }
+        .chip-delete-btn { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; background: #ff4d4f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 2px solid white; z-index: 30; }
 
-        /* 리스트 뷰 대형 카테고리 칩 */
         .list-category-chip {
-            padding: 6px 16px; border-radius: 12px; border: 2.5px solid #bee3f8;
-            background: #ebf8ff; color: #2c5282; font-size: 11px; font-weight: 900;
-            text-transform: uppercase; margin-right: 8px; margin-bottom: 8px; display: inline-flex;
+            padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8;
+            background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900;
+            text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex;
         }
-
-        /* 뷰 스위처 (인덱스 바 내부 위치) */
-        .view-switcher { display: flex; background: #f1f3f4; border-radius: 12px; padding: 3px; gap: 2px; }
-        .view-btn { padding: 5px 12px; border-radius: 9px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; color: #5f6368; }
-        .view-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         /* 사이드바 박스 */
-        .sidebar-integrated-box { border-radius: 28px; padding: 24px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-        .inner-tool-box { padding: 16px; border-radius: 20px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 12px; }
-        
-        .step-btn { 
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; 
-            background: #fff; color: #94a3b8; border-radius: 8px; font-size: 16px; font-weight: 900; 
-            cursor: pointer; border: 1.5px solid #e2e8f0; transition: all 0.2s; 
-        }
-        .blue-btn-style { border: 2.5px solid #1a73e8; color: #1a73e8; background: #fff; font-weight: 900; padding: 10px; border-radius: 14px; text-align: center; font-size: 13px; width: 100%; }
+        .sidebar-box { border-radius: 28px; padding: 22px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1rem; }
+        .inner-tool-box { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 10px; }
+        .step-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #fff; color: #94a3b8; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; border: 1.5px solid #e2e8f0; transition: all 0.2s; }
+        .blue-btn-style { border: 2.5px solid #1a73e8; color: #1a73e8; background: #fff; font-weight: 900; padding: 10px; border-radius: 14px; text-align: center; font-size: 13px; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* 모달 시스템 */
+        /* 인덱스 바 (정렬 최적화) */
+        .pagination-bar { 
+            padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee;
+        }
+        .view-switcher { display: flex; background: #f1f3f4; border-radius: 12px; padding: 4px; gap: 2px; }
+        .view-btn { padding: 6px 14px; border-radius: 10px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; color: #5f6368; }
+        .view-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* 모달 레이아웃 (복구) */
         #player-modal, #settings-modal, #confirm-modal { 
             display: none; position: fixed; inset: 0; background: rgba(32, 33, 36, 0.85); 
             z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(12px); 
         }
-        .modal-content { width: 96%; max-width: 1700px; background: #fff; border-radius: 36px; overflow: hidden; display: grid; grid-template-columns: 1fr 520px; height: 92vh; position: relative; }
+        .modal-content { width: 96%; max-width: 1700px; background: #fff; border-radius: 36px; overflow: hidden; display: grid; grid-template-columns: 1fr 520px; height: 92vh; position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.4); }
+        .player-panel { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: #f8fafc; border-right: 1px solid #eef2f6; }
+        .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; position: relative; }
+        .tab-bar { display: flex; padding: 24px 24px 0; gap: 8px; border-bottom: 1px solid #f1f3f4; }
+        .tab-btn { padding: 14px 24px; border-radius: 16px 16px 0 0; font-size: 13px; font-weight: 800; color: #94a3b8; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; border-bottom: none; }
+        .tab-btn.active { color: #1a73e8; background: #fff; border-color: #f1f3f4; border-bottom-color: #fff; margin-bottom: -1px; z-index: 10; }
 
-        /* 스위치 */
-        .switch { position: relative; display: inline-block; width: 42px; height: 22px; flex-shrink: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #e2e8f0; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
-        input:checked + .slider { background-color: #1a73e8; }
-        input:checked + .slider:before { transform: translateX(20px); }
+        /* AI 학습 리포트 카드 */
+        .ai-card-block { background: #ffffff; border: 1.5px solid #eef2f6; border-radius: 24px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.25s ease; animation: slideInUp 0.4s ease forwards; text-align: left; }
+        .ai-card-block:hover { border-color: #1a73e8; background: #f8faff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(26,115,232,0.06); }
+        .ai-card-time { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 8px; background: #eef2ff; color: #1a73e8; font-weight: 900; font-size: 12px; margin-bottom: 12px; }
 
-        #all-toggle-badge { cursor: pointer; padding: 4px 14px; border-radius: 99px; font-size: 10px; font-weight: 900; text-transform: uppercase; transition: 0.3s; border: 2px solid #e2e8f0; color: #94a3b8; }
-        #all-toggle-badge.active { background: #1a73e8; color: white; border-color: #1a73e8; box-shadow: 0 4px 12px rgba(26,115,232,0.2); }
-        .library-tag-pill { display: inline-block; padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 700; background: #f1f3f4; color: #5f6368; margin: 0 10px 10px 0; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; }
-        .library-tag-pill:hover { background: #e8f0fe; color: #1a73e8; transform: translateY(-2px); border-color: #d2e3fc; }
-        .duration-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.75); color: white; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; z-index: 5; backdrop-filter: blur(4px); }
-
-        /* 갤러리 카드 */
+        .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #eee; border-radius: 20px; }
+        .duration-badge { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; backdrop-filter: blur(4px); }
+        
         .video-card { background: #fff; border-radius: 32px; overflow: hidden; border: 1px solid #eef2f6; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .video-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border-color: #1a73e8; }
-        .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #eee; border-radius: 24px; }
-        .video-card img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
-<body class="bg-[#f8f9fa] text-[#202124] min-h-screen" id="main-body">
+<body class="text-[#202124]" id="main-body">
 
     <!-- Expand Sidebar Hover Trigger -->
     <div id="sidebar-expand-trigger" onclick="window.toggleSidebar(true)">
-        <div class="expand-line h-full flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="9 18 15 12 9 6"/></svg>
+        <div class="expand-line h-full">
+            <div class="divider-icon expand-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="9 18 15 12 9 6" transform="rotate(180, 12, 12)"/></svg></div>
         </div>
     </div>
 
-    <div id="app" class="max-w-[1600px] mx-auto px-6 pt-2 pb-8 transition-all duration-300">
-        
-        <!-- Header -->
-        <header class="flex items-center justify-between mb-2 transition-all duration-300">
-            <div id="header-brand" class="flex items-center gap-4">
-                <div class="p-3 bg-red-600 rounded-xl text-white shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Gemini 3 Pro Dashboard</p>
-                </div>
+    <!-- Header (최상단 고정, 여백 최소화) -->
+    <header class="flex items-center justify-between px-8 py-3 bg-[#f8f9fa] border-b border-slate-100 relative z-[200]">
+        <div id="header-brand" class="flex items-center gap-4">
+            <div class="p-2.5 bg-red-600 rounded-xl text-white shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
             </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Gemini 3 Pro Dashboard</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
             <button class="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm hover:bg-slate-50 active:scale-95 transition-all" onclick="window.el('settings-modal').style.display='flex'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2 2 2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2 2 2 2 0 0 0-2-2Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
-        </header>
-
-        <!-- Visualize Data Button row (Outside, Top Right of Main Content) -->
-        <div id="visualize-btn-container" class="flex justify-end mb-2 h-10">
-            <button id="dashboard-toggle-btn-main" class="flex items-center gap-2 px-5 py-2 bg-white rounded-2xl border border-slate-200 shadow-sm text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95" onclick="window.toggleDashboard()">
+            <button id="dashboard-toggle-btn-main" class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95" onclick="window.toggleDashboard()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Visualize Data
             </button>
         </div>
+    </header>
 
-        <div id="dashboard-widget" class="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm relative overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div>
-                    <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Category Distribution</h3>
-                    <div id="treemap-content" class="treemap-container"></div>
-                </div>
-                <div>
-                    <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Key Tag Cloud</h3>
-                    <div id="word-cloud-content" class="flex flex-wrap gap-4 justify-center items-center"></div>
-                </div>
+    <div id="app-wrapper">
+        <!-- Sidebar -->
+        <aside id="sidebar-column" class="custom-scrollbar overflow-y-auto">
+            <div class="sidebar-divider-trigger" onclick="window.toggleSidebar(false)">
+                <div class="divider-line"><div class="divider-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"/></svg></div></div>
             </div>
-        </div>
 
-        <div id="main-layout-grid">
-            <!-- Sidebar (Aligned Top with Library Box) -->
-            <div id="sidebar-column" class="space-y-6 relative">
-                <!-- Divider Resizer 영역 -->
-                <div class="sidebar-divider-trigger" onclick="window.toggleSidebar(false)">
-                    <div class="divider-line"><div class="divider-icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></div></div>
-                </div>
-
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">분석 대기열</h2>
-                    <div class="space-y-4">
-                        <div id="queue-display-box" class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                            <div id="queue-count" class="text-3xl font-black text-slate-900 transition-all duration-300">0</div>
-                        </div>
-                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md hidden animate-pop-in" onclick="window.runAnalysis()">분석 시작</button>
-                        <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline hidden" onclick="window.clearQueue()">대기열 비우기</button>
+            <div class="sidebar-box border-t-4 border-t-blue-500">
+                <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">분석 대기열</h2>
+                <div class="space-y-4">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                        <div id="queue-count" class="text-3xl font-black text-slate-900 transition-all">0</div>
                     </div>
-                </div>
-
-                <div class="sidebar-integrated-box space-y-5">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider">영상 불러오기</h2>
-                    
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">구글 동기화</span>
-                        <label class="switch"><input type="checkbox" id="auto-sync-toggle"><span class="slider"></span></label>
-                    </div>
-
-                    <div class="inner-tool-box space-y-4">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase text-xs">수동 불러오기</span>
-                        <div class="flex items-center gap-2">
-                            <div class="relative h-12 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center px-2 flex-grow">
-                                <div id="sync-count-controls" class="w-full flex items-center justify-between transition-all duration-300 opacity-100">
-                                    <button class="step-btn" onclick="const i = window.el('sync-target-count'); if(parseInt(i.value) > 0) { i.stepDown(); window.showAuthBtn(); }">-</button>
-                                    <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="w-16 text-center text-xs font-black text-slate-700 outline-none bg-transparent">
-                                    <button class="step-btn" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
-                                </div>
-                                <div id="sync-all-label" class="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-blue-600 bg-blue-50/80 opacity-0 pointer-events-none transition-all duration-300">전체 목록</div>
-                            </div>
-                            <div id="all-toggle-badge" onclick="window.handleSyncModeTransition(!this.classList.contains('active'))">전체</div>
-                        </div>
-                        <button id="auth-btn" class="blue-btn-style hidden animate-pop-in" onclick="window.initiateManualSync()">불러오기</button>
-                    </div>
-
-                    <div class="inner-tool-box space-y-3">
-                        <span class="text-[11px] font-bold text-slate-600 uppercase block text-xs">URL 추가</span>
-                        <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="URL 입력" class="google-input w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none shadow-inner">
-                        <button id="url-import-btn" class="blue-btn-style hidden animate-pop-in" onclick="window.importFromUrl()">불러오기</button>
-                    </div>
-                </div>
-
-                <div class="bg-[#202124] rounded-3xl p-5 shadow-xl">
-                    <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
-                    <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2">> Ready.</div>
+                    <button id="analyze-btn" class="w-full py-4 rounded-xl text-sm font-black shadow-md hidden bg-blue-600 text-white" onclick="window.runAnalysis()">분석 시작</button>
+                    <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline hidden" onclick="window.clearQueue()">대기열 비우기</button>
                 </div>
             </div>
 
-            <!-- Library Content -->
-            <div id="library-column" class="space-y-0 transition-all duration-300 relative">
-                <div id="library-anchor" class="bg-white rounded-[40px] shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[850px]">
+            <div class="sidebar-box space-y-5">
+                <h2 class="text-xs font-black text-[#5f6368] uppercase tracking-wider">영상 불러오기</h2>
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">구글 동기화</span>
+                    <label class="switch"><input type="checkbox" id="auto-sync-toggle"><span class="slider"></span></label>
+                </div>
+                <div class="inner-tool-box space-y-4">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase text-xs">수동 불러오기</span>
+                    <div class="flex items-center gap-2">
+                        <div class="relative h-12 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center px-2 flex-grow">
+                            <div id="sync-count-controls" class="w-full flex items-center justify-between">
+                                <button class="step-btn" onclick="const i = window.el('sync-target-count'); if(parseInt(i.value) > 0) { i.stepDown(); window.showAuthBtn(); }">-</button>
+                                <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="w-16 text-center text-xs font-black text-slate-700 outline-none bg-transparent">
+                                <button class="step-btn" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
+                            </div>
+                            <div id="sync-all-label" class="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-blue-600 bg-blue-50/80 opacity-0 pointer-events-none transition-all duration-300">전체 목록</div>
+                        </div>
+                        <div id="all-toggle-badge" onclick="window.handleSyncModeTransition(!this.classList.contains('active'))">전체</div>
+                    </div>
+                    <button id="auth-btn" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs hidden animate-pop-in" onclick="window.initiateManualSync()">불러오기</button>
+                </div>
+                <div class="inner-tool-box space-y-3">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase block text-xs">CSV 불러오기</span>
+                    <label for="csv-input" class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-white group transition-all">
+                        <p class="text-[10px] font-bold text-slate-400 group-hover:text-blue-500 text-center">파일 선택</p>
+                        <input id="csv-input" type="file" class="hidden" accept=".csv" onchange="window.handleCsvUpload(event)" />
+                    </label>
+                    <div id="file-info" class="hidden bg-white p-1 rounded-lg border border-slate-100"><span id="file-name" class="text-[9px] font-bold text-blue-600 truncate block text-center"></span></div>
+                </div>
+                <div class="inner-tool-box space-y-3">
+                    <span class="text-[11px] font-bold text-slate-600 uppercase block text-xs">URL 추가</span>
+                    <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="URL 입력" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none shadow-inner">
+                    <button id="url-import-btn" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs hidden" onclick="window.importFromUrl()">불러오기</button>
+                </div>
+            </div>
+
+            <div class="sidebar-box p-5">
+                <h2 class="text-xs font-black text-[#5f6368] uppercase mb-3 tracking-wider">데이터 관리</h2>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <button class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200" onclick="window.exportJson()">백업</button>
+                    <label class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 text-center cursor-pointer">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="bg-blue-50 text-blue-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-blue-100" onclick="window.reanalyzeLibrary()">갱신</button>
+                    <button class="bg-rose-50 text-rose-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-rose-100" onclick="window.el('confirm-modal').style.display='flex'">초기화</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content area -->
+        <main id="main-content-area">
+            
+            <div id="dashboard-widget" class="bg-white rounded-[40px] border border-slate-200 shadow-sm relative overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Category Distribution</h3>
+                        <div id="treemap-content" class="treemap-container"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Key Tag Cloud</h3>
+                        <div id="word-cloud-content" class="flex flex-wrap gap-4 justify-center items-center"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="library-anchor" class="bg-white rounded-[40px] shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[850px]">
+                <!-- Category Section -->
+                <div class="px-8 pt-8 pb-4">
+                     <div id="category-chips" class="filter-chips-container"></div>
+                     <div id="category-add-area" class="hidden mt-4 animate-pop-in flex gap-2">
+                         <div class="chip-input-container">
+                            <input type="text" id="new-chip-input" placeholder="새 카테고리" class="chip-input-field">
+                            <button class="chip-add-btn" onclick="window.addNewCategoryChip()">+</button>
+                         </div>
+                     </div>
+                </div>
+
+                <div class="px-8 py-4 bg-white border-t border-[#f8f9fa]">
+                    <div class="relative flex items-center">
+                        <input type="text" id="search-input" oninput="window.renderResults()" placeholder="제목, 채널명, 태그(#) 검색..." class="w-full pl-6 pr-14 py-4 bg-slate-50 border border-transparent rounded-[24px] text-sm font-bold outline-none focus:bg-white focus:border-blue-500 transition-all shadow-inner">
+                        <button id="clear-search-btn" class="absolute right-6 text-slate-300 hover:text-slate-600 hidden" onclick="window.clearSearch()"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg></button>
+                    </div>
+                    <div id="active-filters" class="flex flex-wrap gap-2 mt-4"></div>
+                </div>
+
+                <!-- Index & Pagination Bar -->
+                <div class="pagination-bar flex items-center h-16">
+                    <div class="flex items-center gap-2 min-w-[150px]">
+                        <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">TOTAL</span>
+                        <span class="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 font-black text-[13px]" id="total-results-count-top">0</span>
+                    </div>
                     
-                    <!-- Category Chips -->
-                    <div class="px-8 pt-8 pb-4">
-                         <div id="category-chips" class="filter-chips-container"></div>
-                         <div id="category-add-area" class="hidden mt-4 animate-pop-in flex gap-2">
-                             <div class="chip-input-container">
-                                <input type="text" id="new-chip-input" placeholder="새 카테고리" class="chip-input-field">
-                                <button class="chip-add-btn" onclick="window.addNewCategoryChip()">+</button>
-                             </div>
-                         </div>
-                    </div>
-
-                    <div class="px-8 py-4 bg-white border-t border-[#f8f9fa]">
-                        <div class="relative flex items-center">
-                            <input type="text" id="search-input" oninput="window.renderResults()" placeholder="제목, 채널명, 태그(#) 검색..." class="w-full pl-6 pr-14 py-4 bg-slate-50 border border-transparent rounded-[24px] text-sm font-bold outline-none focus:bg-white focus:border-blue-500 transition-all shadow-inner">
-                            <button id="clear-search-btn" class="absolute right-6 text-slate-300 hover:text-slate-600 hidden" onclick="window.clearSearch()"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg></button>
+                    <div class="flex items-center gap-4 flex-grow justify-center">
+                        <div class="view-switcher mr-2 shadow-sm border border-slate-200">
+                            <div id="view-list" class="view-btn active" onclick="window.switchViewMode(false)">LIST</div>
+                            <div id="view-gallery" class="view-btn" onclick="window.switchViewMode(true)">GALLERY</div>
                         </div>
-                        <div id="active-filters" class="flex flex-wrap gap-2 mt-4"></div>
-                    </div>
-
-                    <!-- Index & Pagination Bar (Height & Alignment Fixed) -->
-                    <div class="pagination-bar border-y border-[#eee] bg-[#fcfcfd] flex items-center h-16">
-                        <div class="flex items-center gap-2 min-w-[150px]">
-                            <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">TOTAL</span>
-                            <span class="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 font-black text-[13px]" id="total-results-count-top">0</span>
+                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">View</span>
+                            <select id="items-per-page-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.updateItemsPerPage(this.value)">
+                                <option value="50">50</option><option value="100">100</option><option value="200">200</option>
+                            </select>
                         </div>
-                        
-                        <div class="flex items-center gap-4 flex-grow justify-center">
-                            <!-- View Switcher (Moved here) -->
-                            <div class="view-switcher mr-2 shadow-sm border border-slate-200">
-                                <div id="view-list" class="view-btn active" onclick="window.switchViewMode(false)">LIST</div>
-                                <div id="view-gallery" class="view-btn" onclick="window.switchViewMode(true)">GALLERY</div>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">View</span>
-                                <select id="items-per-page-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.updateItemsPerPage(this.value)">
-                                    <option value="50">50</option><option value="100">100</option><option value="200">200</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Sort</span>
-                                <select id="sort-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.renderResults()">
-                                    <option value="default">최신 등록순</option>
-                                    <option value="views-desc">조회수 높은순</option>
-                                    <option value="title-asc">가나다순</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4 min-w-[150px] justify-end">
-                            <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button>
-                            <div class="px-2 text-[14px] font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
-                            <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
+                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Sort</span>
+                            <select id="sort-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.renderResults()">
+                                <option value="default">최신 등록순</option>
+                                <option value="views-desc">조회수 높은순</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div id="library-results-container" class="flex-grow overflow-y-auto custom-scrollbar">
-                        <table id="table-mode-body" class="w-full text-sm text-left table-fixed">
-                            <thead class="bg-[#f8f9fa] text-[#5f6368] font-black text-[10px] uppercase border-b border-[#dadce0]">
-                                <tr>
-                                    <th class="px-8 py-6 w-64 text-center tracking-widest">Thumbnail</th>
-                                    <th class="px-6 py-6 w-48">Category</th>
-                                    <th class="px-6 py-6 tracking-widest">Summary & Tags</th>
-                                    <th class="px-8 py-6 w-40 text-right">Stats</th>
-                                </tr>
-                            </thead>
-                            <tbody id="result-body" class="divide-y divide-[#eee]"></tbody>
-                        </table>
-                        <div id="gallery-mode-body" class="hidden">
-                            <div id="gallery-body" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-8"></div>
-                        </div>
-                        <div id="empty-state" class="py-48 text-center text-slate-300 italic font-black text-xl hidden animate-pop-in">데이터가 없습니다.</div>
-                    </div>
-
-                    <!-- Bottom Pagination for Gallery Mode -->
-                    <div id="pagination-container-bottom" class="pagination-bar border-t border-[#eee] bg-[#fcfcfd] hidden h-16">
-                         <div class="flex-grow flex justify-center items-center gap-6">
-                            <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                            <div class="px-6 text-base font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
-                            <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
-                         </div>
+                    <div class="flex items-center gap-4 min-w-[150px] justify-end">
+                        <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button>
+                        <div class="px-2 text-[14px] font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
+                        <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
                     </div>
                 </div>
 
-                <div id="analysis-status-box" class="fixed bottom-8 left-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xl z-[4000] hidden" style="width: 320px;">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
-                        <h4 class="text-sm font-black text-slate-800 tracking-tighter">AI 분석 가동 중</h4>
+                <div id="library-results-container" class="flex-grow overflow-y-auto custom-scrollbar">
+                    <table id="table-mode-body" class="w-full text-sm text-left table-fixed">
+                        <thead class="bg-[#f8f9fa] text-[#5f6368] font-black text-[10px] uppercase border-b border-[#dadce0]">
+                            <tr>
+                                <th class="px-8 py-6 w-64 text-center tracking-widest">Thumbnail</th>
+                                <th class="px-6 py-6 w-48">Category</th>
+                                <th class="px-6 py-6 tracking-widest">Summary & Tags</th>
+                                <th class="px-8 py-6 w-40 text-right">Stats</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-body" class="divide-y divide-[#eee]"></tbody>
+                    </table>
+                    <div id="gallery-mode-body" class="hidden">
+                        <div id="gallery-body" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-8"></div>
                     </div>
-                    <div class="progress-bar-bg h-2 mb-2 bg-slate-100 rounded-full overflow-hidden"><div id="analysis-progress-bar-inner" class="progress-bar-fill h-full bg-blue-600 transition-all duration-300" style="width: 0%;"></div></div>
-                    <p id="analysis-progress-text" class="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">0 / 0 COMPLETED</p>
+                </div>
+
+                <!-- Bottom Pagination (Synced) -->
+                <div id="pagination-container-bottom" class="pagination-bar border-t border-[#eee] bg-[#fcfcfd] hidden h-16">
+                     <div class="flex-grow flex justify-center items-center gap-6">
+                        <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                        <div class="px-6 text-base font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
+                        <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
+                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modals (격리됨) -->
+    <!-- Modals -->
     <div id="settings-modal">
         <div class="settings-modal-content animate-pop-in">
             <div class="flex items-center justify-between mb-8">
@@ -419,7 +422,7 @@
                     <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth Client ID</label>
                     <input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner">
                 </div>
-                <button class="google-btn-primary w-full h-14 rounded-2xl text-sm font-black shadow-xl active:scale-95 transform transition-all" onclick="window.saveCredentials()">설정 저장 및 로그인</button>
+                <button class="w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl active:scale-95 transform transition-all" onclick="window.saveCredentials()">설정 저장 및 로그인</button>
             </div>
         </div>
     </div>
@@ -427,26 +430,35 @@
     <div id="player-modal">
         <div class="modal-content shadow-2xl animate-pop-in">
             <div class="modal-close-x" onclick="window.closePlayer()"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg></div>
+            
             <div class="player-panel custom-scrollbar">
                 <div class="player-wrapper"><div id="yt-player-frame"></div></div>
                 <div class="video-info-area text-left p-8">
                     <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-2">제목</h3>
                     <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase mb-6 tracking-widest">채널</p>
-                    <div class="bg-white p-6 rounded-[28px] border border-slate-200 border-l-8 border-l-blue-500 shadow-sm"><p id="modal-video-summary" class="text-[15px] text-slate-700 italic"></p></div>
+                    <div class="bg-white p-6 rounded-[28px] border border-slate-200 border-l-8 border-l-blue-500 shadow-sm"><p id="modal-video-summary" class="text-[15px] text-slate-700 italic font-medium leading-relaxed"></p></div>
                 </div>
             </div>
+
             <div class="memo-panel">
                 <div class="tab-bar">
                     <div id="tab-personal" class="tab-btn active" onclick="window.switchNoteTab('personal')">퍼스널 노트</div>
                     <div id="tab-ai" class="tab-btn" onclick="window.switchNoteTab('ai')">AI 학습 리포트</div>
                 </div>
-                <div id="note-personal" class="p-6">
-                    <textarea id="personal-memo-textarea" class="textarea-box" style="height:400px" placeholder="나만의 지식을 기록하세요..."></textarea>
-                    <button class="blue-btn-style mt-4" onclick="window.saveMemo('personal')">노트 저장</button>
+                
+                <div id="note-personal" class="flex flex-col flex-grow p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personal Memo</span>
+                        <div class="flex gap-2">
+                            <button class="bg-slate-50 text-slate-600 px-3 py-1 rounded-xl text-[10px] font-bold border border-slate-200" onclick="window.insertTimestamp()">시간 삽입</button>
+                            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
+                        </div>
+                    </div>
+                    <textarea id="personal-memo-textarea" class="textarea-box flex-grow" style="min-height:300px" placeholder="기록하세요..."></textarea>
                 </div>
-                <div id="note-ai" class="note-container hidden p-6 overflow-y-auto">
-                    <div id="ai-gen-placeholder" class="text-center p-8">
-                        <button id="ai-gen-btn" class="google-btn-primary px-8 py-4 rounded-3xl" onclick="window.runDetailedAnalysis()">상세 분석 시작</button>
+                <div id="note-ai" class="note-container hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar">
+                    <div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8">
+                        <button id="ai-gen-btn" class="bg-blue-600 text-white px-8 py-4 rounded-3xl text-sm font-black shadow-xl" onclick="window.runDetailedAnalysis()">상세 분석 시작</button>
                     </div>
                     <div id="ai-memo-rendered-view" class="space-y-4"></div>
                 </div>
@@ -466,22 +478,43 @@
         </div>
     </div>
 
+    <div id="analysis-status-box" class="fixed bottom-8 left-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xl z-[4000] hidden" style="width: 320px;">
+        <div class="flex items-center gap-3 mb-4"><div class="w-2 h-6 bg-blue-600 rounded-full"></div><h4 class="text-sm font-black text-slate-800">AI 분석 엔진 가동 중</h4></div>
+        <div class="h-2 mb-2 bg-slate-100 rounded-full overflow-hidden"><div id="analysis-progress-bar-inner" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%;"></div></div>
+        <p id="analysis-progress-text" class="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">0 / 0 COMPLETED</p>
+    </div>
+
     <script type="module">
-        // --- 0. 핵심 상태 및 유틸리티 즉시 정의 (TypeError 완전 차단) ---
+        // --- 0. CONSTANTS (TOP LEVEL TO PREVENT ReferenceError) ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
 
+        // --- 1. GLOBAL STATE ---
         let syncedData = []; let csvRawItems = []; let activeVideo = null; let currentPageNum = 1; 
         let itemsPerPage = 50; let isAnalysisActive = false; let ytPlayer = null; 
         let accessToken = localStorage.getItem('yt_access_token'); let tokenClient = null;
         let isLiteView = false; let selectedChips = []; let isEditMode = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
-        // 전역 함수 즉시 할당 (TypeError 방지)
+        const AI_CATEGORY_GUIDE = `테크, 푸드, 라이프, 경제, 건강관리, 여행, 정보, 음악, 게임, 리빙, 성장, 자기관리, 미디어 중 하나로 분류하세요.`;
+
+        // --- 2. CORE FUNCTIONS (Top Level for Hoisting) ---
         window.el = id => document.getElementById(id);
-        window.getStyleForCat = (cat) => { let hash=0; for(let i=0;i<cat.length;i++) hash=cat.charCodeAt(i)+((hash<<5)-hash); const p = [{bg:'#ebf8ff',border:'#bee3f8',text:'#2c5282'},{bg:'#f0fff4',border:'#c6f6d5',text:'#22543d'},{bg:'#fff5f5',border:'#fed7d7',text:'#742a2a'},{bg:'#fffaf0',border:'#feebc8',text:'#7b341e'},{bg:'#f5f3ff',border:'#e9d8fd',text:'#44337a'},{bg:'#f0fcff',border:'#c4f1f9',text:'#086f83'},{bg:'#fffbe6',border:'#ffe58f',text:'#855d00'}]; return p[Math.abs(hash)%p.length]; };
-        window.addLog = (msg, type) => { const logBox=window.el('log-console'); if(!logBox) return; const div=document.createElement('div'); div.className=type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400'; div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop=logBox.scrollHeight; };
+
+        window.getStyleForCat = (cat) => { 
+            const p = [{bg:'#ebf8ff',border:'#bee3f8',text:'#2c5282'},{bg:'#f0fff4',border:'#c6f6d5',text:'#22543d'},{bg:'#fff5f5',border:'#fed7d7',text:'#742a2a'},{bg:'#fffaf0',border:'#feebc8',text:'#7b341e'},{bg:'#f5f3ff',border:'#e9d8fd',text:'#44337a'},{bg:'#f0fcff',border:'#c4f1f9',text:'#086f83'},{bg:'#fffbe6',border:'#ffe58f',text:'#855d00'}];
+            let hash=0; for(let i=0;i<cat.length;i++) hash=cat.charCodeAt(i)+((hash<<5)-hash); 
+            return p[Math.abs(hash)%p.length]; 
+        };
+
+        window.addLog = (msg, type) => { 
+            const logBox=window.el('log-console'); if(!logBox) return; 
+            const div=document.createElement('div'); 
+            div.className=type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400'; 
+            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop=logBox.scrollHeight; 
+        };
+
         window.formatDurationDisplay = dur => { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); };
         window.extractJson = text => { try { const m=text.match(/\{[\s\S]*\}/); return m?JSON.parse(m[0]):null; } catch(e){ return null; } };
 
@@ -496,12 +529,13 @@
             if(csvRawItems.length>0) clrBtn?.classList.remove('hidden'); else clrBtn?.classList.add('hidden');
         };
 
-        window.renderActiveFilters = () => {
+        window.renderActiveFilters = function() {
             const filterArea = window.el('active-filters'); if(!filterArea) return;
             filterArea.innerHTML = '';
             selectedChips.forEach(cat => {
                 const st = window.getStyleForCat(cat);
-                const tag = document.createElement('div'); tag.className = 'category-tag-container border-2 flex items-center gap-2 px-3 py-1 rounded-full animate-pop-in';
+                const tag = document.createElement('div'); 
+                tag.className = 'category-tag-container border-2 flex items-center gap-2 px-3 py-1 rounded-full animate-pop-in shadow-sm';
                 tag.style.background = st.bg; tag.style.borderColor = st.border; tag.style.color = st.text;
                 tag.innerHTML = `<span class="font-black text-[11px] uppercase">${cat}</span><span class="cursor-pointer font-black ml-1 active:scale-90" onclick="window.toggleChip('${cat}')">&times;</span>`;
                 filterArea.appendChild(tag);
@@ -520,7 +554,7 @@
                 const isActive = selectedChips.includes(cat);
                 const chip = document.createElement('div');
                 chip.className = `category-chip ${isActive ? 'active' : ''}`;
-                chip.style.borderColor = isActive ? '#1a73e8' : '#cbd5e1';
+                chip.style.borderColor = isActive ? '#1a73e8' : '#ebf8ff';
                 chip.style.background = isActive ? '#ebf8ff' : '#fff';
                 chip.innerHTML = `<span>${cat}</span>`;
                 if(isEditMode) {
@@ -533,10 +567,11 @@
             });
 
             if(isEditMode) {
-                const inputArea = window.el('category-add-area'); if(inputArea) inputArea.classList.remove('hidden');
+                const area = window.el('category-add-area'); if(area) area.classList.remove('hidden');
             }
             const controlChip = document.createElement('div');
-            controlChip.className = `category-chip ${isEditMode ? 'blue-btn-style active' : 'hover:bg-slate-50'}`;
+            controlChip.className = `category-chip ${isEditMode ? 'active' : 'hover:bg-slate-50'}`;
+            if(isEditMode) { controlChip.style.background = '#1a73e8'; controlChip.style.color = '#fff'; }
             if(!isEditMode) controlChip.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
             else controlChip.textContent = "저장";
             controlChip.onclick = window.toggleCategoryEdit;
@@ -548,8 +583,7 @@
             const term = window.el('search-input')?.value.toLowerCase() || "", itemsVal = parseInt(window.el('items-per-page-select')?.value) || 50;
             const sortVal = window.el('sort-select')?.value || 'default';
             itemsPerPage = itemsVal;
-            if (term.length > 0) window.el('clear-search-btn')?.classList.remove('hidden'); else window.el('clear-search-btn')?.classList.add('hidden');
-
+            
             let filtered = syncedData.filter(v => {
                 const ms = (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term))));
                 const mc = selectedChips.length === 0 || (v.categories && v.categories.some(c => selectedChips.includes(c)));
@@ -557,7 +591,6 @@
             });
             
             if(sortVal === 'views-desc') filtered.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
-            else if(sortVal === 'title-asc') filtered.sort((a,b) => a.title.localeCompare(b.title));
             else filtered.sort((a,b) => new Date(b.analyzedAt) - new Date(a.analyzedAt));
 
             const total = filtered.length, maxPages = Math.ceil(total / itemsPerPage) || 1;
@@ -565,7 +598,7 @@
             window.el('total-results-count-top').textContent = total.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
 
-            const tableMode = window.el('table-mode-body'), galleryMode = window.el('gallery-mode-body'), galleryCont = window.el('gallery-body'), tableBody = window.el('result-body'), emptyState = window.el('empty-state');
+            const tableMode = window.el('table-mode-body'), galleryMode = window.el('gallery-mode-body'), tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
             
             if(total === 0) { emptyState?.classList.remove('hidden'); if(tableMode) tableMode.classList.add('hidden'); if(galleryMode) galleryMode.classList.add('hidden'); return; }
             emptyState?.classList.add('hidden');
@@ -579,7 +612,7 @@
                     galleryCont.innerHTML = '';
                     pageItems.forEach(item => {
                         const card = document.createElement('div'); card.className = "video-card animate-pop-in"; card.onclick = () => window.openPlayer(item);
-                        card.innerHTML = `<div class="thumbnail-wrapper"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div><div class="card-content"><div class="card-title">${item.title}</div><div class="card-meta"><span>${item.channelTitle}</span><span class="card-viewcount">${(item.viewCount||0).toLocaleString()} Views</span></div></div>`;
+                        card.innerHTML = `<div class="thumbnail-wrapper"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div><div class="card-content"><div class="card-title">${item.title}</div><div class="flex justify-between items-center mt-auto border-t border-[#f8f9fa] pt-3"><span class="text-[11px] text-slate-400 font-bold uppercase truncate">${item.channelTitle}</span><span class="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-black">${(item.viewCount||0).toLocaleString()} Views</span></div></div>`;
                         galleryCont.appendChild(card);
                     });
                 }
@@ -599,119 +632,86 @@
             }
         };
 
-        // --- 인증 및 사이드바 제어 ---
-        window.toggleSidebar = (show) => {
-            const body = document.getElementById('main-body');
-            if (show) body.classList.remove('sidebar-collapsed'); else body.classList.add('sidebar-collapsed');
+        // --- 3. AUTH & SYNC LOGIC ---
+        window.initAuth = function() {
+            const cid = localStorage.getItem('google-client-id');
+            if (cid && window.google) {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: cid, scope: 'https://www.googleapis.com/auth/youtube.readonly',
+                    callback: (r) => { 
+                        accessToken = r.access_token; localStorage.setItem('yt_access_token', accessToken); 
+                        if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(50); 
+                    }
+                });
+            }
         };
 
-        window.switchViewMode = (gallery) => {
-            isLiteView = gallery;
-            window.el('view-list').classList.toggle('active', !gallery);
-            window.el('view-gallery').classList.toggle('active', gallery);
-            window.renderResults();
+        window.fetchYouTubeMetadata = async function(ids) {
+            if(!ids || ids.length === 0) return []; try { const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${YT_API_KEY}`).then(r => r.json()); return res.items.map(v => ({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, viewCount: parseInt(v.statistics.viewCount) || 0, description: v.snippet.description })); } catch(e) { return []; } 
         };
 
-        const handleAuthCallback = (r) => { if (r.access_token) { accessToken = r.access_token; localStorage.setItem('yt_access_token', accessToken); if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(50); } };
-        const initAuth = () => { const cid = localStorage.getItem('google-client-id'); if (cid && window.google) { tokenClient = google.accounts.oauth2.initTokenClient({ client_id: cid, scope: 'https://www.googleapis.com/auth/youtube.readonly', callback: handleAuthCallback }); } };
-
-        window.fetchLikedVideos = async (limit, token = "") => {
+        window.fetchLikedVideos = async function(limit, token = "") {
             if (!accessToken) { if (tokenClient) tokenClient.requestAccessToken(); return; }
             try {
                 const url = `https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails,statistics&maxResults=${limit === -1 ? 50 : limit}&pageToken=${token}`;
                 const res = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } }).then(r => r.json());
                 const seenIds = new Set(syncedData.map(d => d.id)), qIds = new Set(csvRawItems.map(i => i.id));
                 res.items.forEach(v => { if (!seenIds.has(v.id) && !qIds.has(v.id)) csvRawItems.push({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount), description: v.snippet.description, isDuplicate: false }); });
-                window.refreshQueueUI();
-                if(res.nextPageToken && limit === -1) await window.fetchLikedVideos(-1, res.nextPageToken);
+                window.refreshQueueUI(); if(res.nextPageToken && limit === -1) await window.fetchLikedVideos(-1, res.nextPageToken);
             } catch (e) { window.addLog("동기화 실패.", "error"); }
         };
 
+        // --- 4. ANALYSIS & AI LOGIC ---
         window.runDetailedAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
             const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
             try {
-                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 정보를 정독 분석하여 ## [00:00] 제목, - 내용, > [00:00] 인사이트 문법으로 리포트를 작성하세요.`;
+                const prompt = `영상 "https://www.youtube.com/watch?v=${activeVideo.id}"을 정독 분석하여 상세 리포트를 ## [시간] 제목, - 내용, > [시간] 인사이트 마크다운으로 작성하세요.`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.el('ai-gen-placeholder').classList.add('hidden'); window.renderAiNoteBlocks(text); }
-            } catch(e) {} finally { btn.disabled = false; btn.textContent = "리포트 생성 시작"; }
-        };
-
-        window.runAnalysis = async function() {
-            const key = window.el('gemini-api-key-input')?.value; if(!key) return;
-            const statusBox = window.el('analysis-status-box');
-            csvRawItems = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            if (csvRawItems.length === 0) return;
-            const total = csvRawItems.length; let count = 0; isAnalysisActive = true;
-            if (statusBox) statusBox.style.display = 'block';
-            while (csvRawItems.length > 0) {
-                const item = csvRawItems[0];
-                try {
-                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 정보를 분석하여 JSON: {"categories":["분류"],"summary":"요약","tags":["#태그"]}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
-                    const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
-                    if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); }
-                } catch (e) {} finally {
-                    csvRawItems.shift(); count++;
-                    if(statusBox) {
-                        window.el('analysis-progress-bar-inner').style.width = `${(count / total) * 100}%`;
-                        window.el('analysis-progress-text').textContent = `${count} / ${total} COMPLETED`;
-                    }
-                    window.renderResults(); window.refreshQueueUI();
-                }
-            }
-            isAnalysisActive = false; if(statusBox) setTimeout(() => statusBox.style.display = 'none', 2000); window.updateCharts();
+                if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
+            } catch(e) {} finally { btn.disabled = false; btn.textContent = "상세 리포트 생성"; }
         };
 
         window.renderAiNoteBlocks = (text) => {
             const display = window.el('ai-memo-rendered-view'); display.innerHTML = ''; if (!text) return;
-            const lines = text.split('\n');
+            window.el('ai-gen-placeholder').classList.add('hidden');
+            const lines = text.split('\n'); let currentCard = null;
             lines.forEach(line => {
-                const sM = line.match(/^##\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/);
+                const sM = line.match(/^##\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), hM = line.match(/^>\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), lM = line.match(/^-\s*(.*)/);
                 if (sM) {
-                    const card = document.createElement('div'); card.className = 'p-6 border rounded-2xl mb-4 bg-white hover:border-blue-500 cursor-pointer';
-                    card.innerHTML = `<div class="text-blue-600 font-black mb-2">${sM[1]}</div><div class="font-bold">${sM[2]}</div>`;
-                    card.onclick = () => window.seekToVideo(sM[1]);
-                    display.appendChild(card);
+                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block p-6 border rounded-3xl mb-4 bg-white hover:border-blue-500 cursor-pointer transition-all';
+                    currentCard.onclick = () => window.seekToVideo(sM[1]);
+                    currentCard.innerHTML = `<div class="ai-card-time">▶ ${sM[1]}</div><div class="ai-card-title text-base font-black">${sM[2]}</div><div class="ai-card-body space-y-2"></div>`;
+                    display.appendChild(currentCard);
+                } else if (hM && currentCard) {
+                    const box = document.createElement('div'); box.className = 'ai-card-highlight bg-amber-50 p-4 border border-amber-100 rounded-2xl text-sm font-bold text-amber-800 flex gap-3 mt-3';
+                    box.innerHTML = `<span class="text-xl">💡</span><div><span class="text-[10px] opacity-40 block mb-1">Insight (${hM[1]})</span>${hM[2]}</div>`;
+                    box.onclick = (e) => { e.stopPropagation(); window.seekToVideo(hM[1]); };
+                    currentCard.querySelector('.ai-card-body').appendChild(box);
+                } else if (lM && currentCard) {
+                    const itm = document.createElement('div'); itm.className = 'text-sm text-slate-600 font-medium flex gap-2';
+                    itm.innerHTML = `<span class="text-blue-400">•</span><span>${lM[1]}</span>`;
+                    currentCard.querySelector('.ai-card-body').appendChild(itm);
                 }
             });
         };
 
-        window.updateCharts = function() { 
-            const tm = window.el('treemap-content'), wc = window.el('word-cloud-content'); if (!tm || !wc || syncedData.length === 0) return; 
-            const cs = {}; syncedData.forEach(v => (v.categories || []).forEach(c => cs[c] = (cs[c] || 0) + 1)); 
-            tm.innerHTML = ''; Object.entries(cs).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => { 
-                const perc = Math.round((v / syncedData.length) * 100);
-                const tile = document.createElement('div'); tile.className = `treemap-tile border-2 text-slate-800`; tile.style.gridColumn = `span ${Math.max(2, Math.round((perc / 100) * 12))}`;
-                tile.innerHTML = `<div class="text-[9px] font-black uppercase">${k}</div><div class="text-[12px] font-black">${perc}%</div>`; tile.onclick = () => { window.toggleChip(k); }; tm.appendChild(tile); 
-            }); 
-            const ts = {}; syncedData.forEach(v => (v.tags || []).forEach(t => ts[t] = (ts[t] || 0) + 1)); 
-            wc.innerHTML = ''; Object.entries(ts).sort((a, b) => b[1] - a[1]).slice(0, 25).forEach(([k, v], idx, arr) => { 
-                const weight = v / arr[0][1]; const tag = document.createElement('span'); tag.className = 'tag-cloud-item font-black tracking-tighter'; 
-                tag.style.fontSize = `${12 + Math.pow(weight, 1.8) * 55}px`; tag.style.color = idx % 2 === 0 ? '#1a73e8' : '#64748b'; tag.style.opacity = 0.5 + (weight * 0.5); 
-                tag.textContent = k; tag.onclick = () => { window.el('search-input').value = k; window.renderResults(); }; wc.appendChild(tag); 
-            }); 
-        };
-
-        window.onload = function() {
-            const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) syncedData = JSON.parse(saved);
-            const cid = localStorage.getItem('google-client-id'); if (cid) { window.el('client-id-input').value = cid; initAuth(); }
-            const gk = localStorage.getItem('gemini-key'); if (gk) window.el('gemini-api-key-input').value = gk;
-            window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI(); window.updateCharts();
-        };
-
-        // 기타 핸들러
-        window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); initAuth(); window.el('settings-modal').style.display='none'; };
+        // --- 5. HANDLERS ---
+        window.toggleSidebar = (show) => { const body = document.body; if (show) body.classList.remove('sidebar-collapsed'); else body.classList.add('sidebar-collapsed'); };
+        window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
+        window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
         window.toggleChip = (cat) => { if (cat === 'all') selectedChips = []; else { const idx = selectedChips.indexOf(cat); if (idx > -1) selectedChips.splice(idx, 1); else selectedChips.push(cat); } window.renderCategoriesUI(); window.renderResults(); };
         window.toggleCategoryEdit = () => { isEditMode = !isEditMode; if(!isEditMode) window.el('category-add-area').classList.add('hidden'); window.renderCategoriesUI(); };
         window.addNewCategoryChip = () => { const val = window.el('new-chip-input')?.value.trim(); if (val && !currentCategories.includes(val)) { currentCategories.push(val); window.renderCategoriesUI(); window.el('new-chip-input').value = ''; } };
         window.removeCategoryChip = (cat) => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
-        window.openPlayer = (v) => { activeVideo = v; window.el('player-modal').style.display = 'flex'; window.el('modal-video-title').textContent = v.title; window.el('modal-video-channel').textContent = v.channelTitle; window.el('modal-video-summary').textContent = v.summary || ""; if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); };
+        window.openPlayer = (v) => { activeVideo = v; window.el('player-modal').style.display = 'flex'; window.el('modal-video-title').textContent = v.title; window.el('modal-video-channel').textContent = v.channelTitle; window.el('modal-video-summary').textContent = v.summary || ""; window.el('personal-memo-textarea').value = v.memo || ""; window.switchNoteTab('personal'); if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); };
         window.closePlayer = () => { if (ytPlayer) ytPlayer.stopVideo(); window.el('player-modal').style.display = 'none'; };
-        window.switchNoteTab = (type) => { const pTab=window.el('tab-personal'), aTab=window.el('tab-ai'), pNote=window.el('note-personal'), aNote=window.el('note-ai'); if(type==='personal'){pTab.classList.add('active'); aTab.classList.remove('active'); pNote.classList.remove('hidden'); aNote.classList.add('hidden');}else{pTab.classList.remove('active'); aTab.classList.add('active'); pNote.classList.add('hidden'); aNote.classList.remove('hidden'); if(activeVideo.aiNote){window.renderAiNoteBlocks(activeVideo.aiNote);}}};
-        window.saveMemo = () => { activeVideo.memo=window.el('personal-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.addLog("저장 완료", "success"); };
-        window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
+        window.switchNoteTab = (type) => { const pTab=window.el('tab-personal'), aTab=window.el('tab-ai'), pNote=window.el('note-personal'), aNote=window.el('note-ai'); if(type==='personal'){pTab.classList.add('active'); aTab.classList.remove('active'); pNote.classList.remove('hidden'); aNote.classList.add('hidden');}else{pTab.classList.remove('active'); aTab.classList.add('active'); pNote.classList.add('hidden'); aNote.classList.remove('hidden'); if(activeVideo.aiNote) window.renderAiNoteBlocks(activeVideo.aiNote); else window.el('ai-gen-placeholder').classList.remove('hidden');}};
+        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('personal-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.addLog("메모 저장 완료", "success"); };
+        window.insertTimestamp = () => { if(!ytPlayer) return; const t=`[${Math.floor(ytPlayer.getCurrentTime()/60).toString().padStart(2,'0')}:${Math.floor(ytPlayer.getCurrentTime()%60).toString().padStart(2,'0')}] `; window.el('personal-memo-textarea').value += t; };
+        window.clearQueue = () => { csvRawItems = []; window.refreshQueueUI(); };
+        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
         window.clearSearch = () => { window.el('search-input').value = ""; window.renderResults(); };
         window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('hidden', !v.trim()); };
         window.showAuthBtn = () => { window.el('auth-btn').classList.remove('hidden'); };
@@ -719,11 +719,38 @@
         window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
         window.updateItemsPerPage = v => { itemsPerPage = parseInt(v); currentPageNum = 1; window.renderResults(); };
         window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='backup.json'; a.click(); };
-        window.handleCsvUpload = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=async ev=>{ const ids=ev.target.result.split('\n').map(l=>(l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]).filter(x=>x); if(ids.length){ const meta = await window.fetchYouTubeMetadata(ids); meta.forEach(i=>{ if(!syncedData.some(d=>d.id===i.id)) csvRawItems.push(i); }); window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent=e.target.files[0].name; } }; r.readAsText(f); };
-        window.importFromUrl = async () => { const url=window.el('url-import-input').value; const vid=(url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]; if(vid){ const meta=await window.fetchYouTubeMetadata([vid]); if(meta.length && !syncedData.some(d=>d.id===meta[0].id)){ csvRawItems.push(meta[0]); window.refreshQueueUI(); if(window.el('immediate-analyze-toggle')) window.runAnalysis(); } } window.el('url-import-input').value=""; };
+        window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); window.updateCharts(); }; r.readAsText(f); };
+        window.reanalyzeLibrary = () => { if (syncedData.length) { csvRawItems = [...syncedData]; window.runAnalysis(); } };
+        window.handleCsvUpload = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=async ev=>{ const ids=ev.target.result.split('\n').map(l=>(l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]).filter(x=>x); if(ids.length){ const meta = await window.fetchYouTubeMetadata(ids); meta.forEach(i=>{ if(!syncedData.some(d=>d.id===i.id)) csvRawItems.push(i); }); window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent=f.name; } }; r.readAsText(f); };
+        window.importFromUrl = async () => { const url=window.el('url-import-input').value, vid=(url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]; if(vid){ const meta=await window.fetchYouTubeMetadata([vid]); if(meta.length && !syncedData.some(d=>d.id===meta[0].id)){ csvRawItems.push(meta[0]); window.refreshQueueUI(); window.runAnalysis(); } } window.el('url-import-input').value=""; };
         window.seekToVideo = (timeStr) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=timeStr.split(':').map(Number); const sec = p.length===2 ? p[0]*60+p[1] : p[0]*3600+p[1]*60+p[2]; ytPlayer.seekTo(sec, true); ytPlayer.playVideo(); };
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
-        window.toggleChatWindow = () => { const win = window.el('chatbot-window'); win.style.display = (win.style.display === 'flex') ? 'none' : 'flex'; };
+
+        window.updateCharts = function() { 
+            const tm = window.el('treemap-content'), wc = window.el('word-cloud-content'); if (!tm || !wc || syncedData.length === 0) return; 
+            const cs = {}; syncedData.forEach(v => (v.categories || []).forEach(c => cs[c] = (cs[c] || 0) + 1)); 
+            tm.innerHTML = ''; Object.entries(cs).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => { 
+                const perc = Math.round((v / syncedData.length) * 100);
+                const tile = document.createElement('div'); tile.className = `treemap-tile border-2 text-slate-800`; tile.style.gridColumn = `span ${Math.max(2, Math.round((perc / 100) * 12))}`;
+                tile.innerHTML = `<div class="text-[9px] font-black uppercase">${k}</div><div class="text-[12px] font-black">${perc}%</div>`; tile.onclick = () => window.toggleChip(k); tm.appendChild(tile); 
+            }); 
+            const ts = {}; syncedData.forEach(v => (v.tags || []).forEach(t => ts[t] = (ts[t] || 0) + 1)); 
+            wc.innerHTML = ''; Object.entries(ts).sort((a, b) => b[1] - a[1]).slice(0, 25).forEach(([k, v], idx, arr) => { 
+                const weight = v / arr[0][1]; const tag = document.createElement('span'); tag.className = 'tag-cloud-item font-black tracking-tighter'; 
+                tag.style.fontSize = `${12 + Math.pow(weight, 1.8) * 60}px`; tag.style.color = idx % 2 === 0 ? '#1a73e8' : '#64748b'; tag.style.opacity = 0.5 + (weight * 0.5); 
+                tag.textContent = k; tag.onclick = () => { window.el('search-input').value = k; window.renderResults(); }; wc.appendChild(tag); 
+            }); 
+        };
+
+        window.saveCredentials = function() { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); window.initAuth(); window.el('settings-modal').style.display='none'; };
+
+        // --- 6. INITIALIZATION ---
+        window.onload = function() {
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) syncedData = JSON.parse(saved);
+            const cid = localStorage.getItem('google-client-id'); if (cid) { window.el('client-id-input').value = cid; window.initAuth(); }
+            const gk = localStorage.getItem('gemini-key'); if (gk) window.el('gemini-api-key-input').value = gk;
+            window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI(); window.updateCharts();
+        };
+
     </script>
 </body>
 </html>
