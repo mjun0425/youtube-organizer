@@ -34,14 +34,6 @@
         }
         .animate-pop-in { animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .animate-bounce-in { animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-        /* 불러오기 버튼 애니메이션 */
         .url-btn-transition {
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform: scale(0); opacity: 0; height: 0; margin-top: 0; visibility: hidden;
@@ -105,8 +97,6 @@
         .chip-input-field { background: transparent; border: none; outline: none; padding: 0 12px; font-size: 12px; font-weight: 800; width: 100px; color: #1e293b; }
         .chip-add-btn { background: #1a73e8; color: white; height: 100%; padding: 0 12px; font-weight: 900; }
 
-        .list-category-chip { padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8; background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900; text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex; }
-
         /* 인덱스 바 및 뷰 전환 */
         .pagination-bar { padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
         .view-switcher-unified { display: flex; background: #fff; border-radius: 14px; padding: 3px; gap: 2px; border: 1.5px solid #eef2f6; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
@@ -131,24 +121,32 @@
         .player-wrapper { position: sticky; top: 0; width: 100%; aspect-ratio: 16 / 9; background: #000; z-index: 10; }
         .player-wrapper iframe { width: 100%; height: 100%; }
 
-        .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; position: relative; }
-        .tab-bar { display: flex; padding: 20px 24px 0; gap: 8px; border-bottom: 1px solid #f1f3f4; }
+        .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; position: relative; overflow: hidden; }
+        .tab-bar { display: flex; padding: 20px 24px 0; gap: 8px; border-bottom: 1px solid #f1f3f4; flex-shrink: 0; }
         .tab-btn { padding: 14px 24px; border-radius: 16px 16px 0 0; font-size: 13px; font-weight: 800; color: #94a3b8; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; border-bottom: none; }
         .tab-btn.active { color: #1a73e8; background: #fff; border-color: #f1f3f4; border-bottom-color: #fff; margin-bottom: -1px; z-index: 10; }
 
+        /* 개별 탭 내용물 스크롤 활성화 */
+        #note-personal, #note-ai { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; }
+        #note-ai.hidden, #note-personal.hidden { display: none; }
+
         /* AI 카드 스타일 */
-        .ai-card-block { background: #ffffff; border: 1.5px solid #eef2f6; border-radius: 24px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.25s ease; text-align: left; }
+        .ai-card-block { background: #ffffff; border: 1.5px solid #eef2f6; border-radius: 24px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: all 0.25s ease; text-align: left; flex-shrink: 0; }
         .ai-card-block:hover { border-color: #1a73e8; background: #f8faff; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(26,115,232,0.06); }
         .ai-card-time { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 8px; background: #eef2ff; color: #1a73e8; font-weight: 900; font-size: 12px; margin-bottom: 12px; }
 
-        /* 사이드바 UI */
+        /* 퍼스널 노트 타임라인 버튼 */
+        .seek-pill { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #1a73e8; padding: 2px 10px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; transition: 0.2s; border: 1.5px solid #dbeafe; margin: 2px; }
+        .seek-pill:hover { background: #1a73e8; color: #fff; transform: translateY(-1px); }
+
+        /* 사이드바 UI 보존 */
         .sidebar-box { border-radius: 28px; padding: 22px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1rem; }
         .sidebar-tab-container { display: flex; background: #f1f3f4; border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 1rem; }
         .sidebar-tab-btn { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; color: #5f6368; }
         .sidebar-tab-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-weight: 800; }
         .inner-tool-box { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 10px; }
 
-        /* CSV & 싱크 스타일 */
+        /* CSV & 싱크 스타일 보존 */
         .csv-upload-label { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100px; border: 2px dashed #d2e3fc; background: #f8faff; border-radius: 20px; cursor: pointer; transition: all 0.2s; text-align: center; }
         .csv-upload-label:hover { background: #eef2ff; border-color: #1a73e8; }
         .sync-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1.5px solid #f1f3f4; margin-bottom: 16px; }
@@ -158,9 +156,20 @@
         .sync-quantity-bar { display: flex; align-items: center; justify-content: center; gap: 12px; background: #fff; border: 1.5px solid #eef2f6; padding: 8px; border-radius: 16px; }
         .qty-input { width: 50px; text-align: center; font-size: 15px; font-weight: 900; color: #1e293b; background: transparent; border: none; outline: none; }
         .step-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #64748b; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; border: 1.5px solid #eef2f6; transition: 0.2s; }
+        
+        /* 썸네일 버그 수정 */
+        .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #000; border-radius: 16px; display: block; }
+        .thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+        
+        /* 썸네일 시간 배지 z-index 보정 */
+        .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; z-index: 20; backdrop-filter: blur(4px); }
+
         .api-status-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 900; transition: all 0.2s; cursor: pointer; border: 2px solid; }
         .api-status-btn.connected { border-color: #d2e3fc; background: #e8f0fe; color: #1a73e8; }
         .api-status-btn.disconnected { border-color: #fee2e2; background: #fef2f2; color: #dc2626; }
+        .list-chip-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+        .video-card { background: #fff; border-radius: 32px; overflow: hidden; border: 1px solid #eef2f6; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .video-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border-color: #1a73e8; }
         
         .switch { position: relative; display: inline-block; width: 42px; height: 22px; flex-shrink: 0; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -168,19 +177,13 @@
         .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: #1a73e8; }
         input:checked + .slider:before { transform: translateX(20px); }
-
-        /* 리스트 카테고리 스택 */
-        .list-chip-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-        .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #eee; border-radius: 16px; }
-        .video-card { background: #fff; border-radius: 32px; overflow: hidden; border: 1px solid #eef2f6; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .video-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border-color: #1a73e8; }
     </style>
 </head>
 <body id="main-body">
 
     <!-- Expand Sidebar Hover Trigger -->
     <div id="sidebar-expand-trigger" onclick="window.toggleSidebar(true)">
-        <div class="expand-line h-full">
+        <div class="expand-line h-full flex items-center justify-center">
             <div id="expand-icon-float" class="expand-icon-float"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="9 18 15 12 9 6" transform="rotate(180, 12, 12)"/></svg></div>
         </div>
     </div>
@@ -209,7 +212,7 @@
             </div>
 
             <!-- 분석 대기열 -->
-            <div id="analysis-queue-box" class="sidebar-box border-t-4 border-t-blue-500">
+            <div id="analysis-queue-box" class="sidebar-box border-t-4 border-t-blue-500" style="display: none;">
                 <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">분석 대기열</h2>
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center mb-4">
                     <div class="flex items-center justify-center gap-4">
@@ -222,7 +225,6 @@
                 <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline mt-4" onclick="window.clearQueue()">대기열 비우기</button>
             </div>
 
-            <!-- 통합 탭 카드 -->
             <div class="sidebar-box">
                 <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">Import & Manage</h2>
                 <div class="sidebar-tab-container">
@@ -231,49 +233,32 @@
                     <div id="tab-btn-sync" class="sidebar-tab-btn" onclick="window.switchSidebarTab('sync')">☁️</div>
                     <div id="tab-btn-manage" class="sidebar-tab-btn" onclick="window.switchSidebarTab('manage')">⚙️</div>
                 </div>
-
                 <div id="tab-content-url" class="space-y-4">
                     <span class="text-[10px] font-bold text-slate-400 uppercase block px-1">Add via URL</span>
                     <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="YouTube URL 입력" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 transition-all shadow-inner">
                     <button id="url-import-btn" class="w-full bg-blue-600 text-white rounded-xl font-black text-xs url-btn-transition shadow-lg" onclick="window.importFromUrl()">지금 불러오기</button>
                 </div>
-
                 <div id="tab-content-csv" class="hidden space-y-4">
                     <span class="text-[10px] font-bold text-slate-400 uppercase block px-1">Import CSV</span>
-                    <label for="csv-input" class="csv-upload-label">
-                        <div class="p-2 bg-blue-100 rounded-full text-blue-600 mb-2 animate-pop-in">📂</div>
-                        <p class="text-[10px] font-bold text-slate-500">파일을 선택하세요</p>
-                        <input id="csv-input" type="file" class="hidden" accept=".csv" onchange="window.handleCsvUpload(event)" />
-                    </label>
+                    <label for="csv-input" class="csv-upload-label"><div class="p-2 bg-blue-100 rounded-full text-blue-600 mb-2 animate-pop-in">📂</div><p class="text-[10px] font-bold text-slate-500">파일을 선택하세요</p><input id="csv-input" type="file" class="hidden" accept=".csv" onchange="window.handleCsvUpload(event)" /></label>
                     <div id="file-info" class="hidden bg-blue-50 p-2 rounded-lg border border-blue-100 animate-pop-in"><span id="file-name" class="text-[10px] font-bold text-blue-600 truncate block text-center italic"></span></div>
                 </div>
-
                 <div id="tab-content-sync" class="hidden">
                     <div class="sync-header"><span>자동 동기화</span><label class="switch"><input type="checkbox" id="auto-sync-toggle" onchange="window.handleAutoSyncToggle(this.checked)"><span class="slider"></span></label></div>
                     <div class="space-y-4">
-                        <div class="sync-mode-tabs">
-                            <div id="sync-mode-direct" class="sync-mode-btn active" onclick="window.switchSyncMode('direct')">직접 입력</div>
-                            <div id="sync-mode-all" class="sync-mode-btn" onclick="window.switchSyncMode('all')">전체(MAX)</div>
-                        </div>
+                        <div class="sync-mode-tabs"><div id="sync-mode-direct" class="sync-mode-btn active" onclick="window.switchSyncMode('direct')">직접 입력</div><div id="sync-mode-all" class="sync-mode-btn" onclick="window.switchSyncMode('all')">전체(MAX)</div></div>
                         <div class="sync-quantity-bar"><button class="step-btn" id="qty-minus" onclick="window.updateSyncQty(-1)">-</button><input type="text" id="sync-qty-input" class="qty-input" value="10" oninput="window.handleDirectQtyInput(this.value)"><button class="step-btn" id="qty-plus" onclick="window.updateSyncQty(1)">+</button></div>
                         <button id="auth-btn" class="w-full py-3.5 bg-blue-600 text-white rounded-xl font-black text-xs shadow-xl active:scale-95 transition-all" onclick="window.initAuth()">지금 불러오기</button>
                     </div>
                 </div>
-
                 <div id="tab-content-manage" class="hidden space-y-3">
-                    <div class="grid grid-cols-2 gap-2">
-                        <button class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold transition-colors hover:bg-slate-200" onclick="window.exportJson()">백업</button>
-                        <label class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-slate-200">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label>
-                    </div>
+                    <div class="grid grid-cols-2 gap-2"><button class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold transition-colors hover:bg-slate-200" onclick="window.exportJson()">백업</button><label class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-slate-200">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label></div>
                     <button class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black" onclick="window.reanalyzeLibrary()">갱신</button>
                     <button class="w-full bg-rose-50 text-rose-600 py-3 rounded-xl text-[10px] font-black" onclick="window.el('confirm-modal').style.display='flex'">초기화</button>
                 </div>
             </div>
 
-            <div class="bg-[#202124] rounded-3xl p-5 shadow-xl">
-                <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
-                <div id="log-console" class="h-32 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] pt-2">> Ready.</div>
-            </div>
+            <div class="bg-[#202124] rounded-3xl p-5 shadow-xl"><h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2><div id="log-console" class="h-32 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] pt-2">> Ready.</div></div>
         </aside>
 
         <main id="main-content-area">
@@ -284,7 +269,6 @@
                 </div>
             </div>
 
-            <!-- 분석 진행 패널 -->
             <div id="analysis-progress-panel" class="animate-pop-in">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <div class="flex items-center gap-3"><div class="w-2.5 h-6 bg-blue-600 rounded-full animate-pulse"></div><h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">AI Learning in Progress</h4></div>
@@ -305,10 +289,7 @@
                 <div class="pagination-bar flex items-center h-16">
                     <div class="flex items-center gap-2 min-w-[150px]"><span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">TOTAL</span><span class="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 font-black text-[13px]" id="total-results-count-top">0</span></div>
                     <div class="flex items-center gap-4 flex-grow justify-center">
-                        <div class="view-switcher-unified shadow-sm">
-                            <div id="view-list" class="view-btn-unified active" onclick="window.switchViewMode(false)">LIST</div>
-                            <div id="view-gallery" class="view-btn-unified" onclick="window.switchViewMode(true)">GALLERY</div>
-                        </div>
+                        <div class="view-switcher-unified shadow-sm"><div id="view-list" class="view-btn-unified active" onclick="window.switchViewMode(false)">LIST</div><div id="view-gallery" class="view-btn-unified" onclick="window.switchViewMode(true)">GALLERY</div></div>
                         <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">View</span><select id="items-per-page-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.updateItemsPerPage(this.value)"><option value="50">50</option><option value="100">100</option><option value="200">200</option></select></div>
                         <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Sort</span><select id="sort-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.renderResults()"><option value="default">최신순</option><option value="relevance">관련성순</option><option value="views-desc">조회수순</option></select></div>
                     </div>
@@ -323,7 +304,6 @@
                         <tbody id="result-body" class="divide-y divide-[#eee]"></tbody>
                     </table>
                     <div id="gallery-mode-body" class="hidden"><div id="gallery-body" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-8"></div></div>
-                    <div id="empty-state" class="py-48 text-center text-slate-300 italic font-black text-xl hidden animate-pop-in">데이터가 없습니다.</div>
                 </div>
             </div>
         </main>
@@ -346,32 +326,36 @@
                     <div id="tab-personal" class="tab-btn active" onclick="window.switchNoteTab('personal')">퍼스널 노트</div>
                     <div id="tab-ai" class="tab-btn" onclick="window.switchNoteTab('ai')">AI 학습 리포트</div>
                 </div>
-                <div id="note-personal" class="flex flex-col flex-grow p-6">
-                    <div class="flex items-center justify-between mb-4 px-2">
+                <div id="note-personal">
+                    <div id="personal-note-header" class="flex items-center justify-between mb-4 p-6 pb-0">
                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Knowledge Note</span>
                         <div class="flex gap-2">
-                            <button class="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-slate-200 hover:bg-slate-100" onclick="window.insertTimestamp()">시간 삽입</button>
-                            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
+                            <button id="note-edit-btn" class="hidden bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-slate-200" onclick="window.setNoteEditMode(true)">수정</button>
+                            <button id="note-timestamp-btn" class="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-slate-200 hover:bg-slate-100" onclick="window.insertTimestamp()">시간 삽입</button>
+                            <button id="note-save-btn" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
                         </div>
                     </div>
-                    <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed" placeholder="이 영상에서 배운 핵심 내용을 자유롭게 기록하세요..."></textarea>
+                    <div id="personal-memo-edit-view" class="flex-grow flex flex-col p-6 pt-2">
+                        <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed custom-scrollbar" placeholder="지식을 기록하세요..."></textarea>
+                    </div>
+                    <div id="personal-memo-rendered-view" class="hidden flex-grow p-6 pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 mx-6 mb-6"></div>
                 </div>
-                <div id="note-ai" class="hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="note-ai" class="hidden">
                     <div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8">
                         <button id="ai-gen-btn" class="bg-blue-600 text-white px-8 py-4 rounded-3xl text-sm font-black shadow-xl" onclick="window.runDetailedAnalysis()">상세 분석 시작</button>
                     </div>
-                    <div id="ai-memo-rendered-view" class="space-y-4"></div>
+                    <div id="ai-memo-rendered-view" class="space-y-4 p-6"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="settings-modal"><div class="animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth Client ID</label><input type="text" id="client-id-input" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
+    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth ID</label><input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
     <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
 
     <script type="module">
-        // --- 0. CONSTANTS & UTILITIES (TOP LEVEL) ---
+        // --- 0. CONSTANTS & UTILITIES (TOP) ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
@@ -382,12 +366,6 @@
             const p = [{bg:'#ebf8ff',border:'#bee3f8',text:'#2c5282'},{bg:'#f0fff4',border:'#c6f6d5',text:'#22543d'},{bg:'#fff5f5',border:'#fed7d7',text:'#742a2a'},{bg:'#fffaf0',border:'#feebc8',text:'#7b341e'},{bg:'#f5f3ff',border:'#e9d8fd',text:'#44337a'},{bg:'#f0fcff',border:'#c4f1f9',text:'#086f83'},{bg:'#fffbe6',border:'#ffe58f',text:'#855d00'}];
             let hash=0; for(let i=0;i<cat.length;i++) hash=cat.charCodeAt(i)+((hash<<5)-hash); 
             return p[Math.abs(hash)%p.length]; 
-        };
-
-        window.updateApiStatusUI = () => {
-            const btn = window.el('api-link-btn'), txt = window.el('api-status-text'), key = localStorage.getItem('gemini-key');
-            if (key) { btn.className = "api-status-btn connected"; txt.textContent = "API 연동됨"; } 
-            else { btn.className = "api-status-btn disconnected"; txt.textContent = "API 미연동"; }
         };
 
         window.formatDurationDisplay = dur => { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); };
@@ -402,57 +380,39 @@
         let syncQuantity = 10;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
-        const AI_CATEGORY_GUIDE = `반드시 다음 목록 중 관련성 높은 순서대로 최대 3개까지 선택하세요: 테크, 푸드, 라이프, 경제, 건강관리, 여행, 정보, 음악, 게임, 리빙, 성장, 자기관리, 미디어. 다른 영어 단어나 새로운 단어는 절대 생성하지 마세요. 중요도가 높은 카테고리를 배열의 첫 번째에 두세요.`;
+        const AI_CATEGORY_GUIDE = `반드시 다음 목록 중 관련성 높은 순서대로 최대 3개까지 선택하세요: 테크, 푸드, 라이프, 경제, 건강관리, 여행, 정보, 음악, 게임, 리빙, 성장, 자기관리, 미디어. 중요도가 높은 카테고리를 배열의 첫 번째에 두세요.`;
 
         // --- 2. UI SYNC & RENDER ---
+        window.updateApiStatusUI = () => {
+            const btn = window.el('api-link-btn'), txt = window.el('api-status-text'), key = localStorage.getItem('gemini-key');
+            if (key) { if(btn) btn.className = "api-status-btn connected"; if(txt) txt.textContent = "API 연동됨"; } 
+            else { if(btn) btn.className = "api-status-btn disconnected"; if(txt) txt.textContent = "API 미연동"; }
+        };
+
         window.refreshQueueUI = function() {
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
             const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
-            if(csvRawItems.length === 0) { qBox.classList.remove('visible'); }
-            else { 
-                qBox.classList.add('visible'); 
-                window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length;
-                window.el('analyze-btn').classList.toggle('hidden', news.length === 0);
-            }
+            if(csvRawItems.length === 0 || isAnalysisActive) { qBox.style.display = 'none'; }
+            else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
 
         window.renderCategoriesUI = function() {
             const cont = window.el('category-chips'); if(!cont) return;
             cont.innerHTML = '';
-            const allChip = document.createElement('div');
-            allChip.className = `category-chip ${selectedChips.length===0?'active':''}`;
-            allChip.textContent = "전체"; allChip.onclick = () => window.toggleChip('all');
-            cont.appendChild(allChip);
-
+            const allChip = document.createElement('div'); allChip.className = `category-chip ${selectedChips.length===0?'active':''}`; allChip.textContent = "전체"; allChip.onclick = () => window.toggleChip('all'); cont.appendChild(allChip);
             currentCategories.forEach(cat => {
-                const isActive = selectedChips.includes(cat);
-                const chip = document.createElement('div');
-                chip.className = `category-chip ${isActive ? 'active' : ''}`;
-                const st = window.getStyleForCat(cat);
-                chip.style.borderColor = isActive ? '#1a73e8' : st.border;
-                chip.style.background = isActive ? '#ebf8ff' : '#fff';
-                chip.innerHTML = `<span>${cat}</span>`;
-                if(isEditMode) {
-                    const del = document.createElement('div'); del.className = 'chip-delete-btn'; del.innerHTML = '&times;';
-                    del.onclick = (e) => { e.stopPropagation(); window.removeCategoryChip(cat); };
-                    chip.appendChild(del);
-                }
-                chip.onclick = () => isEditMode ? null : window.toggleChip(cat);
-                cont.appendChild(chip);
+                const isActive = selectedChips.includes(cat), chip = document.createElement('div'); chip.className = `category-chip ${isActive ? 'active' : ''}`;
+                const st = window.getStyleForCat(cat); chip.style.borderColor = isActive ? '#1a73e8' : st.border; chip.style.background = isActive ? '#ebf8ff' : '#fff'; chip.innerHTML = `<span>${cat}</span>`;
+                if(isEditMode) { const del = document.createElement('div'); del.className = 'chip-delete-btn'; del.innerHTML = '&times;'; del.onclick = (e) => { e.stopPropagation(); window.removeCategoryChip(cat); }; chip.appendChild(del); }
+                chip.onclick = () => isEditMode ? null : window.toggleChip(cat); cont.appendChild(chip);
             });
-
             if(isEditMode) {
-                const inputChip = document.createElement('div');
-                inputChip.className = 'chip-input-container';
-                inputChip.innerHTML = `<input type="text" id="new-chip-input" placeholder="추가" class="chip-input-field"><button class="chip-add-btn" onclick="window.addNewCategoryChip()">+</button>`;
-                cont.appendChild(inputChip);
+                const inputChip = document.createElement('div'); inputChip.className = 'chip-input-container'; inputChip.innerHTML = `<input type="text" id="new-chip-input" placeholder="추가" class="chip-input-field"><button class="chip-add-btn" onclick="window.addNewCategoryChip()">+</button>`; cont.appendChild(inputChip);
             }
-            const controlChip = document.createElement('div');
-            controlChip.className = `category-chip ${isEditMode ? 'active' : 'hover:bg-slate-50'}`;
+            const controlChip = document.createElement('div'); controlChip.className = `category-chip ${isEditMode ? 'active' : 'hover:bg-slate-50'}`;
             if(isEditMode) { controlChip.style.background = '#1a73e8'; controlChip.style.color = '#fff'; }
             controlChip.innerHTML = isEditMode ? '저장' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-            controlChip.onclick = window.toggleCategoryEdit;
-            cont.appendChild(controlChip);
+            controlChip.onclick = window.toggleCategoryEdit; cont.appendChild(controlChip);
         };
 
         window.renderResults = function() {
@@ -466,8 +426,7 @@
             });
             if(sortVal === 'views-desc') filtered.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
             else if(sortVal === 'relevance' && selectedChips.length > 0) {
-                const target = selectedChips[0];
-                filtered.sort((a,b) => { const idxA = a.categories.indexOf(target), idxB = b.categories.indexOf(target); if(idxA !== idxB) return idxA - idxB; return new Date(b.analyzedAt) - new Date(a.analyzedAt); });
+                const target = selectedChips[0]; filtered.sort((a,b) => { const idxA = a.categories.indexOf(target), idxB = b.categories.indexOf(target); if(idxA !== idxB) return idxA - idxB; return new Date(b.analyzedAt) - new Date(a.analyzedAt); });
             } else filtered.sort((a,b) => new Date(b.analyzedAt) - new Date(a.analyzedAt));
             
             window.el('total-results-count-top').textContent = filtered.length.toLocaleString();
@@ -491,63 +450,135 @@
             }
         };
 
-        // --- 3. SIDEBAR TABS & SYNC ---
+        // --- 3. SIDEBAR TAB & DATA LOGIC (보존) ---
         window.switchSidebarTab = function(type) {
-            ['url', 'csv', 'sync', 'manage'].forEach(t => { window.el(`tab-content-${t}`).classList.add('hidden'); window.el(`tab-btn-${t}`).classList.remove('active'); });
+            ['url', 'csv', 'sync', 'manage'].forEach(t => { 
+                const cont = window.el(`tab-content-${t}`); if(cont) cont.classList.add('hidden');
+                const btn = window.el(`tab-btn-${t}`); if(btn) btn.classList.remove('active');
+            });
             window.el(`tab-content-${type}`).classList.remove('hidden'); window.el(`tab-btn-${type}`).classList.add('active');
         };
 
         window.switchSyncMode = (mode) => {
             const isAll = (mode === 'all');
             window.el('sync-mode-direct').classList.toggle('active', !isAll); window.el('sync-mode-all').classList.toggle('active', isAll);
-            window.el('sync-qty-input').value = isAll ? 'ALL' : syncQuantity;
-            window.el('sync-qty-input').disabled = isAll;
+            const input = window.el('sync-qty-input'); if(input) { input.value = isAll ? 'ALL' : syncQuantity; input.disabled = isAll; }
+            window.el('qty-minus').disabled = isAll; window.el('qty-plus').disabled = isAll;
             window.el('auth-btn').classList.remove('hidden');
         };
 
-        window.updateSyncQty = (d) => { if(window.el('sync-qty-input').disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); window.el('sync-qty-input').value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
+        window.updateSyncQty = (d) => { if(window.el('sync-qty-input')?.disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); window.el('sync-qty-input').value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
         window.handleDirectQtyInput = (val) => { const n = parseInt(val); if(!isNaN(n)) { syncQuantity = Math.max(1, Math.min(5000, n)); window.el('auth-btn').classList.remove('hidden'); } };
 
-        // --- 4. CORE ANALYSIS ---
         window.runAnalysis = async function() {
             const key = localStorage.getItem('gemini-key'); if(!key) { window.el('settings-modal').style.display='flex'; return; }
-            const progPanel = window.el('analysis-progress-panel');
+            const prg = window.el('analysis-progress-panel'); const qBox = window.el('analysis-queue-box');
+            isAnalysisActive = true; 
+            if(prg) prg.classList.add('active');
+            if(qBox) qBox.style.display = 'none'; // 분석 시작 시 즉시 숨김
+
             const news = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            if (news.length === 0) return;
-            isAnalysisActive = true; progPanel.classList.add('active');
-            const total = news.length; let count = 0; const startTime = Date.now();
+            const total = news.length; let count = 0; const start = Date.now();
             for (const item of news) {
                 try {
-                    const prompt = `영상 제목: "${item.title}", 설명: "${(item.description||"").slice(0, 500)}". 3줄 요약과 핵심 태그(유동적 개수)를 만드세요. 분류 규칙: ${AI_CATEGORY_GUIDE} JSON 응답: {"categories":["분류"],"summary":"요약","tags":["#태그"]}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
+                    const prompt = `영상 분석 JSON: {"categories":["분류"],"summary":"요약","tags":["#태그"]} 규칙: ${AI_CATEGORY_GUIDE} 제목: ${item.title}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
                     if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderResults(); }
                 } catch (e) {} finally {
-                    count++; const elapsed = Date.now() - startTime, avg = elapsed / count, etr = avg * (total - count);
-                    window.el('prog-bar-inner').style.width = `${(count / total) * 100}%`; window.el('prog-percent').textContent = `${Math.round((count / total) * 100)}%`; window.el('prog-count').textContent = `${count} / ${total}`; window.el('prog-elapsed').textContent = new Date(elapsed).toISOString().substr(14, 5); window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
+                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (total - count);
+                    window.el('prog-bar-inner').style.width = `${(count / total) * 100}%`; window.el('prog-percent').textContent = `${Math.round((count / total) * 100)}%`; window.el('prog-count').textContent = `${count} / ${total}`; window.el('prog-elapsed').textContent = new Date(elap).toISOString().substr(14, 5); window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
                 }
             }
-            isAnalysisActive = false; setTimeout(() => progPanel.classList.remove('active'), 2000); csvRawItems = []; window.refreshQueueUI(); window.updateCharts();
+            isAnalysisActive = false; setTimeout(() => prg.classList.remove('active'), 2000); csvRawItems = []; window.refreshQueueUI(); window.updateCharts();
         };
 
-        // --- 5. PLAYER MODAL FUNCTIONS ---
+        // --- 4. PLAYER MODAL & NOTE FUNCTIONS (복구 및 수정) ---
         window.openPlayer = (id) => { 
             const v = syncedData.find(d => d.id === id); if(!v) return;
-            activeVideo = v; window.el('player-modal').style.display = 'flex'; window.el('modal-video-title').textContent = v.title; window.el('modal-video-channel').textContent = v.channelTitle; window.el('modal-video-summary').textContent = v.summary || ""; window.el('personal-memo-textarea').value = v.memo || ""; 
-            if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); 
-            if(v.aiNote) window.renderAiNoteBlocks(v.aiNote); else { window.el('ai-gen-placeholder').classList.remove('hidden'); window.el('ai-memo-rendered-view').innerHTML = ''; }
+            activeVideo = v; 
+            const modal = window.el('player-modal');
+            if(modal) {
+                modal.style.display = 'flex'; 
+                window.el('modal-video-title').textContent = v.title;
+                window.el('modal-video-channel').textContent = v.channelTitle;
+                window.el('modal-video-summary').textContent = v.summary || ""; 
+                
+                window.setNoteEditMode(v.memo ? false : true);
+                window.el('personal-memo-textarea').value = v.memo || "";
+                window.renderPersonalNote(v.memo || "");
+
+                if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); 
+                else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); 
+                
+                if(v.aiNote) window.renderAiNoteBlocks(v.aiNote); 
+                else { window.el('ai-gen-placeholder').classList.remove('hidden'); window.el('ai-memo-rendered-view').innerHTML = ''; }
+                window.switchNoteTab('personal'); // 초기 탭 설정
+            }
         };
 
         window.closePlayer = () => { if (ytPlayer) ytPlayer.stopVideo(); window.el('player-modal').style.display = 'none'; };
-        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('personal-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.addLog("노트 저장 완료", "success"); window.renderResults(); };
-        window.insertTimestamp = () => { if(!ytPlayer) return; const t = `[${new Date(ytPlayer.getCurrentTime()*1000).toISOString().substr(14, 5)}] `; window.el('personal-memo-textarea').value += t; };
-        window.switchNoteTab = (type) => { const pTab=window.el('tab-personal'), aTab=window.el('tab-ai'), pNote=window.el('note-personal'), aNote=window.el('note-ai'); if(type==='personal'){pTab.classList.add('active'); aTab.classList.remove('active'); pNote.classList.remove('hidden'); aNote.classList.add('hidden');}else{pTab.classList.remove('active'); aTab.classList.add('active'); pNote.classList.add('hidden'); aNote.classList.remove('hidden');}};
-        
+
+        window.switchNoteTab = (type) => {
+            const pTab = window.el('tab-personal'), aTab = window.el('tab-ai');
+            const pNote = window.el('note-personal'), aNote = window.el('note-ai');
+            if (!pTab || !aTab || !pNote || !aNote) return;
+
+            if (type === 'personal') {
+                pTab.classList.add('active'); aTab.classList.remove('active');
+                pNote.classList.remove('hidden'); aNote.classList.add('hidden');
+            } else {
+                pTab.classList.remove('active'); aTab.classList.add('active');
+                pNote.classList.add('hidden'); aNote.classList.remove('hidden');
+                if(activeVideo.aiNote) window.renderAiNoteBlocks(activeVideo.aiNote);
+            }
+        };
+
+        window.setNoteEditMode = (isEdit) => {
+            const ev = window.el('personal-memo-edit-view'), rv = window.el('personal-memo-rendered-view');
+            const sb = window.el('note-save-btn'), ts = window.el('note-timestamp-btn'), eb = window.el('note-edit-btn');
+            if(ev) ev.classList.toggle('hidden', !isEdit); if(rv) rv.classList.toggle('hidden', isEdit);
+            if(sb) sb.classList.toggle('hidden', !isEdit); if(ts) ts.classList.toggle('hidden', !isEdit);
+            if(eb) eb.classList.toggle('hidden', isEdit);
+            if(isEdit) window.el('personal-memo-textarea').focus();
+        };
+
+        window.saveMemo = () => { 
+            if(!activeVideo) return; 
+            const memoText = window.el('personal-memo-textarea').value;
+            activeVideo.memo = memoText; 
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); 
+            window.renderPersonalNote(memoText);
+            window.setNoteEditMode(false);
+            window.renderResults(); 
+            window.addLog("노트 저장 완료", "success"); 
+        };
+
+        window.insertTimestamp = () => { 
+            if(!ytPlayer) return; 
+            const time = ytPlayer.getCurrentTime();
+            const t = `[${new Date(time*1000).toISOString().substr(14, 5)}] `; 
+            const textarea = window.el('personal-memo-textarea');
+            const start = textarea.selectionStart, end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + t + textarea.value.substring(end);
+            textarea.focus();
+        };
+
+        window.renderPersonalNote = (text) => {
+            const display = window.el('personal-memo-rendered-view');
+            if(!display) return;
+            if(!text) { display.innerHTML = '<p class="text-slate-400 italic">저장된 메모가 없습니다.</p>'; return; }
+            const html = text.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (match, time) => {
+                return `<span class="seek-pill" onclick="window.seekToVideo('${time}')">▶ ${time}</span>`;
+            });
+            display.innerHTML = html;
+        };
+
         window.runDetailedAnalysis = async function() {
             const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
-            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 시청 중...";
+            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
             try {
-                const prompt = `영상 상세 리포트 작성. 제목: "${activeVideo.title}". 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 리포트 양식으로 마크다운 작성. (한국어 응답)`;
+                const prompt = `영상 상세 리포트 작성. 제목: "${activeVideo.title}". 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
@@ -555,7 +586,8 @@
         };
 
         window.renderAiNoteBlocks = (text) => {
-            const display = window.el('ai-memo-rendered-view'); display.innerHTML = ''; if (!text) return;
+            const display = window.el('ai-memo-rendered-view'); if(!display) return;
+            display.innerHTML = ''; if (!text) return;
             window.el('ai-gen-placeholder').classList.add('hidden');
             const lines = text.split('\n'); let currentCard = null;
             lines.forEach(line => {
@@ -580,7 +612,7 @@
 
         window.seekToVideo = (t) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=t.split(':').map(Number); ytPlayer.seekTo(p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2], true); ytPlayer.playVideo(); };
 
-        // --- 6. EVENT HANDLERS ---
+        // --- 5. EVENT HANDLERS ---
         window.toggleSidebar = (show) => { const b = document.body; if (show) b.classList.remove('sidebar-collapsed'); else b.classList.add('sidebar-collapsed'); };
         window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
         window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
@@ -652,9 +684,9 @@
             window.updateApiStatusUI(); window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI();
             if(localStorage.getItem('google-client-id')) window.initAuth();
             const trigger = window.el('sidebar-divider-trigger'), floatIcon = window.el('divider-icon-float');
-            trigger.addEventListener('mousemove', (e) => { const rect = trigger.getBoundingClientRect(); floatIcon.style.top = `${e.clientY - rect.top}px`; });
+            if(trigger) trigger.addEventListener('mousemove', (e) => { const rect = trigger.getBoundingClientRect(); if(floatIcon) floatIcon.style.top = `${e.clientY - rect.top}px`; });
             const expandTrigger = window.el('sidebar-expand-trigger'), expandIcon = window.el('expand-icon-float');
-            expandTrigger.addEventListener('mousemove', (e) => { const rect = expandTrigger.getBoundingClientRect(); expandIcon.style.top = `${e.clientY - rect.top}px`; });
+            if(expandTrigger) expandTrigger.addEventListener('mousemove', (e) => { const rect = expandTrigger.getBoundingClientRect(); if(expandIcon) expandIcon.style.top = `${e.clientY - rect.top}px`; });
         };
     </script>
 </body>
