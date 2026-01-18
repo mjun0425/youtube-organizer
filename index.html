@@ -46,7 +46,7 @@
         #app-wrapper { display: flex; width: 100%; min-height: calc(100vh - 58px); position: relative; }
 
         #sidebar-column {
-            width: 320px; flex-shrink: 0; padding: 1.5rem; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 320px; flex-shrink: 0; padding: 1.5rem; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left(0.4s) cubic-bezier(0.4, 0, 0.2, 1);
             background: #f8f9fa; position: sticky; top: 58px; height: calc(100vh - 58px); z-index: 50; overflow-y: auto; overflow-x: hidden;
         }
 
@@ -352,10 +352,8 @@
     </div>
 
     <!-- Modals -->
-    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth ID</label><input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
+    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" x2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label><input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth ID</label><input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
     <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
-
-    <div id="analysis-status-box" class="fixed bottom-8 left-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xl z-[7000] hidden" style="width: 320px;"><div class="flex items-center gap-3 mb-4"><div class="w-2 h-6 bg-blue-600 rounded-full"></div><h4 class="text-sm font-black text-slate-800">AI 분석 엔진 가동 중</h4></div><div class="h-2 mb-2 bg-slate-100 rounded-full overflow-hidden"><div id="analysis-progress-bar-inner" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%;"></div></div><p id="analysis-progress-text" class="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">0 / 0 COMPLETED</p></div>
 
     <script type="module">
         // --- 0. CONSTANTS & UTILITIES (TOP) ---
@@ -393,10 +391,9 @@
         };
 
         window.refreshQueueUI = function() {
-            if(isAnalysisActive) return; 
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
             const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
-            if(csvRawItems.length === 0) { qBox.style.display = 'none'; }
+            if(csvRawItems.length === 0 || isAnalysisActive) { qBox.style.display = 'none'; }
             else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
 
@@ -486,7 +483,7 @@
             if(qBox) qBox.style.display = 'none';
 
             const news = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            const totalCount = news.length; if (totalCount === 0) return;
+            const totalItems = news.length; if (totalItems === 0) return;
             let count = 0; const start = Date.now();
             for (const item of news) {
                 try {
@@ -495,10 +492,10 @@
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
                     if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderResults(); }
                 } catch (e) {} finally {
-                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (totalCount - count);
-                    if(window.el('prog-bar-inner')) window.el('prog-bar-inner').style.width = `${(count / totalCount) * 100}%`; 
-                    if(window.el('prog-percent')) window.el('prog-percent').textContent = `${Math.round((count / totalCount) * 100)}%`; 
-                    if(window.el('prog-count')) window.el('prog-count').textContent = `${count} / ${totalCount}`; 
+                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (totalItems - count);
+                    if(window.el('prog-bar-inner')) window.el('prog-bar-inner').style.width = `${(count / totalItems) * 100}%`; 
+                    if(window.el('prog-percent')) window.el('prog-percent').textContent = `${Math.round((count / totalItems) * 100)}%`; 
+                    if(window.el('prog-count')) window.el('prog-count').textContent = `${count} / ${totalItems}`; 
                     if(window.el('prog-elapsed')) window.el('prog-elapsed').textContent = new Date(elap).toISOString().substr(14, 5); 
                     if(window.el('prog-etr')) window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
                 }
@@ -590,13 +587,33 @@
             const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
             const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
             try {
-                // 자막 분석 지시가 포함된 URL 기반 프롬프트
                 const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                const prompt = `YouTube 영상 URL: "${url}" (제목: "${activeVideo.title}", 채널: "${activeVideo.channelTitle}"). 이 영상의 자막(Transcript) 데이터를 정독 분석하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 내용을 기반으로 정확한 타임라인과 정보를 추출해야 합니다. 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
+                // Gemini 내부 도구(google_search)를 명시적으로 사용하는 프롬프트 및 구성
+                const prompt = `Google Search 도구를 사용하여 다음 YouTube 영상의 실제 자막(Transcript)과 상세 내용을 확인하고 분석하세요.
+영상 URL: "${url}"
+제목: "${activeVideo.title}"
+채널: "${activeVideo.channelTitle}"
+
+위 영상의 실제 내용을 정독 분석하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 타임라인을 기반으로 정확한 정보를 추출해야 합니다. 
+양식:
+## [00:00] 제목
+- 내용
+> [00:00] 인사이트
+
+반드시 마크다운 형식으로 작성하고 한국어로 응답하세요.`;
+
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'}, 
+                    body: JSON.stringify({ 
+                        contents: [{ parts: [{ text: prompt }] }],
+                        tools: [{ "google_search": {} }]
+                    }) 
+                }).then(r => r.json());
+                
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
-            } catch(e) {} finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
+            } catch(e) { window.addLog("상세 분석 오류 발생", "error"); } finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
         };
 
         window.renderAiNoteBlocks = (text) => {
@@ -607,7 +624,7 @@
             lines.forEach(line => {
                 const sM = line.match(/^##\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), hM = line.match(/^>\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), lM = line.match(/^-\s*(.*)/);
                 if (sM) {
-                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block p-6 border rounded-3xl mb-4 bg-white hover:border-blue-500 cursor-pointer transition-all';
+                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block';
                     currentCard.onclick = () => window.seekToVideo(sM[1]);
                     currentCard.innerHTML = `<div class="ai-card-time">▶ ${sM[1]}</div><div class="ai-card-title text-base font-black">${sM[2]}</div><div class="ai-card-body-area space-y-2 mt-3"></div>`;
                     display.appendChild(currentCard);
@@ -626,7 +643,7 @@
 
         window.seekToVideo = (t) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=t.split(':').map(Number); ytPlayer.seekTo(p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2], true); ytPlayer.playVideo(); };
 
-        // --- 5. EVENT HANDLERS (기존 유지) ---
+        // --- 5. EVENT HANDLERS ---
         window.toggleSidebar = (show) => { const b = document.body; if (show) b.classList.remove('sidebar-collapsed'); else b.classList.add('sidebar-collapsed'); };
         window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
         window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
