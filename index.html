@@ -97,6 +97,8 @@
         .chip-input-field { background: transparent; border: none; outline: none; padding: 0 12px; font-size: 12px; font-weight: 800; width: 100px; color: #1e293b; }
         .chip-add-btn { background: #1a73e8; color: white; height: 100%; padding: 0 12px; font-weight: 900; }
 
+        .list-category-chip { padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8; background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900; text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex; }
+
         /* 인덱스 바 및 뷰 전환 */
         .pagination-bar { padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
         .view-switcher-unified { display: flex; background: #fff; border-radius: 14px; padding: 3px; gap: 2px; border: 1.5px solid #eef2f6; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
@@ -211,7 +213,6 @@
                 <div><h1 class="text-xl font-bold tracking-tight text-[#3c4043]">YouTube Organizer</h1><p class="text-[10px] text-slate-400 font-bold uppercase mt-0.5">Gemini 3 Pro Engine</p></div>
             </div>
 
-            <!-- 분석 대기열 -->
             <div id="analysis-queue-box" class="sidebar-box border-t-4 border-t-blue-500" style="display: none;">
                 <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">분석 대기열</h2>
                 <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center mb-4">
@@ -355,7 +356,7 @@
     <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
 
     <script type="module">
-        // --- 0. CONSTANTS & UTILITIES (TOP) ---
+        // --- 0. CONSTANTS & UTILITIES ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
@@ -370,7 +371,6 @@
 
         window.formatDurationDisplay = dur => { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); };
         window.extractJson = text => { try { const m=text.match(/\{[\s\S]*\}/); return m?JSON.parse(m[0]):null; } catch(e){ return null; } };
-        window.addLog = (msg, type) => { const logBox=window.el('log-console'); if(!logBox) return; const div=document.createElement('div'); div.className=type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400'; div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop=logBox.scrollHeight; };
 
         // --- 1. GLOBAL STATE ---
         let syncedData = []; let csvRawItems = []; let activeVideo = null; let currentPageNum = 1; 
@@ -418,22 +418,27 @@
         window.renderResults = function() {
             const term = window.el('search-input')?.value.toLowerCase() || "", itemsVal = parseInt(window.el('items-per-page-select')?.value) || 50;
             const sortVal = window.el('sort-select')?.value || 'default';
+            
             let filtered = syncedData.filter(v => {
                 const searchStr = `${v.title} ${v.channelTitle} ${v.summary} ${v.tags?.join(' ')}`.toLowerCase();
                 const termMatch = !term || searchStr.includes(term);
                 const catMatch = selectedChips.length === 0 || v.categories.some(c => selectedChips.includes(c));
                 return termMatch && catMatch;
             });
+            
             if(sortVal === 'views-desc') filtered.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
             else if(sortVal === 'relevance' && selectedChips.length > 0) {
                 const target = selectedChips[0]; filtered.sort((a,b) => { const idxA = a.categories.indexOf(target), idxB = b.categories.indexOf(target); if(idxA !== idxB) return idxA - idxB; return new Date(b.analyzedAt) - new Date(a.analyzedAt); });
             } else filtered.sort((a,b) => new Date(b.analyzedAt) - new Date(a.analyzedAt));
             
-            window.el('total-results-count-top').textContent = filtered.length.toLocaleString();
+            const totalCount = filtered.length; 
+            window.el('total-results-count-top').textContent = totalCount.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
+
             const tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
-            if(filtered.length === 0) { emptyState?.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
+            if(totalCount === 0) { emptyState?.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
             emptyState?.classList.add('hidden');
+
             const pageItems = filtered.slice((currentPageNum-1)*itemsVal, currentPageNum*itemsVal);
             if (isLiteView) {
                 window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.remove('hidden');
@@ -450,7 +455,7 @@
             }
         };
 
-        // --- 3. SIDEBAR TAB & DATA LOGIC (보존) ---
+        // --- 3. SIDEBAR TAB & SYNC 로직 (보존) ---
         window.switchSidebarTab = function(type) {
             ['url', 'csv', 'sync', 'manage'].forEach(t => { 
                 const cont = window.el(`tab-content-${t}`); if(cont) cont.classList.add('hidden');
@@ -461,13 +466,14 @@
 
         window.switchSyncMode = (mode) => {
             const isAll = (mode === 'all');
-            window.el('sync-mode-direct').classList.toggle('active', !isAll); window.el('sync-mode-all').classList.toggle('active', isAll);
+            const dBtn = window.el('sync-mode-direct'), aBtn = window.el('sync-mode-all');
+            if(dBtn) dBtn.classList.toggle('active', !isAll); if(aBtn) aBtn.classList.toggle('active', isAll);
             const input = window.el('sync-qty-input'); if(input) { input.value = isAll ? 'ALL' : syncQuantity; input.disabled = isAll; }
             window.el('qty-minus').disabled = isAll; window.el('qty-plus').disabled = isAll;
             window.el('auth-btn').classList.remove('hidden');
         };
 
-        window.updateSyncQty = (d) => { if(window.el('sync-qty-input')?.disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); window.el('sync-qty-input').value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
+        window.updateSyncQty = (d) => { if(window.el('sync-qty-input')?.disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); const input = window.el('sync-qty-input'); if(input) input.value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
         window.handleDirectQtyInput = (val) => { const n = parseInt(val); if(!isNaN(n)) { syncQuantity = Math.max(1, Math.min(5000, n)); window.el('auth-btn').classList.remove('hidden'); } };
 
         window.runAnalysis = async function() {
@@ -475,10 +481,11 @@
             const prg = window.el('analysis-progress-panel'); const qBox = window.el('analysis-queue-box');
             isAnalysisActive = true; 
             if(prg) prg.classList.add('active');
-            if(qBox) qBox.style.display = 'none'; // 분석 시작 시 즉시 숨김
+            if(qBox) qBox.style.display = 'none';
 
             const news = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            const total = news.length; let count = 0; const start = Date.now();
+            const totalItems = news.length; if (totalItems === 0) return;
+            let count = 0; const start = Date.now();
             for (const item of news) {
                 try {
                     const prompt = `영상 분석 JSON: {"categories":["분류"],"summary":"요약","tags":["#태그"]} 규칙: ${AI_CATEGORY_GUIDE} 제목: ${item.title}`;
@@ -486,14 +493,18 @@
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
                     if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderResults(); }
                 } catch (e) {} finally {
-                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (total - count);
-                    window.el('prog-bar-inner').style.width = `${(count / total) * 100}%`; window.el('prog-percent').textContent = `${Math.round((count / total) * 100)}%`; window.el('prog-count').textContent = `${count} / ${total}`; window.el('prog-elapsed').textContent = new Date(elap).toISOString().substr(14, 5); window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
+                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (totalItems - count);
+                    if(window.el('prog-bar-inner')) window.el('prog-bar-inner').style.width = `${(count / totalItems) * 100}%`; 
+                    if(window.el('prog-percent')) window.el('prog-percent').textContent = `${Math.round((count / totalItems) * 100)}%`; 
+                    if(window.el('prog-count')) window.el('prog-count').textContent = `${count} / ${totalItems}`; 
+                    if(window.el('prog-elapsed')) window.el('prog-elapsed').textContent = new Date(elap).toISOString().substr(14, 5); 
+                    if(window.el('prog-etr')) window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
                 }
             }
             isAnalysisActive = false; setTimeout(() => prg.classList.remove('active'), 2000); csvRawItems = []; window.refreshQueueUI(); window.updateCharts();
         };
 
-        // --- 4. PLAYER MODAL & NOTE FUNCTIONS (복구 및 수정) ---
+        // --- 4. PLAYER MODAL & NOTE FUNCTIONS ---
         window.openPlayer = (id) => { 
             const v = syncedData.find(d => d.id === id); if(!v) return;
             activeVideo = v; 
@@ -513,7 +524,7 @@
                 
                 if(v.aiNote) window.renderAiNoteBlocks(v.aiNote); 
                 else { window.el('ai-gen-placeholder').classList.remove('hidden'); window.el('ai-memo-rendered-view').innerHTML = ''; }
-                window.switchNoteTab('personal'); // 초기 탭 설정
+                window.switchNoteTab('personal');
             }
         };
 
@@ -523,14 +534,13 @@
             const pTab = window.el('tab-personal'), aTab = window.el('tab-ai');
             const pNote = window.el('note-personal'), aNote = window.el('note-ai');
             if (!pTab || !aTab || !pNote || !aNote) return;
-
             if (type === 'personal') {
                 pTab.classList.add('active'); aTab.classList.remove('active');
                 pNote.classList.remove('hidden'); aNote.classList.add('hidden');
             } else {
                 pTab.classList.remove('active'); aTab.classList.add('active');
                 pNote.classList.add('hidden'); aNote.classList.remove('hidden');
-                if(activeVideo.aiNote) window.renderAiNoteBlocks(activeVideo.aiNote);
+                if(activeVideo && activeVideo.aiNote) window.renderAiNoteBlocks(activeVideo.aiNote);
             }
         };
 
@@ -550,7 +560,7 @@
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); 
             window.renderPersonalNote(memoText);
             window.setNoteEditMode(false);
-            window.renderResults(); 
+            window.renderResults();
             window.addLog("노트 저장 완료", "success"); 
         };
 
@@ -578,8 +588,9 @@
             const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
             const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
             try {
-                const prompt = `영상 상세 리포트 작성. 제목: "${activeVideo.title}". 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
+                const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
+                const prompt = `영상 URL: "${url}"의 내용을 정독 분석하여 상세 리포트를 작성하세요. 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
             } catch(e) {} finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
@@ -612,7 +623,7 @@
 
         window.seekToVideo = (t) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=t.split(':').map(Number); ytPlayer.seekTo(p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2], true); ytPlayer.playVideo(); };
 
-        // --- 5. EVENT HANDLERS ---
+        // --- 5. EVENT HANDLERS (기존 유지) ---
         window.toggleSidebar = (show) => { const b = document.body; if (show) b.classList.remove('sidebar-collapsed'); else b.classList.add('sidebar-collapsed'); };
         window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
         window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
@@ -620,14 +631,9 @@
         window.toggleCategoryEdit = () => { isEditMode = !isEditMode; window.renderCategoriesUI(); };
         window.addNewCategoryChip = () => { const val = window.el('new-chip-input')?.value.trim(); if (val && !currentCategories.includes(val)) { currentCategories.push(val); window.renderCategoriesUI(); } };
         window.removeCategoryChip = (cat) => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
-        window.clearQueue = () => { csvRawItems = []; window.refreshQueueUI(); };
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
-        window.reanalyzeLibrary = () => { if (syncedData.length) { csvRawItems = [...syncedData]; window.refreshQueueUI(); } };
-        window.updateItemsPerPage = v => { itemsPerPage = parseInt(v); currentPageNum = 1; window.renderResults(); };
-        window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
         window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); window.updateApiStatusUI(); window.el('settings-modal').style.display='none'; window.initAuth(); };
         window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('show', v.trim().length > 0); };
-        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='yt_backup.json'; a.click(); };
+        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='backup.json'; a.click(); };
         window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); window.updateCharts(); }; r.readAsText(f); };
 
         window.fetchYouTubeMetadata = async (ids) => {
@@ -683,6 +689,7 @@
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) syncedData = JSON.parse(saved);
             window.updateApiStatusUI(); window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI();
             if(localStorage.getItem('google-client-id')) window.initAuth();
+
             const trigger = window.el('sidebar-divider-trigger'), floatIcon = window.el('divider-icon-float');
             if(trigger) trigger.addEventListener('mousemove', (e) => { const rect = trigger.getBoundingClientRect(); if(floatIcon) floatIcon.style.top = `${e.clientY - rect.top}px`; });
             const expandTrigger = window.el('sidebar-expand-trigger'), expandIcon = window.el('expand-icon-float');
