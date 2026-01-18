@@ -46,7 +46,7 @@
         #app-wrapper { display: flex; width: 100%; min-height: calc(100vh - 58px); position: relative; }
 
         #sidebar-column {
-            width: 320px; flex-shrink: 0; padding: 1.5rem; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left(0.4s) cubic-bezier(0.4, 0, 0.2, 1);
+            width: 320px; flex-shrink: 0; padding: 1.5rem; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             background: #f8f9fa; position: sticky; top: 58px; height: calc(100vh - 58px); z-index: 50; overflow-y: auto; overflow-x: hidden;
         }
 
@@ -97,7 +97,14 @@
         .chip-input-field { background: transparent; border: none; outline: none; padding: 0 12px; font-size: 12px; font-weight: 800; width: 100px; color: #1e293b; }
         .chip-add-btn { background: #1a73e8; color: white; height: 100%; padding: 0 12px; font-weight: 900; }
 
-        .list-category-chip { padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8; background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900; text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex; }
+        /* 리스트 내 카테고리 그리드 레이아웃 (NEW) */
+        .list-category-group { display: flex; flex-direction: column; width: 100%; overflow: hidden; }
+        .list-category-item { 
+            padding: 10px 14px; font-size: 12px; font-weight: 900; cursor: pointer; transition: all 0.2s; 
+            border-bottom: 1.2px solid #f1f3f4; text-align: left; position: relative;
+        }
+        .list-category-item:last-child { border-bottom: none; }
+        .list-category-item:hover { background: #f8fafc; color: #1a73e8; padding-left: 18px; }
 
         /* 인덱스 바 및 뷰 전환 */
         .pagination-bar { padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
@@ -169,7 +176,6 @@
         .api-status-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 900; transition: all 0.2s; cursor: pointer; border: 2px solid; }
         .api-status-btn.connected { border-color: #d2e3fc; background: #e8f0fe; color: #1a73e8; }
         .api-status-btn.disconnected { border-color: #fee2e2; background: #fef2f2; color: #dc2626; }
-        .list-chip-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
         .video-card { background: #fff; border-radius: 32px; overflow: hidden; border: 1px solid #eef2f6; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; display: flex; flex-direction: column; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .video-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border-color: #1a73e8; }
         
@@ -254,7 +260,7 @@
                 </div>
                 <div id="tab-content-manage" class="hidden space-y-3">
                     <div class="grid grid-cols-2 gap-2"><button class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold transition-colors hover:bg-slate-200" onclick="window.exportJson()">백업</button><label class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold text-center cursor-pointer hover:bg-slate-200">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label></div>
-                    <button class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black" onclick="window.reanalyzeLibrary()">갱신</button>
+                    <button class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black" onclick="window.reanalyzeLibrary()">기존 갱신</button>
                     <button class="w-full bg-rose-50 text-rose-600 py-3 rounded-xl text-[10px] font-black" onclick="window.el('confirm-modal').style.display='flex'">초기화</button>
                 </div>
             </div>
@@ -356,7 +362,7 @@
     <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
 
     <script type="module">
-        // --- 0. CONSTANTS & UTILITIES (TOP) ---
+        // --- 0. CONSTANTS & UTILITIES ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
@@ -392,7 +398,7 @@
 
         window.refreshQueueUI = function() {
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
-            const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
+            const news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
             if(csvRawItems.length === 0 || isAnalysisActive) { qBox.style.display = 'none'; }
             else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
@@ -434,8 +440,8 @@
             window.el('total-results-count-top').textContent = totalCount.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
             const tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
-            if(totalCount === 0) { emptyState?.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
-            emptyState?.classList.add('hidden');
+            if(totalCount === 0) { if(emptyState) emptyState.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
+            if(emptyState) emptyState.classList.add('hidden');
             const pageItems = filtered.slice((currentPageNum-1)*itemsVal, currentPageNum*itemsVal);
             if (isLiteView) {
                 window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.remove('hidden');
@@ -445,7 +451,11 @@
                 tableBody.innerHTML = pageItems.map(item => `
                     <tr class="hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors" onclick="window.openPlayer('${item.id}')">
                         <td class="px-8 py-6 align-top text-center"><div class="thumbnail-wrapper rounded-2xl overflow-hidden"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div></td>
-                        <td class="px-6 py-6 align-top w-32"><div class="list-chip-stack">${(item.categories||[]).map(c => { const st = window.getStyleForCat(c); return `<div class="category-chip" style="background:${st.bg}; border-color:${st.border}; color:${st.text};" onclick="event.stopPropagation(); window.toggleChip('${c}');"><span>${c}</span></div>`; }).join('')}</div></td>
+                        <td class="px-6 py-6 align-top w-32">
+                            <div class="list-category-group">
+                                ${(item.categories || []).slice(0, 3).map((c, i) => `<div class="list-category-item" onclick="event.stopPropagation(); window.toggleChip('${c}');">${c}</div>`).join('')}
+                            </div>
+                        </td>
                         <td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 font-medium mb-4">${item.summary || ''}</p><div class="flex flex-wrap gap-2 mt-2">${(item.tags||[]).map(t => `<span class="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-lg cursor-pointer" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; window.renderResults();">${t}</span>`).join('')}</div></td>
                         <td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td>
                     </tr>`).join('');
@@ -472,7 +482,6 @@
 
         window.updateSyncQty = (d) => { if(window.el('sync-qty-input')?.disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); const input = window.el('sync-qty-input'); if(input) input.value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
         window.handleDirectQtyInput = (val) => { const n = parseInt(val); if(!isNaN(n)) { syncQuantity = Math.max(1, Math.min(5000, n)); window.el('auth-btn').classList.remove('hidden'); } };
-
         window.updateItemsPerPage = (val) => { itemsPerPage = parseInt(val); currentPageNum = 1; window.renderResults(); };
 
         window.runAnalysis = async function() {
@@ -483,7 +492,7 @@
             if(qBox) qBox.style.display = 'none';
 
             const news = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            const totalItems = news.length; if (totalItems === 0) return;
+            const totalCountItems = news.length; if (totalCountItems === 0) return;
             let count = 0; const start = Date.now();
             for (const item of news) {
                 try {
@@ -492,10 +501,10 @@
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
                     if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderResults(); }
                 } catch (e) {} finally {
-                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (totalItems - count);
-                    if(window.el('prog-bar-inner')) window.el('prog-bar-inner').style.width = `${(count / totalItems) * 100}%`; 
-                    if(window.el('prog-percent')) window.el('prog-percent').textContent = `${Math.round((count / totalItems) * 100)}%`; 
-                    if(window.el('prog-count')) window.el('prog-count').textContent = `${count} / ${totalItems}`; 
+                    count++; const elap = Date.now() - start, avg = elap / count, etr = avg * (totalCountItems - count);
+                    if(window.el('prog-bar-inner')) window.el('prog-bar-inner').style.width = `${(count / totalCountItems) * 100}%`; 
+                    if(window.el('prog-percent')) window.el('prog-percent').textContent = `${Math.round((count / totalCountItems) * 100)}%`; 
+                    if(window.el('prog-count')) window.el('prog-count').textContent = `${count} / ${totalCountItems}`; 
                     if(window.el('prog-elapsed')) window.el('prog-elapsed').textContent = new Date(elap).toISOString().substr(14, 5); 
                     if(window.el('prog-etr')) window.el('prog-etr').textContent = etr > 0 ? new Date(etr).toISOString().substr(14, 5) : "DONE";
                 }
@@ -583,24 +592,26 @@
             display.innerHTML = html;
         };
 
+        // --- 하이브리드 상세 분석 엔진 (Gemini Google Search Grounding 활용) ---
         window.runDetailedAnalysis = async function() {
             const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
-            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
+            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 엔진 가동 중...";
             try {
                 const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                // Gemini 내부 도구(google_search)를 명시적으로 사용하는 프롬프트 및 구성
-                const prompt = `Google Search 도구를 사용하여 다음 YouTube 영상의 실제 자막(Transcript)과 상세 내용을 확인하고 분석하세요.
+                const prompt = `Google Search 도구를 사용하여 다음 YouTube 영상의 실제 자막(Transcript)과 핵심 내용을 철저히 정독 분석하세요.
 영상 URL: "${url}"
 제목: "${activeVideo.title}"
 채널: "${activeVideo.channelTitle}"
+영상 설명(Description): "${(activeVideo.description || '').slice(0, 1000)}"
 
-위 영상의 실제 내용을 정독 분석하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 타임라인을 기반으로 정확한 정보를 추출해야 합니다. 
-양식:
-## [00:00] 제목
-- 내용
-> [00:00] 인사이트
+위의 모든 메타데이터와 URL 도구 분석 결과를 결합하여 상세 학습 리포트를 작성하세요. 반드시 실제 영상 타임라인을 기반으로 정확한 정보를 추출해야 합니다. 
 
-반드시 마크다운 형식으로 작성하고 한국어로 응답하세요.`;
+[작성 양식]
+## [00:00] 섹션 제목
+- 해당 섹션의 상세 요약 및 핵심 내용
+> [00:00] 인사이트 및 실무 적용 포인트
+
+반드시 마크다운 형식을 지키고 한국어로 응답하세요.`;
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                     method: 'POST', 
@@ -653,7 +664,7 @@
         window.removeCategoryChip = (cat) => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
         window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); window.updateApiStatusUI(); window.el('settings-modal').style.display='none'; window.initAuth(); };
         window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('show', v.trim().length > 0); };
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
+        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); if(window.el('confirm-modal')) window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
         window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
         window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='yt_backup.json'; a.click(); };
         window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); window.updateCharts(); }; r.readAsText(f); };
@@ -687,7 +698,7 @@
             if (cid && window.google) {
                 tokenClient = google.accounts.oauth2.initTokenClient({ client_id: cid, scope: 'https://www.googleapis.com/auth/youtube.readonly', callback: (r) => { accessToken = r.access_token; localStorage.setItem('yt_access_token', accessToken); if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(syncQuantity); } });
                 tokenClient.requestAccessToken();
-            } else { window.el('settings-modal').style.display='flex'; }
+            } else { if(window.el('settings-modal')) window.el('settings-modal').style.display='flex'; }
         };
 
         window.updateCharts = function() { 
@@ -704,10 +715,11 @@
             wc.innerHTML = ''; Object.entries(ts).sort((a, b) => b[1] - a[1]).slice(0, 25).forEach(([k, v], idx, arr) => { 
                 const weight = v / arr[0][1]; const tag = document.createElement('span'); tag.className = 'tag-cloud-item font-black tracking-tighter cursor-pointer hover:text-blue-500'; 
                 tag.style.fontSize = `${12 + Math.pow(weight, 1.8) * 55}px`; tag.style.color = idx % 2 === 0 ? '#1a73e8' : '#64748b'; tag.style.opacity = 0.5 + (weight * 0.5); 
-                tag.textContent = k; tag.onclick = () => { window.el('search-input').value = k; window.renderResults(); }; wc.appendChild(tag); 
+                tag.textContent = k; tag.onclick = () => { if(window.el('search-input')) window.el('search-input').value = k; window.renderResults(); }; wc.appendChild(tag); 
             }); 
         };
 
+        // --- 6. INITIALIZATION ---
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) syncedData = JSON.parse(saved);
             window.updateApiStatusUI(); window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI();
