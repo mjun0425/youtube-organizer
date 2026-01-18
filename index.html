@@ -27,13 +27,30 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
+        /* 애니메이션 정의 */
         @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-        /* 메인 레이아웃 및 사이드바 애니메이션 */
+        /* 불러오기 버튼 애니메이션 (등장/퇴장) */
+        .url-btn-transition {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0);
+            opacity: 0;
+            height: 0;
+            margin-top: 0;
+            overflow: hidden;
+        }
+        .url-btn-transition.show {
+            transform: scale(1);
+            opacity: 1;
+            height: 48px; /* 버튼 높이 */
+            margin-top: 1rem;
+        }
+
+        /* 메인 레이아웃 및 사이드바 고정 */
         #app-wrapper {
             display: flex;
             width: 100%;
@@ -101,10 +118,11 @@
             justify-content: center;
             color: #1a73e8;
             box-shadow: 0 6px 16px rgba(26,115,232,0.2);
-            pointer-events: none; /* 클릭은 trigger가 담당 */
+            pointer-events: none;
+            top: 100px;
         }
 
-        /* 펼치기 트리거 (화면 맨 왼쪽) */
+        /* 펼치기 트리거 */
         #sidebar-expand-trigger {
             position: fixed;
             top: 0;
@@ -128,7 +146,6 @@
         .expand-icon-float {
             position: absolute;
             left: 0;
-            top: 0;
             transform: translateY(-50%);
             background: #1a73e8;
             color: white;
@@ -142,7 +159,7 @@
             pointer-events: none;
         }
 
-        /* 대시보드 위젯 확장 */
+        /* 대시보드 위젯 확장 - 아코디언 수정 */
         #dashboard-widget { 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             overflow: hidden; 
@@ -152,11 +169,12 @@
         #dashboard-widget.open { 
             max-height: 1000px; 
             opacity: 1; 
-            padding-bottom: 1.5rem;
+            padding: 1.5rem 0;
             margin-bottom: 0;
+            border-bottom: 1px solid #eee;
         }
 
-        /* 카테고리 칩 스타일 및 줄바꿈 방지 */
+        /* 칩 및 리스트 스타일 */
         .filter-chips-container { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .category-chip { 
             flex-shrink: 0; padding: 7px 16px; border-radius: 14px; border: 2.5px solid #ebf8ff; 
@@ -167,39 +185,24 @@
         .category-chip:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
         .category-chip.active { background: #1a73e8 !important; border-color: #1a73e8 !important; color: #fff !important; transform: scale(1.05); }
         
-        .chip-delete-btn { 
-            margin-left: 8px; width: 18px; height: 18px; background: #ff4d4f; color: white; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-size: 10px; border: 1.5px solid white; transition: transform 0.2s; 
-        }
-        .chip-delete-btn:hover { transform: scale(1.25); }
+        .chip-delete-btn { margin-left: 8px; width: 18px; height: 18px; background: #ff4d4f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1.5px solid white; transition: transform 0.2s; flex-shrink: 0; }
+        .chip-input-container { display: flex; align-items: center; background: #fff; border-radius: 14px; border: 2.5px solid #eee; overflow: hidden; height: 38px; transition: all 0.2s; }
+        .chip-input-field { background: transparent; border: none; outline: none; padding: 0 12px; font-size: 12px; font-weight: 800; width: 100px; color: #1e293b; }
+        .chip-add-btn { background: #1a73e8; color: white; height: 100%; padding: 0 12px; font-weight: 900; }
 
-        .list-category-chip {
-            padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8;
-            background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900;
-            text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex;
-        }
+        .list-category-chip { padding: 8px 18px; border-radius: 12px; border: 2.5px solid #bee3f8; background: #ebf8ff; color: #2c5282; font-size: 12px; font-weight: 900; text-transform: uppercase; margin-right: 10px; margin-bottom: 10px; display: inline-flex; }
 
-        /* 인덱스 바 스타일 통합 */
-        .pagination-bar { 
-            padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee;
-        }
-        .view-switcher-unified { 
-            display: flex; background: #fff; border-radius: 14px; padding: 3px; gap: 2px; border: 1.5px solid #eef2f6; box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-        }
-        .view-btn-unified { 
-            padding: 6px 14px; border-radius: 11px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; color: #94a3b8; 
-        }
-        .view-btn-unified.active { 
-            background: #1a73e8; color: #fff; box-shadow: 0 4px 10px rgba(26,115,232,0.2); 
-        }
+        /* 인덱스 바 및 통합 토글 */
+        .pagination-bar { padding: 0 2rem; background: #fcfcfd; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 15px; height: 64px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .view-switcher-unified { display: flex; background: #fff; border-radius: 14px; padding: 3px; gap: 2px; border: 1.5px solid #eef2f6; }
+        .view-btn-unified { padding: 6px 14px; border-radius: 11px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; color: #94a3b8; }
+        .view-btn-unified.active { background: #1a73e8; color: #fff; box-shadow: 0 4px 10px rgba(26,115,232,0.2); }
 
-        /* 사이드바 박스 */
-        .sidebar-box { border-radius: 28px; padding: 22px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1rem; }
-        .inner-tool-box { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 10px; }
-        .step-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: #fff; color: #94a3b8; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; border: 1.5px solid #e2e8f0; transition: all 0.2s; }
-        
-        /* 모달 시스템 */
+        /* 분석 대기열 (조건부 노출) */
+        #analysis-queue-box { display: none; margin-bottom: 1.5rem; }
+        #analysis-queue-box.visible { display: block; animation: popIn 0.4s ease forwards; }
+
+        /* 모달 시스템 (센터링 강화) */
         #player-modal, #settings-modal, #confirm-modal { 
             display: none; position: fixed; inset: 0; background: rgba(32, 33, 36, 0.85); 
             z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(12px); 
@@ -209,316 +212,214 @@
             display: grid; grid-template-columns: 1fr 500px; height: 90vh; position: relative; 
             box-shadow: 0 40px 100px rgba(0,0,0,0.4); 
         }
-        .modal-close-btn {
-            position: absolute; top: 20px; right: 20px; width: 44px; height: 44px;
-            background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 6100; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-        .modal-close-btn:hover { color: #d93025; transform: rotate(90deg); }
+        .modal-close-btn { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6100; border: 1px solid #eee; transition: 0.2s; }
 
-        /* API 버튼 스타일 */
-        .api-status-btn {
-            display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 900; text-transform: uppercase; transition: all 0.2s; cursor: pointer; border: 2px solid;
-        }
-        .api-status-btn.connected { border-color: #d2e3fc; background: #e8f0fe; color: #1a73e8; }
-        .api-status-btn.disconnected { border-color: #fee2e2; background: #fef2f2; color: #dc2626; }
+        .player-panel { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: #f8fafc; border-right: 1px solid #eef2f6; }
+        .player-wrapper { position: sticky; top: 0; width: 100%; aspect-ratio: 16 / 9; background: #000; z-index: 10; }
+
+        /* CSV 색상 스타일 */
+        .csv-upload-label { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 96px; border: 2px dashed #d2e3fc; background: #f8faff; border-radius: 20px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .csv-upload-label:hover { background: #eef2ff; border-color: #1a73e8; }
+
+        .sidebar-box { border-radius: 28px; padding: 22px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1rem; }
+        .sidebar-tab-container { display: flex; background: #f1f3f4; border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 1rem; }
+        .sidebar-tab-btn { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; color: #5f6368; }
+        .sidebar-tab-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-weight: 800; }
+        .inner-tool-box { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 10px; }
     </style>
 </head>
 <body id="main-body">
 
-    <!-- Expand Sidebar Hover Trigger (With Float Icon) -->
+    <!-- Expand Sidebar Hover Trigger -->
     <div id="sidebar-expand-trigger" onclick="window.toggleSidebar(true)">
         <div class="expand-line h-full">
-            <div id="expand-icon-float" class="expand-icon-float"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="9 18 15 12 9 6"/></svg></div>
+            <div id="expand-icon-float" class="expand-icon-float"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><polyline points="9 18 15 12 9 6" transform="rotate(180, 12, 12)"/></svg></div>
         </div>
     </div>
 
-    <!-- Header (Fixed Top) -->
-    <header class="flex items-center justify-between px-8 py-3 bg-[#f8f9fa] border-b border-slate-100 sticky top-0 z-[200] h-[58px]">
-        <div id="header-brand" class="flex items-center gap-4">
-            <div class="p-2.5 bg-red-600 rounded-xl text-white shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-tight text-[#3c4043]">YouTube Smart Organizer</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Gemini 3 Pro Dashboard</p>
-            </div>
+    <!-- Header -->
+    <header class="flex items-center justify-end px-8 py-3 bg-[#f8f9fa] border-b border-slate-100 sticky top-0 z-[200] h-[58px] gap-3">
+        <div id="api-link-btn" class="api-status-btn disconnected" onclick="window.el('settings-modal').style.display='flex'">
+            <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
+            <span id="api-status-text">API 미연동</span>
         </div>
-        
-        <div class="flex items-center gap-3">
-            <div id="api-link-btn" class="api-status-btn disconnected" onclick="window.el('settings-modal').style.display='flex'">
-                <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
-                <span id="api-status-text">API 미연동</span>
-            </div>
-            <button id="dashboard-toggle-btn-main" class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95" onclick="window.toggleDashboard()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                Visualize Data
-            </button>
-        </div>
+        <button id="dashboard-toggle-btn-main" class="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl border border-slate-200 shadow-sm text-[11px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95" onclick="window.toggleDashboard()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Visualize Data
+        </button>
     </header>
 
     <div id="app-wrapper">
         <!-- Sidebar -->
         <aside id="sidebar-column" class="custom-scrollbar">
-            <!-- Sidebar Divider with Float Icon -->
             <div id="sidebar-divider-trigger" class="sidebar-divider-trigger" onclick="window.toggleSidebar(false)">
-                <div class="divider-line">
-                    <div id="divider-icon-float" class="divider-icon-float"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"/></svg></div>
+                <div class="divider-line"><div id="divider-icon-float" class="divider-icon-float"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"/></svg></div></div>
+            </div>
+
+            <!-- 브랜드 로고 -->
+            <div id="header-brand" class="flex items-center gap-4 mb-8 px-2">
+                <div class="p-2.5 bg-red-600 rounded-xl text-white shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 2-2 10 10 0 0 1 15 0 2 2 0 0 1 2 2 24.12 24.12 0 0 1 0 10 2 2 0 0 1-2 2 10 10 0 0 1-15 0 2 2 0 0 1-2-2Z"/><path d="m10 15 5-3-5-3z"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-[#3c4043]">YouTube Organizer</h1>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Gemini 3 Pro Dashboard</p>
                 </div>
             </div>
 
-            <div class="sidebar-box border-t-4 border-t-blue-500">
+            <!-- 분석 대기열 (조건부 노출) -->
+            <div id="analysis-queue-box" class="sidebar-box border-t-4 border-t-blue-500">
                 <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">분석 대기열</h2>
-                <div class="space-y-4">
-                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
-                        <div id="queue-status-message" class="text-xs font-bold text-slate-400">대기 중인 영상이 없습니다.</div>
-                        <div id="queue-counts-area" class="hidden flex items-center justify-center gap-4 mt-2">
-                             <div class="flex flex-col"><span class="text-2xl font-black text-emerald-500" id="new-q-count">0</span><span class="text-[9px] font-bold text-slate-400 uppercase">New</span></div>
-                             <div class="w-px h-8 bg-slate-200"></div>
-                             <div class="flex flex-col"><span class="text-2xl font-black text-rose-500" id="dup-q-count">0</span><span class="text-[9px] font-bold text-slate-400 uppercase">Dup</span></div>
-                        </div>
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center mb-4">
+                    <div class="flex items-center justify-center gap-4">
+                         <div class="flex flex-col"><span class="text-2xl font-black text-emerald-500" id="new-q-count">0</span><span class="text-[9px] font-bold text-slate-400 uppercase">New</span></div>
+                         <div class="w-px h-8 bg-slate-200"></div>
+                         <div class="flex flex-col"><span class="text-2xl font-black text-rose-500" id="dup-q-count">0</span><span class="text-[9px] font-bold text-slate-400 uppercase">Dup</span></div>
                     </div>
-                    <button id="analyze-btn" class="w-full py-4 rounded-xl text-sm font-black shadow-md hidden bg-blue-600 text-white" onclick="window.runAnalysis()">분석 시작</button>
-                    <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline hidden" onclick="window.clearQueue()">대기열 비우기</button>
                 </div>
+                <button id="analyze-btn" class="w-full py-3 rounded-xl text-sm font-black bg-blue-600 text-white shadow-md transition-transform hover:scale-[1.02]" onclick="window.runAnalysis()">분석 시작</button>
+                <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline mt-4" onclick="window.clearQueue()">대기열 비우기</button>
             </div>
 
-            <div class="sidebar-box space-y-5">
-                <h2 class="text-xs font-black text-[#5f6368] uppercase tracking-wider">영상 불러오기</h2>
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">구글 동기화</span>
-                    <label class="switch"><input type="checkbox" id="auto-sync-toggle"><span class="slider"></span></label>
+            <!-- 통합 탭 카드 -->
+            <div class="sidebar-box">
+                <h2 class="text-xs font-black text-[#5f6368] uppercase mb-4 tracking-wider">Import & Manage</h2>
+                <div class="sidebar-tab-container">
+                    <div id="tab-btn-url" class="sidebar-tab-btn active" onclick="window.switchSidebarTab('url')">🔗</div>
+                    <div id="tab-btn-csv" class="sidebar-tab-btn" onclick="window.switchSidebarTab('csv')">📂</div>
+                    <div id="tab-btn-sync" class="sidebar-tab-btn" onclick="window.switchSidebarTab('sync')">☁️</div>
+                    <div id="tab-btn-manage" class="sidebar-tab-btn" onclick="window.switchSidebarTab('manage')">⚙️</div>
                 </div>
-                <div class="inner-tool-box space-y-4">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase text-xs">수동 불러오기</span>
-                    <div class="flex items-center gap-2">
-                        <div class="relative h-12 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center px-2 flex-grow">
-                            <div id="sync-count-controls" class="w-full flex items-center justify-between">
-                                <button class="step-btn" onclick="const i = window.el('sync-target-count'); if(parseInt(i.value) > 0) { i.stepDown(); window.showAuthBtn(); }">-</button>
-                                <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="w-16 text-center text-xs font-black text-slate-700 outline-none bg-transparent">
-                                <button class="step-btn" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
-                            </div>
-                        </div>
-                        <div id="all-toggle-badge" onclick="window.handleSyncModeTransition(!this.classList.contains('active'))">전체</div>
-                    </div>
-                    <button id="auth-btn" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs hidden" onclick="window.initiateManualSync()">불러오기</button>
+
+                <div id="tab-content-url" class="space-y-4">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block px-1">Add via URL</span>
+                    <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="YouTube URL 입력" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs outline-none focus:border-blue-500 transition-all shadow-inner">
+                    <!-- 불러오기 버튼 양방향 애니메이션 -->
+                    <button id="url-import-btn" class="w-full bg-blue-600 text-white rounded-xl font-black text-xs url-btn-transition shadow-lg" onclick="window.importFromUrl()">지금 불러오기</button>
                 </div>
-                <div class="inner-tool-box space-y-3">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase block text-xs">URL 추가</span>
-                    <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="URL 입력" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs outline-none">
-                    <button id="url-import-btn" class="w-full py-2.5 bg-blue-600 text-white rounded-xl font-black text-xs hidden" onclick="window.importFromUrl()">불러오기</button>
-                </div>
-                <div class="inner-tool-box space-y-3">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase block text-xs">CSV 불러오기</span>
-                    <label for="csv-input" class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-white group transition-all">
-                        <p class="text-[10px] font-bold text-slate-400 text-center">파일 선택</p>
+
+                <div id="tab-content-csv" class="hidden space-y-4">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase block px-1">Import CSV</span>
+                    <label for="csv-input" class="csv-upload-label">
+                        <div class="p-2 bg-blue-100 rounded-full text-blue-600 mb-2 animate-pop-in">📂</div>
+                        <p class="text-[10px] font-bold text-slate-500">파일을 선택하세요</p>
                         <input id="csv-input" type="file" class="hidden" accept=".csv" onchange="window.handleCsvUpload(event)" />
                     </label>
-                    <div id="file-info" class="hidden bg-white p-1 rounded-lg border border-slate-100"><span id="file-name" class="text-[9px] font-bold text-blue-600 truncate block text-center"></span></div>
+                    <div id="file-info" class="hidden bg-blue-50 p-2 rounded-lg border border-blue-100 animate-pop-in"><span id="file-name" class="text-[10px] font-bold text-blue-600 truncate block text-center italic"></span></div>
                 </div>
-            </div>
 
-            <div class="sidebar-box p-5">
-                <h2 class="text-xs font-black text-[#5f6368] uppercase mb-3 tracking-wider">데이터 관리</h2>
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <button class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200" onclick="window.exportJson()">백업</button>
-                    <label class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 text-center cursor-pointer">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label>
+                <div id="tab-content-sync" class="hidden">
+                    <div class="sync-header"><span>자동 동기화</span><label class="switch"><input type="checkbox" id="auto-sync-toggle"><span class="slider"></span></label></div>
+                    <div class="space-y-4">
+                        <div class="sync-mode-tabs">
+                            <div id="sync-mode-direct" class="sync-mode-btn active" onclick="window.switchSyncMode('direct')">직접 입력</div>
+                            <div id="sync-mode-all" class="sync-mode-btn" onclick="window.switchSyncMode('all')">전체(MAX)</div>
+                        </div>
+                        <div id="sync-quantity-area" class="flex items-center justify-center gap-6 background-[#fff] border border-slate-100 p-3 rounded-2xl">
+                            <button class="step-btn" onclick="window.updateSyncQty(-1)">-</button>
+                            <span id="sync-qty-display" class="text-lg font-black text-slate-800 min-w-[40px] text-center">10</span>
+                            <button class="step-btn" onclick="window.updateSyncQty(1)">+</button>
+                        </div>
+                        <button id="auth-btn" class="w-full py-3.5 bg-blue-600 text-white rounded-xl font-black text-xs shadow-xl active:scale-95 transition-all" onclick="window.initAuth()">지금 불러오기</button>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button class="bg-blue-50 text-blue-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-blue-100" onclick="window.reanalyzeLibrary()">갱신</button>
-                    <button class="bg-rose-50 text-rose-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-rose-100" onclick="window.el('confirm-modal').style.display='flex'">초기화</button>
+
+                <div id="tab-content-manage" class="hidden space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold" onclick="window.exportJson()">백업</button>
+                        <label class="bg-slate-100 py-3 rounded-xl text-[10px] font-bold text-center cursor-pointer">복구<input type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label>
+                    </div>
+                    <button class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black" onclick="window.reanalyzeLibrary()">기존 갱신</button>
+                    <button class="w-full bg-rose-50 text-rose-600 py-3 rounded-xl text-[10px] font-black" onclick="window.el('confirm-modal').style.display='flex'">초기화</button>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main id="main-content-area">
-            
+            <!-- 대시보드 (기본 닫힘) -->
             <div id="dashboard-widget" class="bg-white rounded-[40px] border border-slate-200 shadow-sm relative overflow-hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div class="p-8">
-                        <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Category Tree-Map</h3>
-                        <div id="treemap-content" class="treemap-container"></div>
-                    </div>
-                    <div class="p-8">
-                        <h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Key Tag Cloud</h3>
-                        <div id="word-cloud-content" class="flex flex-wrap gap-4 justify-center items-center"></div>
-                    </div>
+                    <div class="p-8"><h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Category Tree-Map</h3><div id="treemap-content" class="grid grid-cols-12 gap-2 w-full"></div></div>
+                    <div class="p-8"><h3 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest text-center border-b border-slate-50 pb-2">Key Tag Cloud</h3><div id="word-cloud-content" class="flex flex-wrap gap-4 justify-center items-center"></div></div>
                 </div>
             </div>
 
             <div id="library-anchor" class="bg-white rounded-[40px] shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[850px]">
-                <!-- Category Section -->
-                <div class="px-8 pt-8 pb-4">
-                     <div id="category-chips" class="filter-chips-container"></div>
-                </div>
+                <div class="px-8 pt-8 pb-4"><div id="category-chips" class="filter-chips-container"></div></div>
+                <div class="px-8 py-4 bg-white border-t border-[#f8f9fa]"><input type="text" id="search-input" oninput="window.renderResults()" placeholder="제목, 채널명 검색..." class="w-full px-6 py-4 bg-slate-50 border border-transparent rounded-[24px] text-sm font-bold outline-none focus:bg-white focus:border-blue-500 transition-all shadow-inner"></div>
 
-                <div class="px-8 py-4 bg-white border-t border-[#f8f9fa]">
-                    <input type="text" id="search-input" oninput="window.renderResults()" placeholder="제목, 채널명, 태그(#) 검색..." class="w-full px-6 py-4 bg-slate-50 border border-transparent rounded-[24px] text-sm font-bold outline-none focus:bg-white focus:border-blue-500 transition-all shadow-inner">
-                </div>
-
-                <!-- Index Bar (완벽 수평 정렬) -->
                 <div class="pagination-bar flex items-center h-16">
-                    <div class="flex items-center gap-2 min-w-[150px]">
-                        <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">TOTAL</span>
-                        <span class="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 font-black text-[13px]" id="total-results-count-top">0</span>
-                    </div>
-                    
+                    <div class="flex items-center gap-2 min-w-[150px]"><span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">TOTAL</span><span class="text-slate-900 bg-white px-3 py-1 rounded-lg border border-slate-200 font-black text-[13px]" id="total-results-count-top">0</span></div>
                     <div class="flex items-center gap-4 flex-grow justify-center">
-                        <!-- Switcher & Selectors 통합 스타일 -->
-                        <div class="view-switcher-unified">
+                        <div class="view-switcher-unified shadow-sm">
                             <div id="view-list" class="view-btn-unified active" onclick="window.switchViewMode(false)">LIST</div>
                             <div id="view-gallery" class="view-btn-unified" onclick="window.switchViewMode(true)">GALLERY</div>
                         </div>
-                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">View</span>
-                            <select id="items-per-page-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.updateItemsPerPage(this.value)">
-                                <option value="50">50</option><option value="100">100</option><option value="200">200</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Sort</span>
-                            <select id="sort-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.renderResults()">
-                                <option value="default">최신순</option>
-                                <option value="views-desc">조회수순</option>
-                            </select>
-                        </div>
+                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">View</span><select id="items-per-page-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.updateItemsPerPage(this.value)"><option value="50">50</option><option value="100">100</option><option value="200">200</option></select></div>
+                        <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Sort</span><select id="sort-select" class="bg-transparent text-[11px] font-black outline-none cursor-pointer" onchange="window.renderResults()"><option value="default">최신순</option><option value="views-desc">조회수순</option></select></div>
                     </div>
-
-                    <div class="flex items-center gap-4 min-w-[150px] justify-end">
-                        <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button>
-                        <div class="px-2 text-[14px] font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
-                        <button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
-                    </div>
+                    <div class="flex items-center gap-4 min-w-[150px] justify-end"><button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 transition-all" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"/></svg></button><div class="px-2 text-[14px] font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div><button class="page-btn p-2 bg-white rounded-xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button></div>
                 </div>
 
                 <div id="library-results-container" class="flex-grow overflow-y-auto custom-scrollbar">
                     <table id="table-mode-body" class="w-full text-sm text-left table-fixed">
                         <thead class="bg-[#f8f9fa] text-[#5f6368] font-black text-[10px] uppercase border-b border-[#dadce0]">
-                            <tr>
-                                <th class="px-8 py-6 w-64 text-center tracking-widest">Thumbnail</th>
-                                <th class="px-6 py-6 w-48">Category</th>
-                                <th class="px-6 py-6 tracking-widest">Summary & Tags</th>
-                                <th class="px-8 py-6 w-40 text-right">Stats</th>
-                            </tr>
+                            <tr><th class="px-8 py-6 w-64 text-center tracking-widest">Thumbnail</th><th class="px-6 py-6 w-48">Category</th><th class="px-6 py-6 tracking-widest">Summary</th><th class="px-8 py-6 w-40 text-right">Stats</th></tr>
                         </thead>
                         <tbody id="result-body" class="divide-y divide-[#eee]"></tbody>
                     </table>
-                    <div id="gallery-mode-body" class="hidden">
-                        <div id="gallery-body" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-8"></div>
-                    </div>
-                    <div id="empty-state" class="py-48 text-center text-slate-300 italic font-black text-xl hidden animate-pop-in">데이터가 없습니다.</div>
-                </div>
-
-                <!-- Bottom Pagination (Always synced) -->
-                <div id="pagination-container-bottom" class="pagination-bar border-t border-[#eee] bg-[#fcfcfd] hidden h-16">
-                     <div class="flex-grow flex justify-center items-center gap-6">
-                        <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                        <div class="px-6 text-base font-black text-slate-700">PAGE <span class="current-page-num text-blue-600">1</span></div>
-                        <button class="page-btn p-3 bg-white rounded-2xl border border-slate-200 hover:bg-slate-50 active:scale-90 transition-all shadow-sm" onclick="window.changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6" transform="rotate(180, 12, 12)"/></svg></button>
-                     </div>
+                    <div id="gallery-mode-body" class="hidden"><div id="gallery-body" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 p-8"></div></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modals (정상 센터링) -->
-    <div id="settings-modal">
-        <div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]">
-            <div class="flex items-center justify-between mb-8">
-                <h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3>
-                <div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div>
-            </div>
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Gemini API Key</label>
-                    <input type="password" id="gemini-api-key-input" placeholder="Enter API Key" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase mb-2 block tracking-widest">Google OAuth Client ID</label>
-                    <input type="text" id="client-id-input" placeholder="Enter Client ID" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner">
-                </div>
-                <button class="google-btn-primary w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button>
-            </div>
-        </div>
-    </div>
+    <!-- Modals -->
+    <div id="settings-modal"><div class="settings-modal-content animate-pop-in bg-white p-10 rounded-[40px] shadow-2xl relative w-[500px]"><div class="flex items-center justify-between mb-8"><h3 class="text-xl font-black text-slate-800 uppercase tracking-widest">Credentials</h3><div class="cursor-pointer" onclick="window.el('settings-modal').style.display='none'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18" transform="rotate(90, 12, 12)"/></svg></div></div><div class="space-y-6"><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Gemini API Key</label><input type="password" id="gemini-api-key-input" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><div><label class="text-[10px] font-black text-slate-400 uppercase mb-2 block">Google OAuth Client ID</label><input type="text" id="client-id-input" class="google-input w-full bg-slate-50 rounded-2xl px-5 h-14 outline-none font-mono text-sm shadow-inner"></div><button class="w-full h-14 bg-blue-600 text-white rounded-2xl text-sm font-black shadow-xl" onclick="window.saveCredentials()">설정 저장 및 로그인</button></div></div></div>
 
     <div id="player-modal">
         <div class="modal-content shadow-2xl animate-pop-in">
-            <div class="modal-close-btn" onclick="window.closePlayer()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
-            </div>
-            
+            <div class="modal-close-btn" onclick="window.closePlayer()"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg></div>
             <div class="player-panel custom-scrollbar">
                 <div class="player-wrapper"><div id="yt-player-frame"></div></div>
-                <div class="video-info-area text-left p-8">
-                    <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-2">제목</h3>
+                <div class="video-info-area p-8 text-left">
+                    <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl mb-2">제목</h3>
                     <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase mb-6 tracking-widest">채널</p>
-                    <div class="bg-white p-6 rounded-[28px] border border-slate-200 border-l-8 border-l-blue-500 shadow-sm"><p id="modal-video-summary" class="text-[15px] text-slate-700 italic font-medium leading-relaxed"></p></div>
+                    <div class="bg-white p-6 rounded-[28px] border border-slate-200 border-l-8 border-l-blue-500 shadow-sm"><p id="modal-video-summary" class="text-[15px] text-slate-700 italic leading-relaxed"></p></div>
                 </div>
             </div>
-
             <div class="memo-panel">
                 <div class="tab-bar">
                     <div id="tab-personal" class="tab-btn active" onclick="window.switchNoteTab('personal')">퍼스널 노트</div>
                     <div id="tab-ai" class="tab-btn" onclick="window.switchNoteTab('ai')">AI 학습 리포트</div>
                 </div>
-                
-                <div id="note-personal" class="flex flex-col flex-grow p-6">
-                    <div class="flex items-center justify-between mb-4 px-2">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes</span>
-                        <div class="flex gap-2">
-                            <button class="bg-slate-50 text-slate-600 px-3 py-1 rounded-xl text-[10px] font-bold border border-slate-200" onclick="window.insertTimestamp()">시간 삽입</button>
-                            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
-                        </div>
-                    </div>
-                    <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed" style="min-height:300px" placeholder="지식을 기록하세요..."></textarea>
-                </div>
-                <div id="note-ai" class="note-container hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar">
-                    <div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8">
-                        <button id="ai-gen-btn" class="bg-blue-600 text-white px-8 py-4 rounded-3xl text-sm font-black shadow-xl" onclick="window.runDetailedAnalysis()">상세 분석 시작</button>
-                    </div>
-                    <div id="ai-memo-rendered-view" class="space-y-4"></div>
-                </div>
+                <div id="note-personal" class="flex flex-col flex-grow p-6"><textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed" placeholder="지식을 기록하세요..."></textarea><button class="w-full py-3 mt-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl" onclick="window.saveMemo()">저장</button></div>
+                <div id="note-ai" class="hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar"><div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8"><button id="ai-gen-btn" class="bg-blue-600 text-white px-8 py-4 rounded-3xl text-sm font-black shadow-xl" onclick="window.runDetailedAnalysis()">상세 분석 시작</button></div><div id="ai-memo-rendered-view" class="space-y-4"></div></div>
             </div>
         </div>
     </div>
 
     <!-- Confirm Modal -->
-    <div id="confirm-modal">
-        <div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
-            <h3 class="text-xl font-bold mb-4">전체 초기화</h3>
-            <p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다.<br>계속하시겠습니까?</p>
-            <div class="flex gap-4">
-                <button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button>
-                <button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button>
-            </div>
-        </div>
-    </div>
+    <div id="confirm-modal"><div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);"><h3 class="text-xl font-bold mb-4">전체 초기화</h3><p class="text-sm text-slate-500 mb-10 leading-relaxed">모든 데이터가 삭제됩니다. 계속하시겠습니까?</p><div class="flex gap-4"><button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button><button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg" onclick="window.resetLibrary()">초기화</button></div></div></div>
 
-    <div id="analysis-status-box" class="fixed bottom-8 left-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xl z-[7000] hidden" style="width: 320px;">
-        <div class="flex items-center gap-3 mb-4"><div class="w-2 h-6 bg-blue-600 rounded-full"></div><h4 class="text-sm font-black text-slate-800">AI 분석 엔진 가동 중</h4></div>
-        <div class="h-2 mb-2 bg-slate-100 rounded-full overflow-hidden"><div id="analysis-progress-bar-inner" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%;"></div></div>
-        <p id="analysis-progress-text" class="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">0 / 0 COMPLETED</p>
-    </div>
+    <div id="analysis-status-box" class="fixed bottom-8 left-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xl z-[7000] hidden" style="width: 320px;"><div class="flex items-center gap-3 mb-4"><div class="w-2 h-6 bg-blue-600 rounded-full"></div><h4 class="text-sm font-black text-slate-800">AI 분석 엔진 가동 중</h4></div><div class="h-2 mb-2 bg-slate-100 rounded-full overflow-hidden"><div id="analysis-progress-bar-inner" class="h-full bg-blue-600 transition-all duration-300" style="width: 0%;"></div></div><p id="analysis-progress-text" class="text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">0 / 0 COMPLETED</p></div>
 
     <script type="module">
-        // --- 0. CONSTANTS (TOP LEVEL) ---
+        // --- 0. CONSTANTS & STATE ---
         const LOCAL_STORAGE_KEY = 'yt_organized_data_v2';
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
 
-        // --- 1. GLOBAL STATE ---
         let syncedData = []; let csvRawItems = []; let activeVideo = null; let currentPageNum = 1; 
         let itemsPerPage = 50; let isAnalysisActive = false; let ytPlayer = null; 
         let accessToken = localStorage.getItem('yt_access_token'); let tokenClient = null;
         let isLiteView = false; let selectedChips = []; let isEditMode = false;
+        let syncQuantity = 10;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
         const AI_CATEGORY_GUIDE = `테크, 푸드, 라이프, 경제, 건강관리, 여행, 정보, 음악, game, 리빙, 성장, 자기관리, 미디어 중 하나로 분류하세요.`;
 
-        // --- 2. CORE UTILITIES (Attached to window) ---
+        // --- 1. CORE FUNCTIONS (Bound to Window) ---
         window.el = id => document.getElementById(id);
         
         window.updateApiStatusUI = () => {
@@ -530,24 +431,15 @@
         window.formatDurationDisplay = dur => { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); };
         window.extractJson = text => { try { const m=text.match(/\{[\s\S]*\}/); return m?JSON.parse(m[0]):null; } catch(e){ return null; } };
 
-        window.addLog = (msg, type) => { 
-            const logBox=window.el('log-console'); if(!logBox) return; 
-            const div=document.createElement('div'); div.className=type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400'; 
-            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop=logBox.scrollHeight; 
-        };
-
-        // --- UI SYNC & RENDER ---
         window.refreshQueueUI = function() {
-            const qMsg=window.el('queue-status-message'), qCounts=window.el('queue-counts-area'), anaBtn=window.el('analyze-btn'), clrBtn=window.el('clear-queue-btn');
-            if(!qMsg || !qCounts) return;
-            const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!seenIds.has(i.id)), dups=csvRawItems.filter(i=>seenIds.has(i.id));
-            if(csvRawItems.length === 0) { qMsg.classList.remove('hidden'); qCounts.classList.add('hidden'); anaBtn?.classList.add('hidden'); clrBtn?.classList.add('hidden'); }
+            const qBox=window.el('analysis-queue-box'); if(!qBox) return;
+            const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
+            if(csvRawItems.length === 0) { qBox.classList.remove('visible'); }
             else { 
-                qMsg.classList.add('hidden'); qCounts.classList.remove('hidden'); 
+                qBox.classList.add('visible'); 
                 window.el('new-q-count').textContent = news.length; 
                 window.el('dup-q-count').textContent = dups.length;
-                if(news.length > 0) anaBtn?.classList.remove('hidden'); else anaBtn?.classList.add('hidden');
-                clrBtn?.classList.remove('hidden');
+                window.el('analyze-btn').classList.toggle('hidden', news.length === 0);
             }
         };
 
@@ -584,8 +476,7 @@
             const controlChip = document.createElement('div');
             controlChip.className = `category-chip ${isEditMode ? 'active' : 'hover:bg-slate-50'}`;
             if(isEditMode) { controlChip.style.background = '#1a73e8'; controlChip.style.color = '#fff'; }
-            if(!isEditMode) controlChip.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-            else controlChip.textContent = "저장";
+            controlChip.innerHTML = isEditMode ? '저장' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
             controlChip.onclick = window.toggleCategoryEdit;
             cont.appendChild(controlChip);
         };
@@ -593,214 +484,148 @@
         window.renderResults = function() {
             const term = window.el('search-input')?.value.toLowerCase() || "", itemsVal = parseInt(window.el('items-per-page-select')?.value) || 50;
             const sortVal = window.el('sort-select')?.value || 'default';
-            itemsPerPage = itemsVal;
-            
-            let filtered = syncedData.filter(v => {
-                const ms = (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term))));
-                const mc = selectedChips.length === 0 || (v.categories && v.categories.some(c => selectedChips.includes(c)));
-                return ms && mc;
-            });
-            
+            let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term)) && (selectedChips.length === 0 || v.categories.some(c => selectedChips.includes(c))));
             if(sortVal === 'views-desc') filtered.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
             else filtered.sort((a,b) => new Date(b.analyzedAt) - new Date(a.analyzedAt));
-
-            const total = filtered.length, maxPages = Math.ceil(total / itemsPerPage) || 1;
-            if (currentPageNum > maxPages) currentPageNum = maxPages;
-            window.el('total-results-count-top').textContent = total.toLocaleString();
+            
+            const total = filtered.length; window.el('total-results-count-top').textContent = total.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
 
             const tableMode = window.el('table-mode-body'), galleryMode = window.el('gallery-mode-body'), tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
-            
             if(total === 0) { emptyState?.classList.remove('hidden'); if(tableMode) tableMode.classList.add('hidden'); if(galleryMode) galleryMode.classList.add('hidden'); return; }
             emptyState?.classList.add('hidden');
 
-            const pageItems = filtered.slice((currentPageNum-1)*itemsPerPage, currentPageNum*itemsPerPage);
-
+            const pageItems = filtered.slice((currentPageNum-1)*itemsVal, currentPageNum*itemsVal);
             if (isLiteView) {
-                if(tableMode) tableMode.classList.add('hidden'); if(galleryMode) galleryMode.classList.remove('hidden');
-                window.el('pagination-container-bottom').classList.remove('hidden');
-                if(galleryCont) {
-                    galleryCont.innerHTML = '';
-                    pageItems.forEach(item => {
-                        const card = document.createElement('div'); card.className = "video-card animate-pop-in"; card.onclick = () => window.openPlayer(item);
-                        card.innerHTML = `<div class="thumbnail-wrapper"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div><div class="card-content"><div class="card-title text-sm font-black line-clamp-2 h-10 mb-4">${item.title}</div><div class="flex justify-between items-center mt-auto border-t border-[#f8f9fa] pt-3"><span class="text-[11px] text-slate-400 font-bold uppercase truncate">${item.channelTitle}</span><span class="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-black">${(item.viewCount||0).toLocaleString()} Views</span></div></div>`;
-                        galleryCont.appendChild(card);
-                    });
-                }
+                tableMode.classList.add('hidden'); galleryMode.classList.remove('hidden'); galleryCont.innerHTML = pageItems.map(item => `<div class="video-card animate-pop-in" onclick="window.openPlayer({id:'${item.id}', title:'${item.title.replace(/'/g, "\\'")}', channelTitle:'${item.channelTitle.replace(/'/g, "\\'")}', summary:'${(item.summary||"").replace(/'/g, "\\'")}'})"><div class="thumbnail-wrapper"><img src="${item.thumbnail}" class="w-full h-full object-cover transition-all"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div><div class="card-content p-5"><div class="card-title text-sm font-black h-10 line-clamp-2 mb-4">${item.title}</div><div class="flex justify-between items-center mt-auto pt-3 border-t border-[#f8f9fa]"><span class="text-[11px] text-slate-400 font-bold uppercase truncate">${item.channelTitle}</span><span class="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-black">${(item.viewCount||0).toLocaleString()}</span></div></div></div>`).join('');
             } else {
-                if(tableMode) tableMode.classList.remove('hidden'); if(galleryMode) galleryMode.classList.add('hidden'); 
-                window.el('pagination-container-bottom').classList.add('hidden');
-                if(tableBody) {
-                    tableBody.innerHTML = '';
-                    pageItems.forEach(item => {
-                        const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors"; tr.onclick = () => window.openPlayer(item);
-                        const cats = (item.categories||[]).map(c => `<span class="list-category-chip">${c}</span>`).join('');
-                        const tags = (item.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; window.renderResults();">${t}</span>`).join('');
-                        tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="thumbnail-wrapper rounded-3xl"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-4">${item.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td>`;
-                        tableBody.appendChild(tr);
-                    });
-                }
+                tableMode.classList.remove('hidden'); galleryMode.classList.add('hidden');
+                tableBody.innerHTML = pageItems.map(item => `<tr class="hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors" onclick="window.openPlayer({id:'${item.id}', title:'${item.title.replace(/'/g, "\\'")}', channelTitle:'${item.channelTitle.replace(/'/g, "\\'")}', summary:'${(item.summary||"").replace(/'/g, "\\'")}'})"><td class="px-8 py-6 align-top text-center"><div class="thumbnail-wrapper rounded-3xl"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap">${(item.categories||[]).map(c=>`<span class="list-category-chip">${c}</span>`).join('')}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 font-medium mb-4">${item.summary || ''}</p></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td></tr>`).join('');
             }
         };
 
-        // --- 4. DATA LOGIC & AUTH ---
+        // --- 2. SIDEBAR TAB & SYNC HANDLERS ---
+        window.switchSidebarTab = function(type) {
+            ['url', 'csv', 'sync', 'manage'].forEach(t => { window.el(`tab-content-${t}`).classList.add('hidden'); window.el(`tab-btn-${t}`).classList.remove('active'); });
+            window.el(`tab-content-${type}`).classList.remove('hidden');
+            window.el(`tab-btn-${type}`).classList.add('active');
+        };
+
+        window.switchSyncMode = (mode) => {
+            const isAll = (mode === 'all');
+            window.el('sync-mode-direct').classList.toggle('active', !isAll);
+            window.el('sync-mode-all').classList.toggle('active', isAll);
+            window.el('sync-qty-display').textContent = isAll ? 'ALL' : syncQuantity;
+            window.el('auth-btn').classList.remove('hidden');
+        };
+
+        window.updateSyncQty = (d) => {
+            if (window.el('sync-mode-all').classList.contains('active')) return;
+            syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d));
+            window.el('sync-qty-display').textContent = syncQuantity;
+            window.el('auth-btn').classList.remove('hidden');
+        };
+
+        window.handleSyncModeTransition = (isAll) => { window.switchSyncMode(isAll ? 'all' : 'direct'); };
+
         window.initAuth = function() {
             const cid = localStorage.getItem('google-client-id');
             if (cid && window.google) {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: cid, scope: 'https://www.googleapis.com/auth/youtube.readonly',
-                    callback: (r) => { accessToken = r.access_token; localStorage.setItem('yt_access_token', accessToken); if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(50); }
+                    callback: (r) => { accessToken = r.access_token; localStorage.setItem('yt_access_token', accessToken); if (window.el('auto-sync-toggle').checked) window.fetchLikedVideos(syncQuantity); }
                 });
-            }
+            } else { window.el('settings-modal').style.display='flex'; }
         };
 
-        window.fetchYouTubeMetadata = async function(ids) {
-            if(!ids || ids.length === 0) return []; try { const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${YT_API_KEY}`).then(r => r.json()); return res.items.map(v => ({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, viewCount: parseInt(v.statistics.viewCount) || 0, description: v.snippet.description })); } catch(e) { return []; } 
-        };
-
-        window.fetchLikedVideos = async function(limit, token = "") {
-            if (!accessToken) { if (tokenClient) tokenClient.requestAccessToken(); return; }
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/videos?myRating=like&part=snippet,contentDetails,statistics&maxResults=${limit === -1 ? 50 : limit}&pageToken=${token}`;
-                const res = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } }).then(r => r.json());
-                const seenIds = new Set(syncedData.map(d => d.id)), qIds = new Set(csvRawItems.map(i => i.id));
-                res.items.forEach(v => { if (!seenIds.has(v.id) && !qIds.has(v.id)) csvRawItems.push({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount), description: v.snippet.description, isDuplicate: false }); });
-                window.refreshQueueUI(); if(res.nextPageToken && limit === -1) await window.fetchLikedVideos(-1, res.nextPageToken);
-            } catch (e) { window.addLog("동기화 실패.", "error"); }
-        };
-
-        // --- 5. CORE ANALYSIS & AI ---
         window.runAnalysis = async function() {
-            const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("Gemini Key 필요.", "error"); return; }
-            const statusBox = window.el('analysis-status-box');
-            csvRawItems = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
-            if (csvRawItems.length === 0) return;
-            const total = csvRawItems.length; let count = 0; isAnalysisActive = true;
-            if (statusBox) statusBox.style.display = 'block';
-            while (csvRawItems.length > 0) {
-                const item = csvRawItems[0];
+            const key = localStorage.getItem('gemini-key'); if(!key) return;
+            const statusBox = window.el('analysis-status-box'); isAnalysisActive = true; statusBox.classList.remove('hidden');
+            const news = csvRawItems.filter(item => !syncedData.some(d => d.id === item.id));
+            const total = news.length; let count = 0;
+            for (const item of news) {
                 try {
-                    const prompt = `영상 "https://www.youtube.com/watch?v=${item.id}" 요약 분석 JSON: {"categories":["분류"],"summary":"요약","tags":["#태그"]} 규칙: ${AI_CATEGORY_GUIDE}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: `영상 요약 JSON: {"categories":["분류"],"summary":"요약"} ID: ${item.id}` }] }] }) }).then(r => r.json());
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
-                    if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); }
-                } catch (e) {} finally {
-                    csvRawItems.shift(); count++;
-                    if(statusBox) {
-                        window.el('analysis-progress-bar-inner').style.width = `${(count / total) * 100}%`;
-                        window.el('analysis-progress-text').textContent = `${count} / ${total} COMPLETED`;
-                    }
-                    window.renderResults(); window.refreshQueueUI();
-                }
+                    if (result) syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() });
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+                } catch (e) {} finally { count++; window.el('analysis-progress-bar-inner').style.width = `${(count / total) * 100}%`; window.el('analysis-progress-text').textContent = `${count} / ${total}`; }
             }
-            isAnalysisActive = false; if(statusBox) setTimeout(() => statusBox.style.display = 'none', 2000); window.updateCharts();
+            isAnalysisActive = false; statusBox.classList.add('hidden'); csvRawItems = []; window.refreshQueueUI(); window.renderResults();
         };
 
-        window.renderAiNoteBlocks = (text) => {
-            const display = window.el('ai-memo-rendered-view'); display.innerHTML = ''; if (!text) return;
-            window.el('ai-gen-placeholder').classList.add('hidden');
-            const lines = text.split('\n'); let currentCard = null;
-            lines.forEach(line => {
-                const sM = line.match(/^##\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), hM = line.match(/^>\s*\[(\d{1,2}:\d{2}(?::\d{2})?)\]\s*(.*)/), lM = line.match(/^-\s*(.*)/);
-                if (sM) {
-                    currentCard = document.createElement('div'); currentCard.className = 'ai-card-block p-6 border rounded-3xl mb-4 bg-white hover:border-blue-500 cursor-pointer transition-all';
-                    currentCard.onclick = () => window.seekToVideo(sM[1]);
-                    currentCard.innerHTML = `<div class="ai-card-time">▶ ${sM[1]}</div><div class="ai-card-title text-base font-black">${sM[2]}</div><div class="ai-card-body-area space-y-2"></div>`;
-                    display.appendChild(currentCard);
-                } else if (hM && currentCard) {
-                    const box = document.createElement('div'); box.className = 'ai-card-highlight bg-amber-50 p-4 border rounded-2xl text-sm font-bold flex gap-3 mt-3';
-                    box.innerHTML = `<span class="text-xl">💡</span><div><span class="text-[10px] opacity-40 block mb-1">Insight (${hM[1]})</span>${hM[2]}</div>`;
-                    box.onclick = (e) => { e.stopPropagation(); window.seekToVideo(hM[1]); };
-                    currentCard.querySelector('.ai-card-body-area').appendChild(box);
-                } else if (lM && currentCard) {
-                    const itm = document.createElement('div'); itm.className = 'text-sm text-slate-600 font-medium flex gap-2';
-                    itm.innerHTML = `<span class="text-blue-400">•</span><span>${lM[1]}</span>`;
-                    currentCard.querySelector('.ai-card-body-area').appendChild(itm);
+        window.handleCsvUpload = e => { 
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = async ev => {
+                const ids = ev.target.result.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/g)?.map(s => s.slice(-11)) || [];
+                if(ids.length) {
+                    const meta = await window.fetchYouTubeMetadata(ids);
+                    meta.forEach(m => { if(!syncedData.some(d=>d.id===m.id) && !csvRawItems.some(i=>i.id===m.id)) csvRawItems.push(m); });
+                    window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent=f.name;
                 }
-            });
+            };
+            r.readAsText(f);
         };
 
-        window.runDetailedAnalysis = async function() {
-            const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
-            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
+        window.fetchYouTubeMetadata = async (ids) => {
+            if(!ids || ids.length === 0) return [];
             try {
-                const prompt = `영상 "https://www.youtube.com/watch?v=${activeVideo.id}"을 정독 분석 ## [시간] 제목, - 내용, > [시간] 인사이트 마크다운 리포트 작성`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
-                const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
-            } catch(e) {} finally { btn.disabled = false; btn.textContent = "상세 리포트 생성"; }
+                const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${YT_API_KEY}`).then(r => r.json());
+                return res.items.map(v => ({ id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration, thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, viewCount: parseInt(v.statistics.viewCount) || 0 }));
+            } catch(e) { return []; }
         };
 
-        // --- 6. HANDLERS ---
+        window.importFromUrl = async () => {
+            const url = window.el('url-import-input').value, vid = (url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1];
+            if (vid) {
+                const meta = await window.fetchYouTubeMetadata([vid]);
+                if (meta.length) { csvRawItems.push(meta[0]); window.refreshQueueUI(); }
+            }
+            window.el('url-import-input').value = "";
+            window.handleUrlBtnVisibility("");
+        };
+
+        // --- 4. INTERFACE EVENT HANDLERS ---
         window.toggleSidebar = (show) => { const body = document.body; if (show) body.classList.remove('sidebar-collapsed'); else body.classList.add('sidebar-collapsed'); };
+        window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); };
         window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
-        window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
-        window.toggleChip = (cat) => { if (cat === 'all') selectedChips = []; else { selectedChips = [cat]; } window.renderCategoriesUI(); window.renderResults(); };
-        window.toggleCategoryEdit = () => { isEditMode = !isEditMode; if(!isEditMode) window.el('category-add-area')?.classList.add('hidden'); window.renderCategoriesUI(); };
-        window.addNewCategoryChip = () => { const val = window.el('new-chip-input')?.value.trim(); if (val && !currentCategories.includes(val)) { currentCategories.push(val); window.renderCategoriesUI(); window.el('new-chip-input').value = ''; } };
+        window.toggleChip = (cat) => { selectedChips = (cat === 'all') ? [] : [cat]; window.renderCategoriesUI(); window.renderResults(); };
+        window.toggleCategoryEdit = () => { isEditMode = !isEditMode; window.renderCategoriesUI(); };
+        window.addNewCategoryChip = () => { const val = window.el('new-chip-input')?.value.trim(); if (val && !currentCategories.includes(val)) { currentCategories.push(val); window.renderCategoriesUI(); } };
         window.removeCategoryChip = (cat) => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
-        window.openPlayer = (v) => { activeVideo = v; window.el('player-modal').style.display = 'flex'; window.el('modal-video-title').textContent = v.title; window.el('modal-video-channel').textContent = v.channelTitle; window.el('modal-video-summary').textContent = v.summary || ""; window.el('personal-memo-textarea').value = v.memo || ""; window.switchNoteTab('personal'); if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); };
+        window.openPlayer = (v) => { activeVideo = v; window.el('player-modal').style.display = 'flex'; window.el('modal-video-title').textContent = v.title; window.el('modal-video-channel').textContent = v.channelTitle; window.el('modal-video-summary').textContent = v.summary || ""; if (ytPlayer && ytPlayer.loadVideoById) ytPlayer.loadVideoById(v.id); else ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: v.id }); };
         window.closePlayer = () => { if (ytPlayer) ytPlayer.stopVideo(); window.el('player-modal').style.display = 'none'; };
-        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('personal-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.addLog("메모 저장 완료", "success"); };
+        window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('personal-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.addLog("저장 완료", "success"); };
         window.insertTimestamp = () => { if(!ytPlayer) return; const t=`[${Math.floor(ytPlayer.getCurrentTime()/60).toString().padStart(2,'0')}:${Math.floor(ytPlayer.getCurrentTime()%60).toString().padStart(2,'0')}] `; window.el('personal-memo-textarea').value += t; };
-        window.switchNoteTab = (type) => { const pTab=window.el('tab-personal'), aTab=window.el('tab-ai'), pNote=window.el('note-personal'), aNote=window.el('note-ai'); if(type==='personal'){pTab.classList.add('active'); aTab.classList.remove('active'); pNote.classList.remove('hidden'); aNote.classList.add('hidden');}else{pTab.classList.remove('active'); aTab.classList.add('active'); pNote.classList.add('hidden'); aNote.classList.remove('hidden'); if(activeVideo.aiNote) window.renderAiNoteBlocks(activeVideo.aiNote); else window.el('ai-gen-placeholder').classList.remove('hidden');}};
+        window.switchNoteTab = (type) => { const pTab=window.el('tab-personal'), aTab=window.el('tab-ai'), pNote=window.el('note-personal'), aNote=window.el('note-ai'); if(type==='personal'){pTab.classList.add('active'); aTab.classList.remove('active'); pNote.classList.remove('hidden'); aNote.classList.add('hidden');}else{pTab.classList.remove('active'); aTab.classList.add('active'); pNote.classList.add('hidden'); aNote.classList.remove('hidden');}};
         window.clearQueue = () => { csvRawItems = []; window.refreshQueueUI(); };
-        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
-        window.clearSearch = () => { window.el('search-input').value = ""; window.renderResults(); };
-        window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('hidden', !v.trim()); };
-        window.showAuthBtn = () => { window.el('auth-btn').classList.remove('hidden'); };
-        window.handleSyncModeTransition = isAll => { const b=window.el('all-toggle-badge'), c=window.el('sync-count-controls'); if(isAll){ b.classList.add('active'); c.classList.add('hidden'); } else { b.classList.remove('active'); c.classList.remove('hidden'); } window.el('auth-btn').classList.remove('hidden'); };
-        window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
+        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; };
+        window.reanalyzeLibrary = () => { if (syncedData.length) { csvRawItems = [...syncedData]; window.refreshQueueUI(); } };
         window.updateItemsPerPage = v => { itemsPerPage = parseInt(v); currentPageNum = 1; window.renderResults(); };
-        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='backup.json'; a.click(); };
-        window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); window.updateCharts(); }; r.readAsText(f); };
-        window.reanalyzeLibrary = () => { if (syncedData.length) { csvRawItems = [...syncedData]; window.runAnalysis(); } };
-        window.handleCsvUpload = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=async ev=>{ const ids=ev.target.result.split('\n').map(l=>(l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]).filter(x=>x); if(ids.length){ const meta = await window.fetchYouTubeMetadata(ids); meta.forEach(i=>{ if(!syncedData.some(d=>d.id===i.id)) csvRawItems.push(i); }); window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent=f.name; } }; r.readAsText(f); };
-        window.importFromUrl = async () => { const url=window.el('url-import-input').value, vid=(url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/) || [])[1]; if(vid){ const meta=await window.fetchYouTubeMetadata([vid]); if(meta.length && !syncedData.some(d=>d.id===meta[0].id)){ csvRawItems.push(meta[0]); window.refreshQueueUI(); window.runAnalysis(); } } window.el('url-import-input').value=""; };
-        window.seekToVideo = (timeStr) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=timeStr.split(':').map(Number); const sec = p.length===2 ? p[0]*60+p[1] : p[0]*3600+p[1]*60+p[2]; ytPlayer.seekTo(sec, true); ytPlayer.playVideo(); };
+        window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
+        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='yt_backup.json'; a.click(); };
+        window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); }; r.readAsText(f); };
+        window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); window.updateApiStatusUI(); window.el('settings-modal').style.display='none'; window.initAuth(); };
+        window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('show', v.trim().length > 0); };
+        window.showAuthBtn = () => { window.el('auth-btn').classList.remove('hidden'); };
+        window.runDetailedAnalysis = async function() { const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return; const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중..."; try { const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: `상세 분석 리포트: ${activeVideo.id}` }] }] }) }).then(r => r.json()); } catch(e) {} finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; } };
 
-        window.updateCharts = function() { 
-            const tm = window.el('treemap-content'), wc = window.el('word-cloud-content'); if (!tm || !wc || syncedData.length === 0) return; 
-            const cs = {}; syncedData.forEach(v => (v.categories || []).forEach(c => cs[c] = (cs[c] || 0) + 1)); 
-            tm.innerHTML = ''; Object.entries(cs).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => { 
-                const perc = Math.round((v / syncedData.length) * 100);
-                const tile = document.createElement('div'); tile.className = `treemap-tile border-2 text-slate-800`; tile.style.gridColumn = `span ${Math.max(2, Math.round((perc / 100) * 12))}`; tile.style.borderColor = '#cbd5e1';
-                tile.innerHTML = `<div class="text-[9px] font-black uppercase">${k}</div><div class="text-[12px] font-black">${perc}%</div>`; tile.onclick = () => window.toggleChip(k); tm.appendChild(tile); 
-            }); 
-            const ts = {}; syncedData.forEach(v => (v.tags || []).forEach(t => ts[t] = (ts[t] || 0) + 1)); 
-            wc.innerHTML = ''; Object.entries(ts).sort((a, b) => b[1] - a[1]).slice(0, 25).forEach(([k, v], idx, arr) => { 
-                const weight = v / arr[0][1]; const tag = document.createElement('span'); tag.className = 'tag-cloud-item font-black tracking-tighter'; 
-                tag.style.fontSize = `${12 + Math.pow(weight, 1.8) * 55}px`; tag.style.color = idx % 2 === 0 ? '#1a73e8' : '#64748b'; tag.style.opacity = 0.5 + (weight * 0.5); 
-                tag.textContent = k; tag.onclick = () => { window.el('search-input').value = k; window.renderResults(); }; wc.appendChild(tag); 
-            }); 
-        };
-
-        window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); initAuth(); window.updateApiStatusUI(); window.el('settings-modal').style.display='none'; };
-
-        // --- 7. INITIALIZATION ---
+        // --- 5. INITIALIZATION ---
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if (saved) syncedData = JSON.parse(saved);
-            const cid = localStorage.getItem('google-client-id'); if (cid) { window.el('client-id-input').value = cid; window.initAuth(); }
-            const gk = localStorage.getItem('gemini-key'); if (gk) window.el('gemini-api-key-input').value = gk;
-            
             window.updateApiStatusUI();
-            window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI(); window.updateCharts();
+            window.renderCategoriesUI(); window.renderResults(); window.refreshQueueUI();
+            if(localStorage.getItem('google-client-id')) window.initAuth();
 
-            // 사이드바 구분선 위치 추적 이벤트 바인딩
-            const trigger = window.el('sidebar-divider-trigger');
-            const icon = window.el('divider-icon-float');
-            trigger.addEventListener('mousemove', (e) => {
+            // Y축 마우스 추적 바인딩
+            const trigger = window.el('sidebar-divider-trigger'), floatIcon = window.el('divider-icon-float');
+            trigger.addEventListener('mousemove', (e) => { 
                 const rect = trigger.getBoundingClientRect();
-                const y = e.clientY - rect.top;
-                icon.style.top = `${y}px`;
+                floatIcon.style.top = `${e.clientY - rect.top}px`; 
             });
 
-            // 펼치기 트리거 위치 추적 이벤트 바인딩
-            const expandTrigger = window.el('sidebar-expand-trigger');
-            const expandIcon = window.el('expand-icon-float');
-            expandTrigger.addEventListener('mousemove', (e) => {
-                expandIcon.style.top = `${e.clientY}px`;
-            });
+            const expandTrigger = window.el('sidebar-expand-trigger'), expandIcon = window.el('expand-icon-float');
+            expandTrigger.addEventListener('mousemove', (e) => { expandIcon.style.top = `${e.clientY}px`; });
         };
     </script>
 </body>
