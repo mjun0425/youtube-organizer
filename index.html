@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Modern AI Dashboard</title>
+    <title>YouTube Smart Organizer - Refined Queue UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- YouTube IFrame API -->
@@ -76,7 +76,7 @@
             margin-bottom: 0 !important;
         }
 
-        /* 모달 레이아웃 개편 */
+        /* 모달 레이아웃 */
         #player-modal, #confirm-modal, #reanalyze-modal {
             display: none;
             position: fixed;
@@ -191,9 +191,21 @@
         .google-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
 
         #clear-search-btn {
-            display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            color: #94a3b8; transition: all 0.2s; padding: 8px; border-radius: 50%; cursor: pointer;
-            background: transparent; z-index: 10; display: flex; align-items: center; justify-content: center;
+            display: none; 
+            position: absolute; 
+            right: 14px; 
+            top: 50%; 
+            transform: translateY(-50%);
+            color: #94a3b8; 
+            transition: all 0.2s; 
+            padding: 8px; 
+            border-radius: 50%; 
+            cursor: pointer;
+            background: transparent;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #clear-search-btn:hover { color: #1e293b; background: #f1f5f9; }
 
@@ -204,9 +216,33 @@
         }
         .auto-tag:hover { background: #1a73e8; color: white; border-color: #1a73e8; }
         
+        .confirm-content { background: #fff; padding: 40px; border-radius: 24px; max-width: 400px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+
+        .page-btn {
+            display: flex; align-items: center; justify-content: center; padding: 8px 20px;
+            border-radius: 12px; background: #fff; border: 1px solid #e2e8f0; font-size: 13px; font-weight: 700;
+            color: #475569; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .page-btn:hover:not(:disabled) { background: #f8fafc; border-color: #1a73e8; color: #1a73e8; transform: translateY(-1px); }
+
         .chat-bubble { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 13px; line-height: 1.6; margin-bottom: 12px; }
         .chat-user { background: #1a73e8; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .chat-ai { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #dadce0; }
+
+        .memo-jump-span {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #eef4ff; color: #1a73e8; font-weight: 800; font-size: 12px;
+            padding: 2px 8px; border-radius: 6px; border: 1px solid #dbeafe;
+            cursor: pointer; transition: all 0.2s; margin: 0 2px;
+            vertical-align: baseline;
+        }
+        .memo-jump-span:hover { background: #1a73e8; color: #fff; transform: scale(1.05); }
+
+        #video-memo-view {
+            white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.8; color: #3c4043;
+            padding: 24px; background: #fdfdfd; border: 1px solid #f1f3f4; border-radius: 24px;
+            height: 100%; overflow-y: auto; font-weight: 500;
+        }
 
         .summary-block {
             margin-bottom: 16px; padding: 20px; background: #ffffff; border-radius: 20px;
@@ -216,26 +252,12 @@
         }
         .summary-block:hover { border-color: #1a73e8; background: #f1f6ff; transform: translateX(8px); box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.1); }
 
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .word-cloud-container {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
             gap: 12px; padding: 32px; background: #fff; border-radius: 24px; border: 1px solid #dadce0; min-height: 200px;
         }
         .cloud-tag { cursor: pointer; transition: all 0.3s ease; line-height: 1; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
         .cloud-tag:hover { background: #1a73e8; color: white !important; transform: scale(1.2) translateY(-5px); z-index: 50; }
-
-        /* 메모 타임라인 버튼 스타일 */
-        .memo-jump-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            background: #f1f6ff; color: #1a73e8; font-weight: 800; font-size: 11px;
-            padding: 4px 10px; border-radius: 8px; border: 1px solid #dbeafe;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .memo-jump-btn:hover { background: #1a73e8; color: #fff; transform: translateY(-2px); shadow: 0 4px 8px rgba(26, 115, 232, 0.2); }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen">
@@ -256,6 +278,7 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 
+                <!-- 1. 분석 대기열 (메시지 위치 수정됨) -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider">분석 대기열</h2>
@@ -264,15 +287,16 @@
                     <div class="space-y-4">
                         <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-center relative overflow-hidden">
                             <div id="queue-count" class="text-3xl font-black text-slate-700">0</div>
-                            <div class="text-[10px] font-bold text-slate-400 uppercase mt-1">Pending Videos</div>
+                            <!-- 요청: '분석 대기 항목 없음' 글씨가 이 박스 안으로 이동 -->
+                            <div id="engine-status-hint" class="text-[10px] font-bold text-slate-400 uppercase mt-1">분석 대기 항목 없음</div>
                         </div>
                         <div id="analysis-controls">
                             <button id="analyze-btn" disabled class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md transition-all">분석 시작</button>
                         </div>
-                        <div id="engine-status-hint" class="text-[10px] text-slate-400 text-center font-medium leading-tight">대기열에 영상이 없습니다</div>
                     </div>
                 </div>
 
+                <!-- 2. URL 직접 추가 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
@@ -285,6 +309,7 @@
                     </div>
                 </div>
 
+                <!-- 3. Google 동기화 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Google 동기화</h2>
                     <div class="space-y-4">
@@ -296,6 +321,7 @@
                     </div>
                 </div>
 
+                <!-- 4. 데이터 관리 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 관리</h2>
                     <div class="space-y-4">
@@ -319,6 +345,7 @@
                     </div>
                 </div>
                 
+                <!-- 5. 카테고리 설정 -->
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
@@ -328,6 +355,7 @@
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
+                <!-- 6. 로그 콘솔 -->
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2"><div class="text-[#81c995] font-bold">> Ready.</div></div>
@@ -412,6 +440,7 @@
                     </div>
                 </div>
 
+                <!-- 진행률 카드 -->
                 <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden mb-5">
                     <div class="flex justify-between items-end mb-6">
                         <div>
@@ -482,69 +511,50 @@
         </main>
     </div>
 
-    <!-- 비디오 모달 개편 (1.4 : 1 비율 및 타임라인 버튼 기능) -->
+    <!-- 비디오 모달 -->
     <div id="player-modal">
         <div class="modal-content">
-            <!-- 닫기 버튼: 겹침 방지를 위해 고유 레이어 적용 -->
             <div id="close-player-x" class="modal-close-x shadow-xl transition-all" onclick="window.closePlayer()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="18" y2="18"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
             </div>
-
-            <!-- 왼쪽 패널: 플레이어 및 정보 -->
             <div class="player-panel custom-scrollbar">
                 <div class="player-wrapper">
-                    <!-- YouTube IFrame API Container -->
                     <div id="yt-player-frame"></div>
                 </div>
                 <div class="video-info-area">
                     <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-1">비디오 제목</h3>
                     <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase tracking-widest mb-6">채널명</p>
-                    
                     <div class="space-y-6">
-                        <!-- AI 분석 버튼 -->
                         <button id="detailed-summary-btn" class="google-btn-primary w-full py-4 rounded-2xl text-sm font-black shadow-lg flex items-center justify-center gap-2" onclick="window.runDetailedAnalysis()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 15-3.086-3.086a2 2 0 0 0-2.828 0L12 15l-4.172-4.172a2 2 0 0 0-2.828 0L2 14"/><circle cx="8.5" cy="8.5" r="1.5"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
                             AI 심층 분석 및 타임라인 생성
                         </button>
-
-                        <div id="script-loading" class="hidden py-8 text-center animate-pulse flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100">
+                        <div id="script-loading" class="hidden py-10 text-center animate-pulse flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100">
                             <div class="w-10 h-10 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mb-3"></div>
                             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">분석 중...</p>
                         </div>
-
-                        <!-- 요약 섹션 -->
                         <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                             <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">AI Content Insight</p>
                             <div id="modal-video-summary-container">
-                                <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium italic opacity-70">요약 정보를 가져오는 중...</p>
+                                <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium italic opacity-70">정보를 불러오는 중...</p>
                             </div>
                         </div>
-
-                        <!-- 분석 타임라인 이동 버튼 영역 -->
                         <div id="modal-timeline-container" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
-
-            <!-- 오른쪽 패널: 퍼스널 노트 및 스마트 타임라인 -->
             <div class="memo-panel">
-                <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center justify-between mb-6">
                     <h4 class="text-lg font-black text-slate-800 tracking-tight">퍼스널 노트</h4>
                     <div class="flex gap-2">
-                        <button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-100 transition-all border border-blue-100" onclick="window.insertCurrentTimestamp()">현재 시간 삽입</button>
-                        <button class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-600 hover:text-white transition-all border border-slate-200" onclick="window.saveNotes()">메모 저장</button>
+                        <button id="memo-timestamp-btn" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-100 transition-all border border-blue-100" onclick="window.insertCurrentTimestamp()">현재 시간 삽입</button>
+                        <button id="memo-save-btn" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-[11px] font-black hover:bg-black transition-all" onclick="window.saveMemoMode()">메모 저장</button>
+                        <button id="memo-edit-btn" class="hidden bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-slate-200 transition-all border border-slate-200" onclick="window.editMemoMode()">메모 수정</button>
                     </div>
                 </div>
-                
-                <!-- 메모 기반 점프 버튼 리스트 (자동 생성) -->
-                <div class="mb-4">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 ml-1">메모 타임라인</p>
-                    <div id="memo-jump-points" class="flex flex-wrap gap-2 min-h-[30px]">
-                        <span class="text-[10px] text-slate-300 italic py-1">시간을 삽입하면 버튼이 생성됩니다.</span>
-                    </div>
+                <div class="flex-grow relative flex flex-col">
+                    <textarea id="video-memo-textarea" placeholder="생각을 기록하세요... [00:00] 형식의 시간은 저장 시 버튼으로 변합니다." class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm leading-relaxed custom-scrollbar resize-none font-medium text-slate-700 shadow-inner"></textarea>
+                    <div id="video-memo-view" class="hidden custom-scrollbar"></div>
                 </div>
-
-                <textarea id="video-memo-textarea" placeholder="영상을 시청하며 생각을 기록하세요... [00:00] 형식의 시간을 적으면 자동으로 점프 버튼이 생성됩니다." class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm leading-relaxed custom-scrollbar resize-none font-medium text-slate-700 shadow-inner"></textarea>
             </div>
         </div>
     </div>
@@ -586,7 +596,7 @@
             { border: 'border-cyan-400', text: 'text-cyan-800', bg: 'bg-cyan-50/50' }
         ];
 
-        // --- 전역 유틸리티 (안전 장치 강화) ---
+        // --- 전역 유틸리티 ---
         window.addLog = function(msg, type) {
             const logBox = document.getElementById('log-console');
             if (!logBox) return;
@@ -600,7 +610,10 @@
         window.toggleCard = function(bodyId, iconId) {
             const body = document.getElementById(bodyId);
             const icon = document.getElementById(iconId);
-            if (body) { body.classList.remove('hidden'); body.classList.toggle('collapsed'); }
+            if (body) {
+                body.classList.remove('hidden'); 
+                body.classList.toggle('collapsed');
+            }
             if (icon) icon.classList.toggle('rotated');
         };
 
@@ -638,38 +651,42 @@
             }
         };
 
-        // --- 스마트 메모 기능: 실시간 시간 버튼 감지 및 생성 ---
-        function extractTimestampsFromText(text) {
+        // --- 메모 스마트 모드 로직 ---
+        window.saveMemoMode = function() {
+            if (!activeVideo) return;
+            const textarea = document.getElementById('video-memo-textarea');
+            const viewArea = document.getElementById('video-memo-view');
+            const noteContent = textarea.value;
+            activeVideo.memo = noteContent;
+            const idx = syncedData.findIndex(v => v.id === activeVideo.id);
+            if (idx !== -1) syncedData[idx] = activeVideo;
+            saveToLocal();
+            viewArea.innerHTML = parseTimestampsToButtons(noteContent);
+            textarea.classList.add('hidden');
+            viewArea.classList.remove('hidden');
+            document.getElementById('memo-timestamp-btn').classList.add('hidden');
+            document.getElementById('memo-save-btn').classList.add('hidden');
+            document.getElementById('memo-edit-btn').classList.remove('hidden');
+            window.addLog("메모가 저장되었습니다.", "success");
+        };
+
+        window.editMemoMode = function() {
+            const textarea = document.getElementById('video-memo-textarea');
+            const viewArea = document.getElementById('video-memo-view');
+            textarea.classList.remove('hidden');
+            viewArea.classList.add('hidden');
+            document.getElementById('memo-timestamp-btn').classList.remove('hidden');
+            document.getElementById('memo-save-btn').classList.remove('hidden');
+            document.getElementById('memo-edit-btn').classList.add('hidden');
+            textarea.focus();
+        };
+
+        function parseTimestampsToButtons(text) {
+            if (!text) return '<span class="text-slate-300 italic">기록된 내용이 없습니다.</span>';
+            let escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             const regex = /\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g;
-            const matches = [];
-            let match;
-            while ((match = regex.exec(text)) !== null) {
-                matches.push(match[1]);
-            }
-            return [...new Set(matches)]; // 중복 제거
-        }
-
-        function updateMemoJumpButtons() {
-            const text = document.getElementById('video-memo-textarea')?.value || "";
-            const timestamps = extractTimestampsFromText(text);
-            const container = document.getElementById('memo-jump-points');
-            if(!container) return;
-
-            if(timestamps.length === 0) {
-                container.innerHTML = '<span class="text-[10px] text-slate-300 italic py-1">시간을 삽입하면 버튼이 생성됩니다.</span>';
-                return;
-            }
-
-            container.innerHTML = '';
-            timestamps.sort((a, b) => {
-                const parse = (s) => s.split(':').reduce((acc, v) => acc * 60 + +v, 0);
-                return parse(a) - parse(b);
-            }).forEach(time => {
-                const btn = document.createElement('button');
-                btn.className = 'memo-jump-btn';
-                btn.textContent = time;
-                btn.onclick = () => window.seekTo(time);
-                container.appendChild(btn);
+            return escaped.replace(regex, (match, time) => {
+                return `<span class="memo-jump-span" onclick="window.seekTo('${time}')">${match}</span>`;
             });
         }
 
@@ -679,12 +696,8 @@
             const hours = Math.floor(currentSeconds / 3600);
             const minutes = Math.floor((currentSeconds % 3600) / 60);
             const seconds = currentSeconds % 60;
-            
             let timestamp = `[${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}] `;
-            if(hours > 0) {
-                timestamp = `[${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}] `;
-            }
-            
+            if(hours > 0) timestamp = `[${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}] `;
             const textarea = document.getElementById('video-memo-textarea');
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
@@ -692,17 +705,6 @@
             textarea.value = text.substring(0, start) + timestamp + text.substring(end);
             textarea.focus();
             textarea.selectionStart = textarea.selectionEnd = start + timestamp.length;
-            
-            updateMemoJumpButtons(); // 버튼 업데이트 즉시 실행
-        };
-
-        window.saveNotes = function() {
-            if (!activeVideo) return;
-            const noteContent = document.getElementById('video-memo-textarea')?.value || "";
-            activeVideo.memo = noteContent;
-            const idx = syncedData.findIndex(v => v.id === activeVideo.id);
-            if (idx !== -1) syncedData[idx] = activeVideo;
-            saveToLocal(); window.addLog("메모가 저장되었습니다.", "success");
         };
 
         // --- 내부 기능 함수 ---
@@ -730,14 +732,19 @@
             }
         }
 
+        // 요청사항: 분석 대기열 상태 텍스트 로직 수정
         function refreshQueueUI() {
             const qCount = document.getElementById('queue-count'), analyzeBtn = document.getElementById('analyze-btn'), hint = document.getElementById('engine-status-hint');
-            if (qCount) qCount.textContent = csvRawItems.length;
+            const count = csvRawItems.length;
+            if (qCount) qCount.textContent = count;
             if (analyzeBtn) {
                 if (isAnalysisActive) { analyzeBtn.disabled = true; analyzeBtn.textContent = "분석 중..."; } 
-                else { analyzeBtn.disabled = csvRawItems.length === 0 || !getGeminiApiKey(); analyzeBtn.textContent = "분석 시작"; }
+                else { analyzeBtn.disabled = count === 0 || !getGeminiApiKey(); analyzeBtn.textContent = "분석 시작"; }
             }
-            if (!isAnalysisActive && hint) hint.textContent = csvRawItems.length > 0 ? `${csvRawItems.length}개의 영상 분석 대기 중` : "분석 대기 항목 없음";
+            if (!isAnalysisActive && hint) {
+                // 요청사항: 대기열이 있을 때와 없을 때 텍스트 변경
+                hint.textContent = count > 0 ? `${count}개의 영상 분석 대기 중` : "분석 대기 항목 없음";
+            }
         }
 
         function loadFromLocal() {
@@ -777,13 +784,10 @@
                     if(nextBtn) nextBtn.disabled = (currentPage === pages);
                 } else pagination.classList.add('hidden');
             }
-            resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr>';
+            resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is empty.</td></tr>';
             pageData.forEach(data => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50"; tr.onclick = () => openPlayer(data);
-                const cats = (data.categories || []).map(c => { 
-                    const st = getStyleForCat(c); 
-                    return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; 
-                }).join('');
+                const cats = (data.categories || []).map(c => { const st = getStyleForCat(c); return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; }).join('');
                 const tags = (data.tags || []).map(t => `<span class="auto-tag" onclick="event.stopPropagation(); document.getElementById('search-input').value='${t}'; window.resetPageAndRender();">${t}</span>`).join('');
                 tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-slate-100 overflow-hidden relative shadow-sm">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded font-black">${data.duration || "00:00"}</span></div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 text-base mb-1.5">${data.title}</div><p class="text-xs text-slate-400 line-clamp-2 font-medium mb-2 leading-relaxed">${data.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-xs text-right"><div class="text-slate-900 mb-1 font-mono font-black text-base">${(data.viewCount || 0).toLocaleString()}</div><div class="text-[12px] text-slate-400 font-bold uppercase break-words mt-2 leading-tight">${data.channelTitle || 'YouTube'}</div></td>`;
                 resultBody.appendChild(tr);
@@ -861,8 +865,8 @@
                 if (!isAnalysisActive) break;
                 try {
                     const prompt = `Task: Assign Category/Summary for "${item.title}". Context: ${item.description?.substring(0, 500)}. Mapping: IT/테크->테크, 요리/푸드->푸드, 일상/취미->라이프, 경제/금융->경제, 건강/운동->건강관리, 여행/탐험->여행, 뉴스/정보->정보, 음악/라이브->음악, 게임/공략->게임, 리빙/살림->리빙, 학습/성장->성장, 패션/자기관리->자기관리, 영화/드라마->미디어. JSON: {"categories":["Name"],"summary":"요약","tags":["#태그"]}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) });
-                    const aiData = await res.json(), result = JSON.parse(aiData.candidates[0].content.parts[0].text);
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
+                    const result = JSON.parse(res.candidates[0].content.parts[0].text);
                     const final = { ...item, ...result, analyzedAt: new Date().toISOString() };
                     if (isReanalyze) { const idx = syncedData.findIndex(v => v.id === item.id); if (idx !== -1) syncedData[idx] = final; } 
                     else { syncedData.push(final); csvRawItems = csvRawItems.filter(i => i.id !== item.id); }
@@ -891,7 +895,7 @@
             const btn = document.getElementById('detailed-summary-btn'), loading = document.getElementById('script-loading');
             if(btn) btn.classList.add('hidden'); if(loading) loading.classList.remove('hidden');
             try {
-                const prompt = `구조 분석: "${activeVideo.title}". 설명: ${activeVideo.description?.substring(0, 1000)}. 섹션별 MM:SS 타임라인과 상세 한글 요약 생성. JSON: {"longSummary": "전체 요약", "detailedBlocks": [{"time": "MM:SS", "subtitle": "제목", "content": "내용"}]}`;
+                const prompt = `구조 분석: "${activeVideo.title}". 설명 Context: ${activeVideo.description?.substring(0, 1000)}. 섹션별 MM:SS 타임라인과 상세 한글 요약 생성. JSON: {"longSummary": "전체 요약", "detailedBlocks": [{"time": "MM:SS", "subtitle": "제목", "content": "내용"}]}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
                 const result = JSON.parse(res.candidates[0].content.parts[0].text);
                 activeVideo.longSummary = result.longSummary; activeVideo.detailedBlocks = result.detailedBlocks;
@@ -905,14 +909,14 @@
             const input = document.getElementById('chat-input'), btn = document.getElementById('send-chat-btn'), messages = document.getElementById('chat-messages');
             if(!input || !btn || !messages) return;
             const question = input.value.trim(); if (!question) return;
-            if (syncedData.length === 0) { window.addLog("분석된 데이터가 없습니다.", "error"); return; }
+            if (syncedData.length === 0) { window.addLog("분석된 영상 데이터가 없습니다.", "error"); return; }
             const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = question;
             messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight;
-            const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '지식 베이스에서 찾는 중...';
+            const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '지식 베이스에서 답변을 찾는 중...';
             messages.appendChild(aiLoading); btn.disabled = true;
             try {
                 const dbContext = syncedData.map(v => `[${v.categories?.join(',')}] ${v.title}: ${v.summary}`).join('\n');
-                const prompt = `내 라이브러리를 바탕으로 답변해줘. [DB]\n${dbContext.substring(0, 15000)}\n\n[질문]\n${question}`;
+                const prompt = `유튜브 라이브러리 데이터를 바탕으로 답변해줘. [DB]\n${dbContext.substring(0, 15000)}\n\n[질문]\n${question}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json());
                 messages.removeChild(aiLoading);
                 const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text;
@@ -934,9 +938,12 @@
                         const textarea = document.getElementById('video-memo-textarea');
                         if(tit) tit.textContent = video.title;
                         if(ch) ch.textContent = video.channelTitle || 'YouTube';
-                        if(textarea) {
-                            textarea.value = video.memo || "";
-                            updateMemoJumpButtons();
+                        if (video.memo) {
+                            textarea.value = video.memo;
+                            window.saveMemoMode();
+                        } else {
+                            textarea.value = "";
+                            window.editMemoMode();
                         }
                         renderSummaryUI();
                     }
@@ -992,7 +999,6 @@
             bind('sort-select', 'change', window.resetPageAndRender);
             bind('clear-search-btn', 'click', () => { const i = el('search-input'); if(i) i.value = ""; window.resetPageAndRender(); });
             bind('send-chat-btn', 'click', window.askLibrarian);
-            bind('video-memo-textarea', 'input', updateMemoJumpButtons); // 메모장 입력 시 버튼 업데이트
             bind('add-category-btn', 'click', () => {
                 const v = el('new-category-input')?.value.trim(); if (v && !currentCategories.includes(v)) { currentCategories.push(v); el('new-category-input').value = ''; renderCategoriesUI_Logic(); }
             });
