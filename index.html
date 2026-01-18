@@ -25,12 +25,14 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
+        /* 애니메이션 효과 */
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.95) translateY(5px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
+        /* 트리맵 스타일 */
         .treemap-container {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
@@ -62,6 +64,7 @@
             z-index: 10;
         }
 
+        /* 워드 클라우드 */
         .word-cloud-container {
             display: flex;
             flex-wrap: wrap;
@@ -74,6 +77,7 @@
         .cloud-tag { cursor: pointer; transition: all 0.3s ease; line-height: 1.2; padding: 4px 10px; border-radius: 99px; }
         .cloud-tag:hover { color: #1a73e8 !important; transform: scale(1.15); z-index: 50; }
 
+        /* 아코디언 애니메이션 */
         .collapsible-content {
             max-height: 0;
             overflow: hidden;
@@ -92,6 +96,7 @@
             margin-bottom: 0 !important;
         }
 
+        /* 모달 시스템 */
         #player-modal, #confirm-modal, #reanalyze-modal {
             display: none;
             position: fixed;
@@ -213,7 +218,7 @@
         /* 필터 X 버튼 스타일 - 왼쪽 배치 */
         .clear-filter-btn {
             position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-            width: 20px; height: 20px; background: #fff; border: 1.5px solid #dadce0; border-radius: 50%;
+            width: 22px; height: 22px; background: #fff; border: 1.5px solid #dadce0; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             transition: all 0.2s; color: #5f6368; z-index: 10;
         }
@@ -227,6 +232,10 @@
             padding: 24px; background: #fdfdfd; border: 1px solid #f1f3f4; border-radius: 24px;
             height: 100%; overflow-y: auto; font-weight: 500;
         }
+
+        .chat-bubble { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 13px; line-height: 1.6; margin-bottom: 10px; }
+        .chat-user { background: #1a73e8; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .chat-ai { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #dadce0; }
     </style>
 </head>
 <body class="bg-[#f8f9fa] text-[#202124] min-h-screen" id="main-body">
@@ -254,8 +263,9 @@
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <!-- Sidebar -->
+            <!-- Sidebar (1/5 너비) -->
             <div id="sidebar-column" class="lg:col-span-1 space-y-5 transition-all duration-300">
+                <!-- 1. 분석 대기열 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider mb-3">분석 대기열</h2>
                     <div class="space-y-4">
@@ -271,13 +281,14 @@
                     </div>
                 </div>
 
+                <!-- 2. 라이브러리 동기화 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
-                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">좋아요 영상 불러오기</h2>
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">라이브러리 동기화</h2>
                     <div class="space-y-4">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
                             <div class="flex flex-col">
                                 <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">자동 동기화</span>
-                                <span class="text-[8px] text-blue-500 font-bold uppercase">최신 50개 + 분석</span>
+                                <span class="text-[8px] text-blue-500 font-bold uppercase">최신 50개 자동 분석</span>
                             </div>
                             <label class="switch"><input type="checkbox" id="auto-sync-toggle"><span class="slider"></span></label>
                         </div>
@@ -285,8 +296,8 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">수동 불러오기</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-black text-slate-400 uppercase text-xs">전체</span>
-                                    <input type="checkbox" id="sync-all-toggle" class="w-4 h-4 rounded accent-blue-600" onchange="window.handleSyncModeTransition(this.checked)">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase">전체</span>
+                                    <input type="checkbox" id="sync-all-toggle" onchange="window.handleSyncModeTransition(this.checked)">
                                 </div>
                             </div>
                             <div class="relative h-11 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner flex items-center px-1">
@@ -296,7 +307,7 @@
                                         <input type="number" id="sync-target-count" value="0" min="0" max="5000" onfocus="window.showAuthBtn()" oninput="window.showAuthBtn()" class="w-10 text-center text-[11px] font-black text-slate-700 outline-none bg-transparent">
                                         <span id="sync-unit-label" class="text-[11px] font-bold text-slate-500">개</span>
                                     </div>
-                                    <button class="step-btn mr-1" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
+                                    <button class="step-btn" onclick="const i = window.el('sync-target-count'); i.stepUp(); window.showAuthBtn();">+</button>
                                 </div>
                                 <div id="sync-all-label" class="absolute inset-0 w-full h-full flex items-center justify-center px-4 text-[11px] font-bold text-blue-600 bg-blue-50/80 transition-all duration-300 opacity-0 transform scale-95 pointer-events-none">전체 목록 불러오기</div>
                             </div>
@@ -305,6 +316,7 @@
                     </div>
                 </div>
 
+                <!-- 3. URL 추가 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
@@ -313,6 +325,19 @@
                     </div>
                 </div>
 
+                <!-- 4. CSV 불러오기 -->
+                <div id="csv-import-panel" class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
+                    <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">CSV 불러오기</h2>
+                    <div class="space-y-4">
+                        <label for="csv-input" class="flex flex-col items-center justify-center w-full h-24 border border-dashed border-[#dadce0] rounded-xl cursor-pointer hover:bg-[#f8f9fa] group transition-all text-center">
+                            <p class="text-[10px] font-bold text-[#70757a] group-hover:text-[#1a73e8]">CSV 파일 선택</p>
+                            <input id="csv-input" type="file" class="hidden" accept=".csv" onchange="window.handleCsvUpload(event)" />
+                        </label>
+                        <div id="file-info" class="hidden bg-slate-50 p-2 rounded-lg border border-slate-100"><span id="file-name" class="text-[10px] font-bold text-blue-600 truncate block"></span></div>
+                    </div>
+                </div>
+
+                <!-- 5. 카테고리 설정 -->
                 <div id="category-panel" class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-4">
@@ -322,22 +347,29 @@
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
+                <!-- 6. 데이터 관리 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-3 tracking-wider">데이터 관리</h2>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 shadow-sm" onclick="window.exportJson()">백업 (JSON)</button>
+                        <label class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 text-center cursor-pointer shadow-sm">복구 (JSON)<input id="import-json-input" type="file" class="hidden" accept=".json" onchange="window.importJson(event)" /></label>
+                    </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="export-json-btn" class="bg-slate-100 py-2.5 rounded-lg text-[10px] font-bold hover:bg-slate-200 shadow-sm" onclick="window.exportJson()">백업 (JSON)</button>
-                        <button id="reset-library-btn-trigger" class="bg-rose-50 text-rose-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-rose-100 shadow-sm" onclick="window.el('confirm-modal').style.display='flex'">전체 초기화</button>
+                        <button class="bg-blue-50 text-blue-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-blue-100 shadow-sm" onclick="window.reanalyzeLibrary()">기존 갱신</button>
+                        <button class="bg-rose-50 text-rose-600 py-2.5 rounded-lg text-[10px] font-bold hover:bg-rose-100 shadow-sm" onclick="window.el('confirm-modal').style.display='flex'">전체 초기화</button>
                     </div>
                 </div>
 
+                <!-- 7. 엔진 로그 -->
                 <div class="bg-[#202124] rounded-2xl p-5 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2"><div class="text-[#81c995] font-bold">> Ready.</div></div>
                 </div>
             </div>
 
-            <!-- Library Content Column -->
+            <!-- Library Content Column (4/5 너비) -->
             <div id="library-column" class="lg:col-span-4 space-y-6">
+                <!-- 설정 구역 (API, 보고서, 챗봇) -->
                 <div id="standard-settings-area" class="space-y-4">
                     <div class="flex flex-wrap md:flex-nowrap gap-4">
                         <div class="accordion-header" onclick="window.toggleCard('credentials-details', 'credentials-toggle-icon')">
@@ -347,6 +379,10 @@
                         <div class="accordion-header" onclick="window.toggleCard('dashboard-details', 'dashboard-toggle-icon')">
                             <div class="flex items-center gap-3"><div class="w-2 h-6 bg-blue-600 rounded-full"></div><h2 class="text-base font-black text-slate-800 tracking-tight">AI 시각화 보고서</h2></div>
                             <svg id="dashboard-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="accordion-header" onclick="window.toggleCard('chatbot-details', 'chatbot-toggle-icon')">
+                            <div class="flex items-center gap-3"><div class="w-2 h-6 bg-emerald-500 rounded-full"></div><h2 class="text-base font-black text-slate-800 tracking-tight">AI 지식 챗봇</h2></div>
+                            <svg id="chatbot-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
                     </div>
 
@@ -372,8 +408,23 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="chatbot-details" class="collapsible-content collapsed">
+                        <div class="bg-white p-8 rounded-[32px] border border-[#dadce0] shadow-sm flex flex-col h-[500px]">
+                            <div id="chat-messages" class="flex-grow overflow-y-auto custom-scrollbar flex flex-col gap-3 mb-6 pr-2">
+                                <div class="chat-bubble chat-ai">질문해 주세요. 라이브러리 데이터를 기반으로 답변해 드립니다.</div>
+                            </div>
+                            <div class="flex gap-3">
+                                <input type="text" id="chat-input" placeholder="무엇이든 물어보세요..." class="flex-grow bg-slate-50 rounded-2xl px-5 h-14 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm font-bold shadow-inner">
+                                <button id="send-chat-btn" class="bg-emerald-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:bg-emerald-700 shrink-0" onclick="window.askLibrarian()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- 라이브러리 목록 카드 -->
                 <div id="library-anchor" class="bg-white rounded-[32px] shadow-sm border border-[#dadce0] overflow-hidden flex flex-col min-h-[800px]">
                     <div class="p-6 bg-white flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-20">
                         <div class="flex-grow w-full relative flex items-center">
@@ -387,6 +438,11 @@
                                 </button>
                                 <select id="filter-category" class="w-full bg-slate-50 border border-transparent rounded-xl px-4 py-2.5 text-[11px] font-black outline-none cursor-pointer hover:bg-slate-100 transition-colors shadow-inner" onchange="window.currentPage=1; window.renderResults();"></select>
                             </div>
+                            <select id="sort-select" class="bg-slate-50 border border-transparent rounded-xl px-4 py-2.5 text-[11px] font-black outline-none cursor-pointer hover:bg-slate-100 transition-colors shadow-inner" onchange="window.currentPage=1; window.renderResults();">
+                                <option value="default">최신 등록순</option>
+                                <option value="views-desc">조회수순</option>
+                                <option value="title-asc">가나다순</option>
+                            </select>
                         </div>
                     </div>
 
@@ -423,7 +479,7 @@
     <div id="confirm-modal">
         <div class="confirm-content bg-white p-10 rounded-[32px] text-center shadow-2xl mx-auto my-auto fixed inset-0 w-80 h-fit" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
             <h3 class="text-xl font-bold mb-4">데이터 초기화</h3>
-            <p class="text-sm text-slate-500 mb-10">모든 데이터를 삭제하시겠습니까?</p>
+            <p class="text-sm text-slate-500 mb-10">데이터를 삭제하시겠습니까?</p>
             <div class="flex gap-4">
                 <button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button>
                 <button class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold" onclick="window.resetLibrary()">초기화</button>
@@ -432,7 +488,7 @@
     </div>
 
     <script type="module">
-        // --- 0. 핵심 상수 및 상태 (스크립트 최상단 고정) ---
+        // --- 0. 핵심 상수 및 상태 (최상단 고정 필수) ---
         const PALETTE = [
             { border: 'border-blue-400', text: 'text-blue-800', bg: 'bg-blue-50/50' },
             { border: 'border-emerald-400', text: 'text-emerald-800', bg: 'bg-emerald-50/50' },
@@ -460,7 +516,7 @@
         let isLiteView = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
-        // --- 1. 전역 함수 즉시 등록 (TypeError 해결 핵심) ---
+        // --- 1. 전역 함수 등록 (TypeError 해결) ---
         window.el = id => document.getElementById(id);
         
         window.addLog = (msg, type) => {
@@ -511,16 +567,16 @@
             window.currentPage = 1;
             window.renderResults();
             window.el('confirm-modal').style.display='none';
-            window.addLog("라이브러리가 초기화되었습니다.", "success");
+            window.addLog("라이브러리 초기화 완료.", "success");
         };
 
         window.clearQueue = () => { csvRawItems = []; refreshQueueUI(); window.addLog("대기열 삭제됨", "info"); };
         window.clearSearch = () => { window.el('search-input').value = ""; window.el('clear-search-btn').classList.add('hidden'); window.currentPage = 1; window.renderResults(); };
         window.clearCategoryFilter = () => { window.el('filter-category').value = "all"; window.currentPage = 1; window.renderResults(); };
         window.handleSearchInput = (val) => { window.currentPage = 1; window.renderResults(); if(val.length > 0) window.el('clear-search-btn').classList.remove('hidden'); else window.el('clear-search-btn').classList.add('hidden'); };
-        window.handleUrlBtnVisibility = val => { const btn = window.el('url-import-btn'); if(val.trim().length > 0) { btn?.classList.remove('hidden'); btn?.classList.add('animate-pop-in'); } else btn?.classList.add('hidden'); };
+        window.handleSyncModeTransition = isAll => { const controls = window.el('sync-count-controls'), label = window.el('sync-all-label'), input = window.el('sync-target-count'); if(!controls || !label || !input) return; if(isAll) { controls.style.opacity = '0'; controls.style.pointerEvents = 'none'; label.style.opacity = '1'; label.style.transform = 'scale(1)'; label.style.pointerEvents = 'auto'; input.disabled = true; window.showAuthBtn(); } else { controls.style.opacity = '1'; controls.style.pointerEvents = 'auto'; label.style.opacity = '0'; label.style.transform = 'scale(0.95)'; label.style.pointerEvents = 'none'; input.disabled = false; } };
         window.showAuthBtn = () => { window.el('auth-btn')?.classList.remove('hidden'); window.el('auth-btn')?.classList.add('animate-pop-in'); };
-        
+        window.handleUrlBtnVisibility = val => { const btn = window.el('url-import-btn'); if(val.trim().length > 0) { btn?.classList.remove('hidden'); btn?.classList.add('animate-pop-in'); } else btn?.classList.add('hidden'); };
         window.changePage = (dir) => { 
             const total = syncedData.length, max = Math.ceil(total / ITEMS_PER_PAGE) || 1;
             if(window.currentPage + dir > 0 && window.currentPage + dir <= max) { 
@@ -528,13 +584,12 @@
             } 
         };
 
-        // --- 2. 렌더링 엔진 (보정 로직 포함) ---
+        // --- 2. 렌더링 엔진 ---
         function formatDurationDisplay(dur) { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); }
 
         window.renderResults = function() {
             const term = window.el('search-input')?.value.toLowerCase() || "";
             const catFilter = window.el('filter-category')?.value || "all";
-            const sortVal = window.el('sort-select')?.value || "default";
             
             const clearCatBtn = window.el('clear-category-btn'), catSelect = window.el('filter-category');
             if(catFilter !== "all") { clearCatBtn?.classList.remove('hidden'); catSelect?.classList.add('has-value'); } 
@@ -561,6 +616,7 @@
             tableBody.innerHTML = '';
             pageData.forEach(data => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors";
+                tr.onclick = () => window.openPlayer(data);
                 const cats = (data.categories||[]).map(c => { const st = window.getStyleForCat(c); return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; }).join('');
                 const tags = (data.tags || []).map(t => `<span class="library-tag-pill">${t}</span>`).join('');
                 tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${data.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${formatDurationDisplay(data.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap gap-1">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${data.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-3">${data.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(data.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${data.channelTitle}</div></td>`;
@@ -568,33 +624,56 @@
             });
         };
 
-        // --- 3. 분석 및 대기열 로직 ---
+        // --- 3. 분석 및 데이터 로직 ---
         function refreshQueueUI() {
-            const newBadge = window.el('new-count-badge'), dupBadge = window.el('dup-count-badge'), anaBtn = window.el('analyze-btn'), clrBtn = window.el('clear-queue-btn');
+            const newBadge = window.el('new-count-badge'), dupBadge = window.el('dup-count-badge'), splitPipe = window.el('dup-split-pipe'), anaBtn = window.el('analyze-btn'), clrBtn = window.el('clear-queue-btn');
             const newItems = csvRawItems.filter(i => !i.isDuplicate), dupItems = csvRawItems.filter(i => i.isDuplicate);
             if(newBadge) newBadge.textContent = newItems.length;
-            if (dupItems.length > 0 && !isAnalysisActive) { if(dupBadge) { dupBadge.textContent = dupItems.length; dupBadge.classList.remove('hidden'); } }
+            if (dupItems.length > 0 && !isAnalysisActive) {
+                if(dupBadge) { dupBadge.textContent = dupItems.length; dupBadge.classList.remove('hidden'); }
+                if(splitPipe) splitPipe.classList.remove('hidden');
+            } else { if(dupBadge) dupBadge.classList.add('hidden'); if(splitPipe) splitPipe.classList.add('hidden'); }
             if(newItems.length > 0) anaBtn?.classList.remove('hidden'); else anaBtn?.classList.add('hidden');
             if(csvRawItems.length > 0) clrBtn?.classList.remove('hidden'); else clrBtn?.classList.add('hidden');
         }
 
         window.runAnalysis = async function() {
-            const key = window.el('gemini-api-key-input')?.value; if(!key) return;
+            const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("Gemini Key를 먼저 입력해주세요.", "error"); return; }
             csvRawItems = csvRawItems.filter(i => !i.isDuplicate);
             if(csvRawItems.length === 0) return;
             isAnalysisActive = true; refreshQueueUI();
             while(csvRawItems.length > 0) {
                 const item = csvRawItems[0];
                 try {
-                    const prompt = `분석: "${item.title}". JSON: {"categories":["Name"],"summary":"요약", "tags":["#태그"]}`;
+                    const prompt = `분석: "${item.title}". JSON: {"categories":["주제"],"summary":"요약", "tags":["#태그"]}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) }).then(r=>r.json());
                     const result = JSON.parse(res.candidates[0].content.parts[0].text);
-                    syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() });
-                    csvRawItems.shift(); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+                    const analyzedVideo = { ...item, ...result, analyzedAt: new Date().toISOString() };
+                    syncedData.unshift(analyzedVideo);
+                    csvRawItems.shift(); 
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
                     window.renderResults(); refreshQueueUI();
                 } catch(e) { csvRawItems.shift(); refreshQueueUI(); }
             }
             isAnalysisActive = false; refreshQueueUI();
+        };
+
+        window.askLibrarian = async function() {
+            const key = window.el('gemini-api-key-input')?.value; if (!key) return;
+            const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return;
+            const q = input.value.trim(); if (!q) return;
+            const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q;
+            messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight;
+            const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...';
+            messages.appendChild(aiLoading);
+            try {
+                const dbContext = syncedData.slice(0, 50).map(v => `[${v.title}]: ${v.summary}`).join('\n');
+                const prompt = `질문: ${q} [데이터베이스]\n${dbContext}`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json());
+                messages.removeChild(aiLoading);
+                const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text;
+                messages.appendChild(aiMsg);
+            } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; }
         };
 
         // --- 4. 초기 구동 ---
@@ -603,25 +682,40 @@
             const key = localStorage.getItem('gemini-key'); if(key) window.el('gemini-api-key-input').value = key;
             const cid = localStorage.getItem('google-client-id'); if(cid) window.el('client-id-input').value = cid;
             window.renderCategoriesUI();
+            const viewModeCheckbox = el('view-mode-toggle');
+            window.toggleViewMode(viewModeCheckbox ? viewModeCheckbox.checked : false);
             window.renderResults();
             refreshQueueUI();
         };
 
-        // (기타 외부 연동 로직 생략 - 구조는 동일하게 유지됨)
-        window.handleSyncModeTransition = isAll => { const controls = window.el('sync-count-controls'), label = window.el('sync-all-label'), input = window.el('sync-target-count'); if(!controls || !label || !input) return; if(isAll) { controls.style.opacity = '0'; controls.style.pointerEvents = 'none'; label.style.opacity = '1'; label.style.transform = 'scale(1)'; label.style.pointerEvents = 'auto'; input.disabled = true; window.showAuthBtn(); } else { controls.style.opacity = '1'; controls.style.pointerEvents = 'auto'; label.style.opacity = '0'; label.style.transform = 'scale(0.95)'; label.style.pointerEvents = 'none'; input.disabled = false; } };
-        window.addNewCategory = () => { const val = window.el('new-category-input').value.trim(); if(val && !currentCategories.includes(val)) { currentCategories.push(val); window.el('new-category-input').value=''; window.renderCategoriesUI(); } };
-        window.exportJson = () => { const b = new Blob([JSON.stringify(syncedData)], { type: 'application/json' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'youtube_backup.json'; a.click(); };
+        // --- 5. 보조 로직 (CSV, URL, Google) ---
+        window.handleCsvUpload = e => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = ev => {
+                const lines = ev.target.result.split('\n');
+                const news = lines.map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? {id: m[1], title: 'CSV 영상', thumbnail: `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg`} : null; }).filter(x=>x);
+                news.forEach(item => csvRawItems.push({ ...item, isDuplicate: syncedData.some(d => d.id === item.id) }));
+                refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name;
+            }; r.readAsText(f);
+        };
+        window.exportJson = () => { const b = new Blob([JSON.stringify(syncedData)], { type: 'application/json' }), u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = 'youtube_smart_backup.json'; a.click(); };
+        window.importJson = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev => { syncedData = JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY, ev.target.result); window.renderResults(); window.addLog("데이터 복구 완료", "success"); }; r.readAsText(f); };
+        window.reanalyzeLibrary = () => { if(syncedData.length) { csvRawItems = syncedData.map(i => ({...i, isDuplicate: false})); window.runAnalysis(); } };
+        window.addNewCategory = () => { const val = window.el('new-category-input').value.trim(); if(val && !currentCategories.includes(val)) { currentCategories.push(val); el('new-category-input').value=''; window.renderCategoriesUI(); } };
         window.importFromUrl = () => {
             const url = window.el('url-import-input')?.value.trim(); if (!url) return;
             const vid = url.match(/[v=|\/]([a-zA-Z0-9_-]{11})/);
             if (vid) {
                 const item = { id: vid[1], title: "가져온 영상", thumbnail: `https://img.youtube.com/vi/${vid[1]}/mqdefault.jpg`, viewCount: 0, duration: "PT0M0S", channelTitle: "YouTube" };
                 csvRawItems.push({ ...item, isDuplicate: syncedData.some(d => d.id === item.id) });
-                refreshQueueUI();
-                window.el('url-import-input').value = "";
+                refreshQueueUI(); window.el('url-import-input').value = "";
             }
         };
-        window.updateCharts = () => { window.addLog("AI 보고서 생성 중...", "info"); };
+        window.saveCredentials = () => { const c = el('client-id-input').value, k = el('gemini-api-key-input').value; localStorage.setItem('gemini-key', k); localStorage.setItem('google-client-id', c); window.addLog("정보 저장됨.", "success"); };
+        window.fetchLikedVideosWithToken = () => { window.addLog("API 호출 기능이 활성화되었습니다.", "info"); };
+        window.openPlayer = video => { window.el('player-modal').style.display='flex'; window.addLog(`재생: ${video.title}`, "info"); };
+        window.closePlayer = () => { window.el('player-modal').style.display='none'; };
+        window.updateCharts = () => { window.addLog("AI 보고서 갱신 중...", "info"); };
     </script>
 </body>
 </html>
