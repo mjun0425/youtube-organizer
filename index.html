@@ -112,7 +112,7 @@
         .view-btn-unified { padding: 6px 14px; border-radius: 11px; font-size: 10px; font-weight: 900; cursor: pointer; transition: all 0.2s; color: #94a3b8; }
         .view-btn-unified.active { background: #1a73e8; color: #fff; box-shadow: 0 4px 10px rgba(26,115,232,0.2); }
 
-        /* 모달 시스템 */
+        /* 모달 시스템 정밀 고정 */
         #player-modal, #settings-modal, #confirm-modal { 
             display: none; position: fixed; inset: 0; background: rgba(32, 33, 36, 0.85); 
             z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(12px); 
@@ -125,6 +125,7 @@
         .modal-close-btn { position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 6100; border: 1px solid #eee; transition: 0.2s; }
         .modal-close-btn:hover { transform: rotate(90deg); color: #d93025; }
 
+        /* 플레이어 상세 레이아웃 */
         .player-panel { display: flex; flex-direction: column; height: 100%; overflow-y: auto; background: #f8fafc; border-right: 1px solid #eef2f6; }
         .player-wrapper { position: sticky; top: 0; width: 100%; aspect-ratio: 16 / 9; background: #000; z-index: 10; }
         .player-wrapper iframe { width: 100%; height: 100%; }
@@ -147,14 +148,14 @@
         .seek-pill { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #1a73e8; padding: 2px 10px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; transition: 0.2s; border: 1.5px solid #dbeafe; margin: 2px; }
         .seek-pill:hover { background: #1a73e8; color: #fff; transform: translateY(-1px); }
 
-        /* 사이드바 UI */
+        /* 사이드바 UI 보존 */
         .sidebar-box { border-radius: 28px; padding: 22px; border: 1px solid #dadce0; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1rem; }
         .sidebar-tab-container { display: flex; background: #f1f3f4; border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 1rem; }
         .sidebar-tab-btn { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; color: #5f6368; }
         .sidebar-tab-btn.active { background: #fff; color: #1a73e8; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-weight: 800; }
         .inner-tool-box { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1.5px solid #eef2f6; transition: all 0.2s ease; margin-bottom: 10px; }
 
-        /* CSV & 싱크 스타일 */
+        /* CSV & 싱크 스타일 보존 */
         .csv-upload-label { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100px; border: 2px dashed #d2e3fc; background: #f8faff; border-radius: 20px; cursor: pointer; transition: all 0.2s; text-align: center; }
         .csv-upload-label:hover { background: #eef2ff; border-color: #1a73e8; }
         .sync-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1.5px solid #f1f3f4; margin-bottom: 16px; }
@@ -165,12 +166,12 @@
         .qty-input { width: 50px; text-align: center; font-size: 15px; font-weight: 900; color: #1e293b; background: transparent; border: none; outline: none; }
         .step-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #64748b; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; border: 1.5px solid #eef2f6; transition: 0.2s; }
         
-        /* 썸네일 버그 수정 */
+        /* 썸네일 버그 수정: 레터박스 제거 및 배지 고정 */
         .thumbnail-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #000; border-radius: 16px; display: block; }
         .thumbnail-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
         
-        /* 썸네일 시간 배지 */
-        .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; z-index: 20; backdrop-filter: blur(4px); }
+        /* 썸네일 시간 배지 z-index 및 위치 보정 */
+        .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.85); color: white; font-size: 10px; font-weight: 900; padding: 3px 8px; border-radius: 6px; z-index: 50; backdrop-filter: blur(4px); }
 
         .api-status-btn { display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 14px; font-size: 11px; font-weight: 900; transition: all 0.2s; cursor: pointer; border: 2px solid; }
         .api-status-btn.connected { border-color: #d2e3fc; background: #e8f0fe; color: #1a73e8; }
@@ -276,6 +277,7 @@
                 </div>
             </div>
 
+            <!-- 분석 진행 패널 -->
             <div id="analysis-progress-panel" class="animate-pop-in">
                 <div class="flex items-center justify-between mb-4 px-2">
                     <div class="flex items-center gap-3"><div class="w-2.5 h-6 bg-blue-600 rounded-full animate-pulse"></div><h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">AI Learning in Progress</h4></div>
@@ -346,7 +348,7 @@
                     <div id="personal-memo-edit-view" class="flex-grow flex flex-col pt-2 min-h-0">
                         <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed custom-scrollbar" placeholder="지식을 기록하세요..."></textarea>
                     </div>
-                    <div id="personal-memo-rendered-view" class="hidden flex-grow pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 p-6"></div>
+                    <div id="personal-memo-rendered-view" class="hidden flex-grow p-6 pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 mx-6 mb-6"></div>
                 </div>
                 <div id="note-ai" class="hidden flex flex-col flex-grow p-6 overflow-y-auto custom-scrollbar">
                     <div id="ai-gen-placeholder" class="h-full flex flex-col items-center justify-center text-center p-8">
@@ -398,9 +400,10 @@
         };
 
         window.refreshQueueUI = function() {
+            if(isAnalysisActive) return; 
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
             const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id)), dups=csvRawItems.filter(i=>syncedData.some(d=>d.id===i.id));
-            if(csvRawItems.length === 0 || isAnalysisActive) { qBox.style.display = 'none'; }
+            if(csvRawItems.length === 0) { qBox.style.display = 'none'; }
             else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = dups.length; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
 
@@ -438,7 +441,7 @@
             } else filtered.sort((a,b) => new Date(b.analyzedAt) - new Date(a.analyzedAt));
             
             const totalCount = filtered.length; 
-            window.el('total-results-count-top').textContent = totalCount.toLocaleString();
+            if(window.el('total-results-count-top')) window.el('total-results-count-top').textContent = totalCount.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
             const tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
             if(totalCount === 0) { if(emptyState) emptyState.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
@@ -463,9 +466,10 @@
             }
         };
 
-        // --- 3. SIDEBAR TAB & DATA LOGIC ---
+        // --- 3. SIDEBAR TAB & DATA LOGIC (보존) ---
         window.switchSidebarTab = function(type) {
-            ['url', 'csv', 'sync', 'manage'].forEach(t => { 
+            const tabs = ['url', 'csv', 'sync', 'manage'];
+            tabs.forEach(t => { 
                 const cont = window.el(`tab-content-${t}`); if(cont) cont.classList.add('hidden');
                 const btn = window.el(`tab-btn-${t}`); if(btn) btn.classList.remove('active');
             });
@@ -552,66 +556,46 @@
         window.insertTimestamp = () => { if(!ytPlayer) return; const time = ytPlayer.getCurrentTime(); const t = `[${new Date(time*1000).toISOString().substr(14, 5)}] `; const textarea = window.el('personal-memo-textarea'); const start = textarea.selectionStart, end = textarea.selectionEnd; textarea.value = textarea.value.substring(0, start) + t + textarea.value.substring(end); textarea.focus(); };
         window.renderPersonalNote = (text) => { const display = window.el('personal-memo-rendered-view'); if(!display) return; if(!text) { display.innerHTML = '<p class="text-slate-400 italic">저장된 메모가 없습니다.</p>'; return; } const html = text.replace(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/g, (match, time) => `<span class="seek-pill" onclick="window.seekToVideo('${time}')">▶ ${time}</span>`); display.innerHTML = html; };
 
-        // --- 자막 추출 도우미 (Hybrid Transcript Logic) ---
-        async function getTranscript(id) {
-            try {
-                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(`https://www.youtube.com/api/timedtext?lang=ko&v=${id}`);
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                if (!data.contents) return null;
-                // YouTube timedtext API는 보통 XML을 반환하므로 간단한 파싱 처리
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                const textNodes = xmlDoc.getElementsByTagName("text");
-                const transcriptArr = [];
-                for (let i = 0; i < textNodes.length; i++) {
-                    const start = parseFloat(textNodes[i].getAttribute("start"));
-                    const text = textNodes[i].textContent;
-                    transcriptArr.push({ start, text });
-                }
-                return transcriptArr;
-            } catch (e) { return null; }
-        }
-
+        // --- 상세 분석 로직 ( TubeText Proxy 기반 자막 추출 ) ---
         window.runDetailedAnalysis = async function() {
             const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
-            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 자막 정독 중...";
+            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "공용 서버에서 자막 다운로드 중...";
             try {
-                // 1. 자막 데이터 가져오기
-                const transcriptData = await getTranscript(activeVideo.id);
-                let transcriptStr = "자막 데이터 없음";
-                if (transcriptData && transcriptData.length > 0) {
-                    // 데이터가 너무 크면 Gemini 토큰 제한이 걸리므로 핵심 구간 위주로 슬라이싱 (앞부분 50개 문장)
-                    transcriptStr = transcriptData.map(t => `${Math.floor(t.start/60)}:${Math.floor(t.start%60).toString().padStart(2,'0')} - ${t.text}`).slice(0, 80).join('\n');
-                }
+                // 1. TubeText API를 통한 자막 추출
+                const proxyUrl = `https://tubetext.vercel.app/youtube/transcript?video_id=${activeVideo.id}`;
+                const subRes = await fetch(proxyUrl);
+                const subData = await subRes.json();
+                let transcriptText = "";
+                if (subData.success && subData.data.transcript) {
+                    transcriptText = subData.data.transcript.map(t => `${Math.floor(t.offset/60000).toString().padStart(2,'0')}:${Math.floor((t.offset%60000)/1000).toString().padStart(2,'0')} - ${t.text}`).join('\n');
+                } else { throw new Error("자막 없음"); }
 
-                // 2. 하이브리드 프롬프트 구성 (URL + 자막 + 메타데이터)
-                const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                const prompt = `다음 YouTube 영상의 실제 자막(Transcript) 내용을 정독 분석하여 상세 학습 리포트를 작성하세요.
-영상 URL: "${url}"
-제목: "${activeVideo.title}"
-채널: "${activeVideo.channelTitle}"
+                // 2. 프롬프트 구성
+                const prompt = `
+다음 YouTube 영상 자막(Transcript) 내용을 바탕으로 상세 학습 리포트를 작성해.
+영상 제목: ${activeVideo.title}
+영상 채널: ${activeVideo.channelTitle}
 
-[제공된 실제 자막 데이터 일부]
-${transcriptStr}
+[자막 데이터 시작]
+${transcriptText.substring(0, 30000)}
+[자막 데이터 끝]
 
-위의 실제 대화 내용과 메타데이터를 결합하여 정확한 타임라인 기반 상세 리포트를 작성하세요. 
+위의 실제 자막 내용과 타임라인을 기반으로 핵심 내용을 요약해.
+양식:
+## [00:00] 제목
+- 상세 설명
+> [00:00] 인사이트
 
-[작성 양식]
-## [00:00] 섹션 제목
-- 해당 섹션의 핵심 내용 요약
-> [00:00] 인사이트 및 실무 적용 포인트
-
-반드시 마크다운 형식을 지키고 한국어로 응답하세요.`;
+반드시 마크다운 형식을 지키고 한국어로 응답해.`;
 
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                     method: 'POST', headers: {'Content-Type':'application/json'}, 
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: [{ "google_search": {} }] }) 
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
                 }).then(r => r.json());
                 
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
-            } catch(e) { window.addLog("상세 분석 중 오류 발생", "error"); } finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
+            } catch(e) { window.addLog("자막 서버 응답 오류", "error"); } finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
         };
 
         window.renderAiNoteBlocks = (text) => {
