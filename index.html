@@ -27,7 +27,7 @@
         
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
@@ -133,18 +133,24 @@
         .video-info-area { padding: 32px; flex-grow: 1; }
         .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; padding: 32px; padding-top: 70px; }
 
-        /* 심층 분석 결과 카드 UI */
+        /* 심층 분석 결과 카드 UI (고도화) */
         .deep-analysis-card {
             background: #ffffff;
             border: 1px solid #eef0f2;
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 16px;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
             opacity: 0;
             animation: slideInUp 0.4s ease forwards;
         }
-        .deep-analysis-card:hover { border-color: #1a73e8; box-shadow: 0 8px 24px rgba(26,115,232,0.06); }
+        .deep-analysis-card:hover { 
+            border-color: #1a73e8; 
+            background: #f8faff;
+            transform: scale(1.01) translateY(-2px);
+            box-shadow: 0 10px 25px rgba(26,115,232,0.08); 
+        }
 
         @keyframes slideInUp {
             from { opacity: 0; transform: translateY(15px); }
@@ -359,7 +365,7 @@
                     <div class="space-y-3">
                         <input type="text" id="url-import-input" oninput="window.handleUrlBtnVisibility(this.value)" placeholder="영상/재생목록 URL 입력" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none">
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 mt-1">
-                            <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 즉시 분석</span>
+                            <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 영상 즉시 분석</span>
                             <label class="switch"><input type="checkbox" id="immediate-analyze-toggle"><span class="slider"></span></label>
                         </div>
                         <button id="url-import-btn" class="google-btn-primary google-btn w-full py-3.5 rounded-xl text-sm font-bold shadow-md hidden animate-pop-in" onclick="window.importFromUrl()">불러오기</button>
@@ -645,6 +651,7 @@
         let itemsPerPage = 50; 
         let isAnalysisActive = false; 
         let ytPlayer = null; 
+        let accessToken = null; 
         let isLiteView = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
@@ -654,6 +661,13 @@
         window.getStyleForCat = (cat) => {
             let hash = 0; for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
             return PALETTE[Math.abs(hash) % PALETTE.length];
+        };
+        
+        window.addLog = (msg, type) => {
+            const logBox = window.el('log-console'); if(!logBox) return;
+            const div = document.createElement('div'); 
+            div.className = type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400';
+            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight;
         };
 
         window.formatDurationDisplay = (dur) => { 
@@ -667,13 +681,6 @@
                 const jsonMatch = text.match(/\{[\s\S]*\}/);
                 return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
             } catch(e) { return null; }
-        };
-
-        window.addLog = (msg, type) => {
-            const logBox = window.el('log-console'); if(!logBox) return;
-            const div = document.createElement('div'); 
-            div.className = type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400';
-            div.textContent=`> ${msg}`; logBox.appendChild(div); logBox.scrollTop = logBox.scrollHeight;
         };
 
         window.parseTimelineToButtons = (text) => {
@@ -730,6 +737,7 @@
             const catFilter = window.el('filter-category')?.value || "all";
             const sortVal = window.el('sort-select')?.value || "default";
             
+            // 검색 초기화 'X' 버튼 가시성
             const clearSearchBtn = window.el('clear-search-btn');
             if (term.length > 0) clearSearchBtn?.classList.remove('hidden'); else clearSearchBtn?.classList.add('hidden');
 
@@ -773,10 +781,12 @@
                 pageItems.forEach(item => {
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors";
                     tr.onclick = () => window.openPlayer(item);
+                    // 카테고리 스타일 통일 (Pill 디자인)
                     const cats = (item.categories||[]).map(c => { 
                         const st = window.getStyleForCat(c); 
                         return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-2 mb-2" style="font-size: 10px;">${c}</span>`; 
                     }).join('');
+                    // 태그 가독성 및 클릭 검색 기능
                     const tags = (item.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; window.renderResults(); window.el('library-anchor').scrollIntoView({ behavior: 'smooth' });">${t}</span>`).join('');
                     tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${item.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${window.formatDurationDisplay(item.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-4">${item.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td>`;
                     tableBody.appendChild(tr);
@@ -784,7 +794,7 @@
             }
         };
 
-        // --- 3. 고성능 분석 시스템 (링크 기반 & 팩트 체크 강화) ---
+        // --- 3. 고성능 분석 시스템 (링크 및 상세정보 기반) ---
         window.fetchYouTubeMetadata = async (ids) => {
             if(!ids || ids.length === 0) return [];
             try {
@@ -801,7 +811,7 @@
         window.runAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("API Key를 입력하세요.", "error"); return; }
             
-            // 중복 분석 차단
+            // 중복 분석 철저 방지
             const seenIds = new Set(syncedData.map(d => d.id));
             csvRawItems = csvRawItems.filter(item => {
                 if (seenIds.has(item.id)) return false;
@@ -821,8 +831,8 @@
             while(csvRawItems.length > 0) {
                 const item = csvRawItems[0];
                 try {
-                    // [핵심] 링크 정보를 직접 활용하는 정밀 분석 프롬프트로 통일
-                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 상세 설명: "${item.description || ''}". 위 실제 정보를 정독하고 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 구조로 응답하세요: {"categories":["분류결과"],"summary":"해당 정보를 기반으로 한 팩트 중심의 한글 요약","tags":["#태그"]}`;
+                    // [핵심] 링크 기반 고성능 정밀 분석 프롬프트
+                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 상세 설명: "${item.description || ''}". 위 정보를 정독하고 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 구조로 응답하세요: {"categories":["분류결과"],"summary":"한글 팩트 요약","tags":["#태그"]}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                         method: 'POST', headers: {'Content-Type': 'application/json'}, 
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
@@ -853,14 +863,22 @@
             window.updateCharts();
         };
 
-        // --- 4. 심층 분석 및 타임라인 (링크 기반 고도화) ---
+        // --- 4. 심층 분석 및 타임라인 (링크 직접 분석) ---
         window.renderDeepAnalysisResult = (sections) => {
             const area = window.el('deep-analysis-display-area');
             area.innerHTML = '<h4 class="text-lg font-black text-slate-800 mb-4 border-l-4 border-blue-600 pl-3">AI 고도화 분석 리포트</h4>';
             sections.forEach(section => {
-                const card = document.createElement('div'); card.className = 'deep-analysis-card';
+                const card = document.createElement('div');
+                card.className = 'deep-analysis-card';
+                // [핵심] 박스 자체 클릭 시 이동 로직 추가
+                const timestamp = section.timestamp || (section.title.match(/\[(\d{1,2}:\d{2}(?::\d{2})?)\]/) || [])[1];
+                if (timestamp) card.onclick = () => window.seekToVideo(timestamp);
+
                 const titleWithButtons = window.parseTimelineToButtons(section.title || "분석 섹션");
-                card.innerHTML = `<div class="mb-3 font-bold">${titleWithButtons}</div><div class="text-[13px] text-slate-600 leading-relaxed font-medium">${section.content ? section.content.replace(/\n/g, '<br>') : '내용 없음'}</div>`;
+                card.innerHTML = `
+                    <div class="mb-3 font-bold">${titleWithButtons}</div>
+                    <div class="text-[13px] text-slate-600 leading-relaxed font-medium">${section.content ? section.content.replace(/\n/g, '<br>') : '내용 없음'}</div>
+                `;
                 area.appendChild(card);
             });
             window.el('deep-analyze-btn').style.display = 'none';
@@ -868,10 +886,10 @@
 
         window.runDetailedAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
-            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI가 정보를 정밀 분석 중...";
+            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI가 영상을 정밀 분석 중...";
             try {
-                // [핵심] 링크와 상세 정보를 통한 팩트 분석 유도
-                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 영상 상세 설명: "${activeVideo.description || ''}". 위 실제 정보를 정독하고 아주 상세하게 분석하여 타임라인 리포트를 생성하세요. 반드시 다음 JSON 구조로 응답하세요: {"sections": [{"title": "[00:00] 소제목", "content": "상세 분석 내용"}]}. 한국어로 답변하고 허위 기재 금지.`;
+                // [핵심] 링크 기반 심층 분석 유도
+                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 상세 설명: "${activeVideo.description || ''}". 위 실제 정보를 바탕으로 아주 상세하게 분석하세요. 반드시 다음 JSON 구조로 응답하세요: {"sections": [{"timestamp": "01:23", "title": "[01:23] 소제목", "content": "분석 내용"}]}. 한국어로 답변하고 허위 기재 금지.`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                     method: 'POST', headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) 
@@ -885,7 +903,7 @@
             } catch(e) {} finally { btn.disabled = false; btn.textContent = "AI 심층 분석 및 타임라인 생성"; }
         };
 
-        // --- 5. 초기 구동 및 이벤트 연동 (ReferenceError 방지) ---
+        // --- 5. 초기 구동 및 이벤트 연동 ---
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if(saved) syncedData = JSON.parse(saved);
             const key = localStorage.getItem('gemini-key'); if(key) window.el('gemini-api-key-input').value = key;
@@ -939,7 +957,7 @@
             else { ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: video.id, playerVars: { 'autoplay': 1, 'rel': 0, 'enablejsapi': 1 } }); }
         };
 
-        // 기타 보조 기능 전역 등록
+        // 보조 기능 정의
         window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('video-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.el('video-memo-view').innerHTML = window.parseTimelineToButtons(activeVideo.memo.replace(/\n/g, '<br>')); window.el('video-memo-textarea').classList.add('hidden'); window.el('video-memo-view').classList.remove('hidden'); window.el('memo-save-btn').classList.add('hidden'); window.el('memo-edit-btn').classList.remove('hidden'); };
         window.editMemo = () => { window.el('video-memo-textarea').classList.remove('hidden'); window.el('video-memo-view').classList.add('hidden'); window.el('memo-save-btn').classList.remove('hidden'); window.el('memo-edit-btn').classList.add('hidden'); window.el('video-memo-textarea').focus(); };
         window.insertCurrentTimestamp = () => { if(!ytPlayer || !ytPlayer.getCurrentTime) return; const curr = ytPlayer.getCurrentTime(); const ts = `[${Math.floor(curr/60).toString().padStart(2,'0')}:${Math.floor(curr%60).toString().padStart(2,'0')}] `; window.el('video-memo-textarea').value += ts; window.el('video-memo-textarea').focus(); };
