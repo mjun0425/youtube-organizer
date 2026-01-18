@@ -318,7 +318,7 @@
                                 0
                             </div>
                         </div>
-                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md hidden" onclick="window.runAnalysis()">분석 시작</button>
+                        <button id="analyze-btn" class="google-btn google-btn-primary w-full py-4 rounded-xl text-sm font-bold shadow-md hidden animate-pop-in" onclick="window.runAnalysis()">분석 시작</button>
                         <button id="clear-queue-btn" class="text-[10px] font-bold text-rose-500 w-full hover:underline hidden" onclick="window.clearQueue()">대기열 비우기</button>
                     </div>
                 </div>
@@ -409,7 +409,7 @@
 
             <!-- Library Content Column -->
             <div id="library-column" class="lg:col-span-4 space-y-6">
-                <!-- 설정 구역 -->
+                <!-- 설정 및 보고서 구역 -->
                 <div id="standard-settings-area" class="space-y-4">
                     <div class="flex flex-wrap md:flex-nowrap gap-4">
                         <div class="accordion-header" onclick="window.toggleCard('credentials-details', 'credentials-toggle-icon')">
@@ -457,7 +457,7 @@
                             <div class="flex gap-3">
                                 <input type="text" id="chat-input" placeholder="무엇이든 물어보세요..." class="flex-grow bg-slate-50 rounded-2xl px-5 h-14 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm font-bold shadow-inner">
                                 <button id="send-chat-btn" class="bg-emerald-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg hover:bg-emerald-700 shrink-0" onclick="window.askLibrarian()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -599,13 +599,13 @@
             <p class="text-sm text-slate-500 mb-10">모든 데이터를 삭제하시겠습니까?</p>
             <div class="flex gap-4">
                 <button class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold" onclick="window.el('confirm-modal').style.display='none'">취소</button>
-                <button class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black" onclick="window.resetLibrary()">초기화</button>
+                <button id="final-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-black shadow-lg shadow-rose-500/20" onclick="window.resetLibrary()">초기화</button>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // --- 0. 핵심 상태 및 상수 (완전 고정) ---
+        // --- 0. 핵심 상태 및 상수 (TypeError 방지용 최상단 선언) ---
         const PALETTE = [
             { border: 'border-blue-400', text: 'text-blue-800', bg: 'bg-blue-50/50' },
             { border: 'border-emerald-400', text: 'text-emerald-800', bg: 'bg-emerald-50/50' },
@@ -645,11 +645,10 @@
         let itemsPerPage = 50; 
         let isAnalysisActive = false; 
         let ytPlayer = null; 
-        let accessToken = null; 
         let isLiteView = false;
         let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
 
-        // --- 1. 유틸리티 및 전역 제어 함수 (ReferenceError 방지) ---
+        // --- 1. 전역 제어 함수 즉시 등록 (TypeError 해결 핵심) ---
         window.el = id => document.getElementById(id);
 
         window.getStyleForCat = (cat) => {
@@ -694,7 +693,7 @@
             ytPlayer.playVideo();
         };
 
-        // --- 2. 렌더링 함수 정의 (UI 업데이트 반영) ---
+        // --- 2. UI 렌더링 및 상태 관리 함수 ---
         window.renderCategoriesUI = function() {
             const cont = window.el('category-tags'), filter = window.el('filter-category'); 
             if (!cont || !filter) return;
@@ -731,9 +730,12 @@
             const catFilter = window.el('filter-category')?.value || "all";
             const sortVal = window.el('sort-select')?.value || "default";
             
-            const clearCatBtn = window.el('clear-category-btn'), catSelect = window.el('filter-category');
-            if(catFilter !== "all") { clearCatBtn?.classList.remove('hidden'); catSelect?.classList.add('has-value'); } 
-            else { clearCatBtn?.classList.add('hidden'); catSelect?.classList.remove('has-value'); }
+            const clearSearchBtn = window.el('clear-search-btn');
+            if (term.length > 0) clearSearchBtn?.classList.remove('hidden'); else clearSearchBtn?.classList.add('hidden');
+
+            const clearFilterBtn = window.el('clear-category-btn'), catSelect = window.el('filter-category');
+            if(catFilter !== "all") { clearFilterBtn?.classList.remove('hidden'); catSelect?.classList.add('has-value'); } 
+            else { clearFilterBtn?.classList.add('hidden'); catSelect?.classList.remove('has-value'); }
 
             let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))) && (catFilter === "all" || v.categories?.includes(catFilter)));
             
@@ -745,7 +747,7 @@
             const maxPages = Math.ceil(total / itemsPerPage) || 1;
             if (currentPageNum > maxPages) currentPageNum = maxPages;
 
-            document.querySelectorAll('#total-results-count-top, #total-results-count-bottom').forEach(e => e.textContent = total.toLocaleString());
+            document.querySelectorAll('#total-results-count-top').forEach(e => e.textContent = total.toLocaleString());
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
 
             const tableMode = window.el('table-mode-body'), galleryMode = window.el('gallery-mode-body'), galleryCont = window.el('gallery-body'), tableBody = window.el('result-body'), emptyState = window.el('empty-state');
@@ -762,19 +764,7 @@
                     const card = document.createElement('div');
                     card.className = "video-card animate-pop-in";
                     card.onclick = () => window.openPlayer(item);
-                    card.innerHTML = `
-                        <div class="thumbnail-wrapper">
-                            <img src="${item.thumbnail}">
-                            <span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-title">${item.title}</div>
-                            <div class="card-meta">
-                                <span>${item.channelTitle}</span>
-                                <span class="card-viewcount">${(item.viewCount||0).toLocaleString()}</span>
-                            </div>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="thumbnail-wrapper"><img src="${item.thumbnail}"><span class="duration-badge">${window.formatDurationDisplay(item.duration)}</span></div><div class="card-content"><div class="card-title">${item.title}</div><div class="card-meta"><span>${item.channelTitle}</span><span class="card-viewcount">${(item.viewCount||0).toLocaleString()}</span></div></div>`;
                     galleryCont.appendChild(card);
                 });
             } else {
@@ -783,12 +773,10 @@
                 pageItems.forEach(item => {
                     const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition-colors";
                     tr.onclick = () => window.openPlayer(item);
-                    // 카테고리 스타일 통일 (사이드바와 동일한 라운드 필 디자인)
                     const cats = (item.categories||[]).map(c => { 
                         const st = window.getStyleForCat(c); 
                         return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-2 mb-2" style="font-size: 10px;">${c}</span>`; 
                     }).join('');
-                    // 태그 가독성 및 여백 확보, 검색 연동
                     const tags = (item.tags || []).map(t => `<span class="library-tag-pill" onclick="event.stopPropagation(); window.el('search-input').value='${t}'; window.renderResults(); window.el('library-anchor').scrollIntoView({ behavior: 'smooth' });">${t}</span>`).join('');
                     tr.innerHTML = `<td class="px-8 py-6 align-top text-center"><div class="rounded-xl overflow-hidden shadow-sm relative aspect-video"><img src="${item.thumbnail}" class="w-full h-full object-cover"><span class="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1 rounded">${window.formatDurationDisplay(item.duration)}</span></div></td><td class="px-6 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-6 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 mb-1 text-[16px]">${item.title}</div><p class="text-[14px] text-slate-500 line-clamp-2 leading-relaxed font-medium mb-4">${item.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-right"><div class="text-slate-900 font-black text-base">${(item.viewCount||0).toLocaleString()}</div><div class="text-[10px] text-slate-400 font-bold uppercase mt-1 truncate">${item.channelTitle}</div></td>`;
                     tableBody.appendChild(tr);
@@ -796,25 +784,32 @@
             }
         };
 
-        // --- 3. 분석 시스템 및 YouTube API (정확도 강화) ---
+        // --- 3. 고성능 분석 시스템 (링크 기반 & 팩트 체크 강화) ---
         window.fetchYouTubeMetadata = async (ids) => {
             if(!ids || ids.length === 0) return [];
             try {
-                // 정확도를 위해 snippet 정보를 확실히 챙김 (description 포함)
                 const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(',')}&key=${YT_API_KEY}`).then(r => r.json());
                 return res.items.map(v => ({
                     id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: v.contentDetails.duration,
                     thumbnail: v.snippet.thumbnails.high?.url || v.snippet.thumbnails.default?.url, 
                     viewCount: parseInt(v.statistics.viewCount) || 0, 
-                    description: v.snippet.description // [중요] 상세 설명 확보
+                    description: v.snippet.description 
                 }));
-            } catch(e) { window.addLog("유튜브 API 로드 실패", "error"); return []; }
+            } catch(e) { return []; }
         };
 
         window.runAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key) { window.addLog("API Key를 입력하세요.", "error"); return; }
-            csvRawItems = csvRawItems.filter(i => !i.isDuplicate);
-            if(csvRawItems.length === 0) return;
+            
+            // 중복 분석 차단
+            const seenIds = new Set(syncedData.map(d => d.id));
+            csvRawItems = csvRawItems.filter(item => {
+                if (seenIds.has(item.id)) return false;
+                seenIds.add(item.id);
+                return true;
+            });
+
+            if(csvRawItems.length === 0) { window.addLog("새로운 영상이 없습니다.", "info"); window.refreshQueueUI(); return; }
             
             const total = csvRawItems.length;
             let count = 0;
@@ -826,8 +821,8 @@
             while(csvRawItems.length > 0) {
                 const item = csvRawItems[0];
                 try {
-                    // [정확도 강화] 제목과 상세 설명을 함께 전달하여 허위 요약 방지
-                    const prompt = `영상 제목: "${item.title}". 영상 상세 설명: "${item.description || '없음'}". 위 정보를 정독하고 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 구조로 응답하세요: {"categories":["분류결과"],"summary":"해당 정보를 기반으로 한 팩트 중심의 한글 요약","tags":["#태그"]}`;
+                    // [핵심] 링크 정보를 직접 활용하는 정밀 분석 프롬프트로 통일
+                    const prompt = `영상 링크: "https://www.youtube.com/watch?v=${item.id}". 상세 설명: "${item.description || ''}". 위 실제 정보를 정독하고 분석하세요. 지침: [${AI_CATEGORY_GUIDE}]. 반드시 다음 JSON 구조로 응답하세요: {"categories":["분류결과"],"summary":"해당 정보를 기반으로 한 팩트 중심의 한글 요약","tags":["#태그"]}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                         method: 'POST', headers: {'Content-Type': 'application/json'}, 
                         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
@@ -858,7 +853,7 @@
             window.updateCharts();
         };
 
-        // --- 4. 심층 분석 및 타임라인 (정확도 강화 및 버그 수정) ---
+        // --- 4. 심층 분석 및 타임라인 (링크 기반 고도화) ---
         window.renderDeepAnalysisResult = (sections) => {
             const area = window.el('deep-analysis-display-area');
             area.innerHTML = '<h4 class="text-lg font-black text-slate-800 mb-4 border-l-4 border-blue-600 pl-3">AI 고도화 분석 리포트</h4>';
@@ -868,16 +863,15 @@
                 card.innerHTML = `<div class="mb-3 font-bold">${titleWithButtons}</div><div class="text-[13px] text-slate-600 leading-relaxed font-medium">${section.content ? section.content.replace(/\n/g, '<br>') : '내용 없음'}</div>`;
                 area.appendChild(card);
             });
-            // 버튼 숨기기 처리
             window.el('deep-analyze-btn').style.display = 'none';
         };
 
         window.runDetailedAnalysis = async function() {
             const key = window.el('gemini-api-key-input')?.value; if(!key || !activeVideo) return;
-            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI가 실제 정보를 분석 중...";
+            const btn = window.el('deep-analyze-btn'); btn.disabled = true; btn.textContent = "AI가 정보를 정밀 분석 중...";
             try {
-                // [정확도 강화] 상세 설명을 프롬프트에 직접 주입하여 팩트 기반 분석 유도
-                const prompt = `영상 제목: "${activeVideo.title}". 상세 설명: "${activeVideo.description || ''}". 위 정보를 바탕으로 내용을 상세하게 분석하여 타임라인을 생성하세요. 반드시 다음 JSON 구조로 응답하세요: {"sections": [{"title": "[00:00] 소제목", "content": "상세 분석 내용"}]}. 한국어로 답변하고, 절대 허위 정보를 지어내지 마세요.`;
+                // [핵심] 링크와 상세 정보를 통한 팩트 분석 유도
+                const prompt = `영상 링크: "https://www.youtube.com/watch?v=${activeVideo.id}". 영상 상세 설명: "${activeVideo.description || ''}". 위 실제 정보를 정독하고 아주 상세하게 분석하여 타임라인 리포트를 생성하세요. 반드시 다음 JSON 구조로 응답하세요: {"sections": [{"title": "[00:00] 소제목", "content": "상세 분석 내용"}]}. 한국어로 답변하고 허위 기재 금지.`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
                     method: 'POST', headers: {'Content-Type': 'application/json'}, 
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) 
@@ -888,10 +882,10 @@
                     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
                     window.renderDeepAnalysisResult(data.sections);
                 }
-            } catch(e) { window.addLog("심층 분석 에러", "error"); } finally { btn.disabled = false; btn.textContent = "AI 심층 분석 및 타임라인 생성"; }
+            } catch(e) {} finally { btn.disabled = false; btn.textContent = "AI 심층 분석 및 타임라인 생성"; }
         };
 
-        // --- 5. 초기 구동 및 이벤트 연동 (TypeError 방지 구조) ---
+        // --- 5. 초기 구동 및 이벤트 연동 (ReferenceError 방지) ---
         window.onload = function() {
             const saved = localStorage.getItem(LOCAL_STORAGE_KEY); if(saved) syncedData = JSON.parse(saved);
             const key = localStorage.getItem('gemini-key'); if(key) window.el('gemini-api-key-input').value = key;
@@ -902,6 +896,16 @@
             window.toggleViewMode(viewToggle ? viewToggle.checked : false);
             window.renderResults();
             window.refreshQueueUI();
+            window.updateCharts();
+        };
+
+        window.resetLibrary = () => {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            syncedData = [];
+            currentPageNum = 1;
+            window.renderResults();
+            window.el('confirm-modal').style.display = 'none';
+            window.addLog("라이브러리가 초기화되었습니다.", "success");
             window.updateCharts();
         };
 
@@ -935,7 +939,7 @@
             else { ytPlayer = new YT.Player('yt-player-frame', { height: '100%', width: '100%', videoId: video.id, playerVars: { 'autoplay': 1, 'rel': 0, 'enablejsapi': 1 } }); }
         };
 
-        // 기타 보조 함수 정의 (전체 등록)
+        // 기타 보조 기능 전역 등록
         window.saveMemo = () => { if(!activeVideo) return; activeVideo.memo = window.el('video-memo-textarea').value; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.el('video-memo-view').innerHTML = window.parseTimelineToButtons(activeVideo.memo.replace(/\n/g, '<br>')); window.el('video-memo-textarea').classList.add('hidden'); window.el('video-memo-view').classList.remove('hidden'); window.el('memo-save-btn').classList.add('hidden'); window.el('memo-edit-btn').classList.remove('hidden'); };
         window.editMemo = () => { window.el('video-memo-textarea').classList.remove('hidden'); window.el('video-memo-view').classList.add('hidden'); window.el('memo-save-btn').classList.remove('hidden'); window.el('memo-edit-btn').classList.add('hidden'); window.el('video-memo-textarea').focus(); };
         window.insertCurrentTimestamp = () => { if(!ytPlayer || !ytPlayer.getCurrentTime) return; const curr = ytPlayer.getCurrentTime(); const ts = `[${Math.floor(curr/60).toString().padStart(2,'0')}:${Math.floor(curr%60).toString().padStart(2,'0')}] `; window.el('video-memo-textarea').value += ts; window.el('video-memo-textarea').focus(); };
@@ -950,16 +954,30 @@
         window.reanalyzeLibrary = () => { if(syncedData.length) { csvRawItems = syncedData.map(i => ({...i, isDuplicate: false})); window.runAnalysis(); } };
         window.addNewCategory = () => { const val = window.el('new-category-input').value.trim(); if(val && !currentCategories.includes(val)) { currentCategories.push(val); el('new-category-input').value=''; window.renderCategoriesUI(); } };
         window.clearCategoryFilter = () => { window.el('filter-category').value = "all"; window.renderResults(); };
-        window.clearSearch = () => { window.el('search-input').value = ""; window.el('clear-search-btn').classList.add('hidden'); window.renderResults(); };
+        window.clearSearch = () => { window.el('search-input').value = ""; window.renderResults(); };
         window.handleSearchInput = (val) => { window.renderResults(); if(val.length > 0) window.el('clear-search-btn').classList.remove('hidden'); else window.el('clear-search-btn').classList.add('hidden'); };
         window.handleUrlBtnVisibility = val => { const btn = window.el('url-import-btn'); if(val.trim().length > 0) btn?.classList.remove('hidden'); else btn?.classList.add('hidden'); };
         window.showAuthBtn = () => { window.el('auth-btn')?.classList.remove('hidden'); window.el('auth-btn')?.classList.add('animate-pop-in'); };
         window.changePage = (dir) => { const total = syncedData.length, max = Math.ceil(total / itemsPerPage) || 1; if(currentPageNum + dir > 0 && currentPageNum + dir <= max) { currentPageNum += dir; window.renderResults(); window.el('library-anchor').scrollIntoView({ behavior: 'smooth' }); } };
         window.updateItemsPerPage = (val) => { itemsPerPage = parseInt(val); currentPageNum = 1; window.renderResults(); };
         window.handleSyncModeTransition = isAll => { const controls = window.el('sync-count-controls'), label = window.el('sync-all-label'), badge = window.el('all-toggle-badge'); if(!controls || !label || !badge) return; if(isAll) { controls.style.opacity = '0'; controls.style.pointerEvents = 'none'; label.style.opacity = '1'; label.style.pointerEvents = 'auto'; badge.classList.add('active'); window.showAuthBtn(); } else { controls.style.opacity = '1'; controls.style.pointerEvents = 'auto'; label.style.opacity = '0'; label.style.pointerEvents = 'none'; badge.classList.remove('active'); } };
-        window.handleCsvUpload = e => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = async ev => { const ids = ev.target.result.split('\n').map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }).filter(x=>x); if(ids.length > 0) { window.addLog(`${ids.length}개 정보 조회 중...`, "info"); const meta = await window.fetchYouTubeMetadata(ids); meta.forEach(item => csvRawItems.push({ ...item, isDuplicate: syncedData.some(d => d.id === item.id) })); window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name; } }; r.readAsText(f); };
+        window.handleCsvUpload = e => { 
+            const f = e.target.files[0]; if(!f) return; 
+            const r = new FileReader(); r.onload = async ev => { 
+                const ids = ev.target.result.split('\n').map(l => { const m = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); return m ? m[1] : null; }).filter(x=>x); 
+                if(ids.length > 0) { 
+                    window.addLog(`${ids.length}개 정보 조회 중...`, "info"); 
+                    const meta = await window.fetchYouTubeMetadata(ids); 
+                    meta.forEach(item => {
+                        const isDuplicate = syncedData.some(d => d.id === item.id);
+                        csvRawItems.push({ ...item, isDuplicate });
+                    }); 
+                    window.refreshQueueUI(); window.el('file-info').classList.remove('hidden'); window.el('file-name').textContent = f.name; 
+                } 
+            }; r.readAsText(f); 
+        };
         window.importFromUrl = async () => { const urlInput = window.el('url-import-input'); const url = urlInput.value.trim(); if(!url) return; const vid = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/); if(vid) { const meta = await window.fetchYouTubeMetadata([vid[1]]); if(meta.length > 0) { const item = meta[0]; if(window.el('immediate-analyze-toggle')?.checked) { csvRawItems = [{ ...item, isDuplicate: false }]; await window.runAnalysis(); } else { csvRawItems.push({ ...item, isDuplicate: syncedData.some(d => d.id === item.id) }); window.refreshQueueUI(); } } } urlInput.value = ""; window.el('url-import-btn').classList.add('hidden'); };
-        window.askLibrarian = async function() { const key = window.el('gemini-api-key-input')?.value; if (!key) return; const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return; const q = input.value.trim(); if (!q) return; const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q; messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight; const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...'; messages.appendChild(aiLoading); try { const dbContext = syncedData.slice(0, 50).map(v => `[${v.title}]: ${v.summary}`).join('\n'); const prompt = `질문: ${q} [DB]\n${dbContext}`; const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json()); messages.removeChild(aiLoading); const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text; messages.appendChild(aiMsg); } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; } };
+        window.askLibrarian = async function() { const key = window.el('gemini-api-key-input')?.value; if (!key) return; const input = window.el('chat-input'), messages = window.el('chat-messages'); if(!input || !messages) return; const q = input.value.trim(); if (!q) return; const userMsg = document.createElement('div'); userMsg.className = 'chat-bubble chat-user'; userMsg.textContent = q; messages.appendChild(userMsg); input.value = ''; messages.scrollTop = messages.scrollHeight; const aiLoading = document.createElement('div'); aiLoading.className = 'chat-bubble chat-ai italic'; aiLoading.textContent = '답변 생성 중...'; messages.appendChild(aiLoading); try { const dbContext = syncedData.slice(0, 30).map(v => `[${v.title}]: ${v.summary}`).join('\n'); const prompt = `질문: ${q} [DB]\n${dbContext}`; const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r=>r.json()); messages.removeChild(aiLoading); const aiMsg = document.createElement('div'); aiMsg.className = 'chat-bubble chat-ai'; aiMsg.textContent = res.candidates[0].content.parts[0].text; messages.appendChild(aiMsg); } catch (e) { aiLoading.textContent = "에러 발생"; } finally { messages.scrollTop = messages.scrollHeight; } };
         window.updateCharts = function() { 
             const treemap = window.el('treemap-content'), cloud = window.el('word-cloud-content'); 
             if(!treemap || !cloud || syncedData.length === 0) return; 
