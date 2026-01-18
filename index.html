@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <title>YouTube Smart Organizer - Refined Dashboard</title>
+    <title>YouTube Smart Organizer - Modern AI Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
@@ -54,7 +54,7 @@
             z-index: 10;
         }
 
-        /* 아코디언 애니메이션 최적화 */
+        /* 아코디언 애니메이션 */
         .collapsible-content {
             max-height: 0;
             overflow: hidden;
@@ -73,27 +73,28 @@
             margin-bottom: 0 !important;
         }
 
+        /* 모달 스타일 */
         #player-modal, #confirm-modal, #reanalyze-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(32, 33, 36, 0.6);
+            background: rgba(32, 33, 36, 0.7);
             z-index: 2000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
         }
 
         .modal-content {
-            width: 95%;
-            max-width: 1650px;
+            width: 98%;
+            max-width: 1800px;
             background: #fff;
             border-radius: 32px;
             overflow: hidden;
             display: grid;
             grid-template-columns: 1.4fr 1fr;
-            height: 90vh;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            height: 92vh;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
             position: relative;
         }
 
@@ -109,17 +110,33 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 120;
+            z-index: 2100;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             transition: all 0.2s;
         }
         .modal-close-x:hover { background: #f8f9fa; color: #d93025; transform: rotate(90deg); }
 
-        .player-wrapper { 
-            position: relative; width: 100%; height: 100%; background: #000; 
-            display: flex; align-items: center; justify-content: center;
+        .player-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
         }
-        #main-player-iframe { width: 100%; aspect-ratio: 16 / 9; max-height: 100%; border: none; }
+
+        .player-wrapper { 
+            position: sticky;
+            top: 0;
+            width: 100%; 
+            aspect-ratio: 16 / 9; 
+            background: #000; 
+            z-index: 10;
+        }
+        #main-player-iframe { width: 100%; height: 100%; border: none; }
+
+        .video-info-area { padding: 32px; flex-grow: 1; }
+        .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; padding: 32px; }
 
         .google-btn-primary { background-color: #1a73e8; color: white; transition: all .2s; font-weight: 600; }
         .google-btn-primary:enabled:hover { background-color: #1765cc; box-shadow: 0 1px 3px rgba(60,64,67,.3); }
@@ -143,15 +160,16 @@
         .toggle-icon { transition: transform 0.3s ease; }
         .toggle-icon.rotated { transform: rotate(-90deg); }
 
+        /* 카테고리 태그 모던 스타일링 */
         .category-tag-container {
-            display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
-            border-radius: 10px; border: 2px solid; font-size: 12px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+            border-radius: 9999px; border: 1.5px solid; font-size: 11px; font-weight: 700;
             background: #fff; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            text-transform: uppercase; letter-spacing: 0.02em;
         }
-        .category-tag-delete { cursor: pointer; opacity: 0.5; font-size: 16px; margin-left: 4px; line-height: 1; }
+        .category-tag-delete { cursor: pointer; opacity: 0.4; font-size: 14px; margin-left: 6px; line-height: 1; }
         .category-tag-delete:hover { opacity: 1; color: #d93025; }
 
-        /* 토글 스위치 스타일 */
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 34px; }
@@ -163,21 +181,9 @@
         .google-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
 
         #clear-search-btn {
-            display: none; 
-            position: absolute; 
-            right: 14px; 
-            top: 50%; 
-            transform: translateY(-50%);
-            color: #94a3b8; 
-            transition: all 0.2s; 
-            padding: 8px; 
-            border-radius: 50%; 
-            cursor: pointer;
-            background: transparent;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; transition: all 0.2s; padding: 8px; border-radius: 50%; cursor: pointer;
+            background: transparent; z-index: 10; display: flex; align-items: center; justify-content: center;
         }
         #clear-search-btn:hover { color: #1e293b; background: #f1f5f9; }
 
@@ -202,21 +208,12 @@
         .chat-ai { background: #f1f3f4; color: #3c4043; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #dadce0; }
 
         .summary-block {
-            margin-bottom: 16px;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            animation: slideInUp 0.4s ease forwards;
+            margin-bottom: 16px; padding: 20px; background: #ffffff; border-radius: 20px;
+            border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0;
+            animation: slideInUp 0.4s ease forwards; cursor: pointer;
         }
-        .summary-block:hover {
-            border-color: #1a73e8;
-            transform: translateX(8px);
-            box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.1);
-        }
+        .summary-block:hover { border-color: #1a73e8; background: #f1f6ff; transform: translateX(8px); box-shadow: 0 10px 15px -3px rgba(26, 115, 232, 0.1); }
 
         @keyframes slideInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -249,7 +246,6 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 
-                <!-- 1. 분석 대기열 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider">분석 대기열</h2>
@@ -267,12 +263,10 @@
                     </div>
                 </div>
 
-                <!-- 2. URL 직접 추가 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
                         <input type="text" id="url-import-input" placeholder="영상 또는 재생목록 주소" class="google-input w-full bg-slate-50 rounded-lg px-3 py-2.5 text-xs outline-none">
-                        <!-- 수정: 자동 갱신과 높이/비율을 동일하게 맞춤 (p-3, text-[11px]) -->
                         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 mt-1">
                             <span class="text-[11px] font-bold text-slate-600 uppercase tracking-tighter">단일 영상 즉시 분석</span>
                             <label class="switch"><input type="checkbox" id="immediate-analyze-toggle"><span class="slider"></span></label>
@@ -281,7 +275,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Google 동기화 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Google 동기화</h2>
                     <div class="space-y-4">
@@ -293,7 +286,6 @@
                     </div>
                 </div>
 
-                <!-- 4. 데이터 관리 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 관리</h2>
                     <div class="space-y-4">
@@ -317,7 +309,6 @@
                     </div>
                 </div>
                 
-                <!-- 5. 카테고리 설정 -->
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
@@ -327,7 +318,6 @@
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
-                <!-- 6. 로그 콘솔 -->
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2"><div class="text-[#81c995] font-bold">> Ready.</div></div>
@@ -336,8 +326,6 @@
 
             <!-- 메인 영역 -->
             <div class="lg:col-span-3">
-                
-                <!-- 아코디언 버튼 그룹 및 콘텐츠 -->
                 <div class="mb-5">
                     <div class="flex flex-wrap md:flex-nowrap gap-4 items-start mb-4">
                         <div class="accordion-header" onclick="window.toggleCard('credentials-details', 'credentials-toggle-icon')">
@@ -347,7 +335,6 @@
                             </div>
                             <svg id="credentials-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-
                         <div class="accordion-header" onclick="window.toggleCard('dashboard-content', 'dashboard-toggle-icon')">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-6 bg-blue-600 rounded-full shadow-sm"></div>
@@ -355,7 +342,6 @@
                             </div>
                             <svg id="dashboard-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
-
                         <div class="accordion-header" onclick="window.toggleCard('librarian-content', 'librarian-toggle-icon')">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-6 bg-emerald-500 rounded-full shadow-sm"></div>
@@ -416,7 +402,6 @@
                     </div>
                 </div>
 
-                <!-- 진행률 카드 -->
                 <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden mb-5">
                     <div class="flex justify-between items-end mb-6">
                         <div>
@@ -472,12 +457,7 @@
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-sm text-left border-collapse table-fixed">
                             <thead class="bg-[#f8f9fa] text-[#5f6368] font-bold text-[10px] uppercase tracking-wider border-b border-[#dadce0]">
-                                <tr>
-                                    <th class="px-8 py-4 w-48 text-center">썸네일</th>
-                                    <th class="px-8 py-4 w-60">카테고리</th>
-                                    <th class="px-8 py-4">내용 요약</th>
-                                    <th class="px-8 py-4 w-52 text-right">조회수 / 채널</th>
-                                </tr>
+                                <tr><th class="px-8 py-4 w-48 text-center">썸네일</th><th class="px-8 py-4 w-60">카테고리</th><th class="px-8 py-4">내용 요약</th><th class="px-8 py-4 w-52 text-right">조회수 / 채널</th></tr>
                             </thead>
                             <tbody id="result-body" class="divide-y divide-[#eee]"><tr id="empty-state"><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr></tbody>
                         </table>
@@ -487,46 +467,49 @@
         </main>
     </div>
 
-    <!-- 비디오 모달 -->
     <div id="player-modal">
         <div class="modal-content">
-            <div id="close-player-x" class="modal-close-x shadow-xl transition-all" onclick="window.closePlayer()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg></div>
-            <div class="player-wrapper" id="player-target-container"></div>
-            <div class="flex flex-col h-full bg-white border-l border-[#eee] overflow-hidden">
-                <div class="p-8 border-b border-[#f1f3f4] shrink-0">
-                    <h3 id="modal-video-title" class="font-bold text-[#202124] text-xl line-clamp-2 leading-tight">제목</h3>
-                    <p id="modal-video-channel" class="text-xs text-slate-400 font-bold mt-2 uppercase tracking-widest">채널명</p>
-                    <div class="mt-8 p-8 bg-slate-50 rounded-[32px] border border-slate-100 flex flex-col h-fit">
-                        <div class="flex items-center justify-between mb-4"><p class="text-[11px] font-black text-slate-400 uppercase tracking-widest">AI Content Insight</p></div>
-                        <div id="modal-video-summary-container" class="max-h-[500px] overflow-y-auto custom-scrollbar pr-3"><p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium"></p></div>
-                        <button id="detailed-summary-btn" class="google-btn-primary w-full py-4 mt-6 rounded-2xl text-[12px] font-bold shadow-xl transition-all flex items-center justify-center gap-2" onclick="window.runDetailedAnalysis()">심층 분석 및 정밀 타임라인 생성</button>
+            <div id="close-player-x" class="modal-close-x shadow-xl transition-all" onclick="window.closePlayer()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
+            </div>
+            <div class="player-panel custom-scrollbar">
+                <div class="player-wrapper" id="player-target-container"></div>
+                <div class="video-info-area">
+                    <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-2">비디오 제목</h3>
+                    <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase tracking-widest mb-6">채널명</p>
+                    <div class="space-y-6">
+                        <button id="detailed-summary-btn" class="google-btn-primary w-full py-4 rounded-2xl text-sm font-black shadow-lg flex items-center justify-center gap-2" onclick="window.runDetailedAnalysis()">
+                            AI 심층 분석 및 타임라인 생성
+                        </button>
+                        <div id="script-loading" class="hidden py-10 text-center animate-pulse flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100">
+                            <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                            <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">분석 중...</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">AI Content Insight</p>
+                            <div id="modal-video-summary-container" class="space-y-4"><p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium">정보를 불러오는 중...</p></div>
+                        </div>
+                        <div id="modal-timeline-container" class="space-y-3"></div>
                     </div>
                 </div>
-                <div id="script-loading" class="hidden p-10 text-center animate-pulse flex-grow flex flex-col items-center justify-center bg-white"><div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mb-4"></div><p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">분석 중...</p></div>
+            </div>
+            <div class="memo-panel">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="text-lg font-black text-slate-800 tracking-tight">퍼스널 노트</h4>
+                    <button class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-600 hover:text-white transition-all" onclick="window.saveNotes()">메모 저장</button>
+                </div>
+                <textarea id="video-memo-textarea" placeholder="영상을 시청하며 핵심 내용을 기록하세요..." class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm leading-relaxed custom-scrollbar resize-none"></textarea>
             </div>
         </div>
     </div>
 
-    <!-- 확인 모달 -->
     <div id="confirm-modal">
         <div class="confirm-content shadow-2xl">
             <h3 class="text-xl font-bold text-slate-900 mb-4 tracking-tighter">데이터 초기화</h3>
-            <p class="text-sm text-slate-500 mb-10 font-medium leading-relaxed">저장된 모든 분석 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+            <p class="text-sm text-slate-500 mb-10 font-medium leading-relaxed">저장된 모든 분석 데이터를 삭제하시겠습니까?</p>
             <div class="flex gap-4">
                 <button class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold shadow-sm" onclick="document.getElementById('confirm-modal').style.display='none'">취소</button>
                 <button id="confirm-reset-btn" class="flex-1 py-4 bg-rose-600 text-white rounded-2xl font-bold shadow-xl uppercase text-xs" onclick="window.resetLibrary()">초기화</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 재분류 확인 모달 -->
-    <div id="reanalyze-modal">
-        <div class="confirm-content shadow-2xl">
-            <h3 class="text-xl font-bold text-slate-900 mb-4 tracking-tighter">기존 목록 갱신</h3>
-            <p class="text-sm text-slate-500 mb-10 font-medium leading-relaxed">이미 분석된 모든 영상을 최신 정밀 기준으로 다시 분류하시겠습니까?</p>
-            <div class="flex gap-4">
-                <button id="close-reanalyze-modal" class="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold shadow-sm" onclick="document.getElementById('reanalyze-modal').style.display='none'">취소</button>
-                <button id="confirm-reanalyze-btn" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl uppercase text-xs" onclick="window.confirmReanalyze()">갱신 시작</button>
             </div>
         </div>
     </div>
@@ -536,7 +519,6 @@
         const GEMINI_MODEL = "gemini-3-flash-preview"; 
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
         const ITEMS_PER_PAGE = 100;
-        const THROTTLE_DELAY = 100;
 
         const PALETTE = [
             { border: 'border-blue-400', text: 'text-blue-800', bg: 'bg-blue-50/50' },
@@ -559,7 +541,7 @@
         let isAnalysisActive = false;
         let tokenClient;
 
-        // --- 전역 유틸리티 (안전 장치 강화) ---
+        // --- 전역 유틸리티 (TypeError 방지 및 안전 장치 강화) ---
         window.addLog = function(msg, type) {
             const logBox = document.getElementById('log-console');
             if (!logBox) return;
@@ -581,39 +563,36 @@
         };
 
         window.resetPageAndRender = function() { currentPage = 1; renderResults(); };
-        window.resetFilter = function() { 
-            const filter = document.getElementById('filter-category');
-            if(filter) filter.value = 'all'; 
-            window.resetPageAndRender(); 
-        };
-        window.resetCloudFilter = function() { 
-            const search = document.getElementById('search-input');
-            if(search) search.value = ''; 
-            window.resetPageAndRender(); 
-        };
+        window.resetFilter = function() { const filter = document.getElementById('filter-category'); if(filter) filter.value = 'all'; window.resetPageAndRender(); };
+        window.resetCloudFilter = function() { const search = document.getElementById('search-input'); if(search) search.value = ''; window.resetPageAndRender(); };
         window.clearQueue = function() { csvRawItems = []; window.addLog("대기열 삭제됨", "info"); refreshQueueUI(); };
         
         window.resetLibrary = function() { 
             localStorage.removeItem(LOCAL_STORAGE_KEY); 
-            syncedData = []; 
-            renderResults(); 
-            updateCharts(); 
-            const group = document.getElementById('dashboard-group');
-            if(group) group.classList.add('hidden'); 
-            const modal = document.getElementById('confirm-modal');
-            if(modal) modal.style.display = 'none'; 
-            window.addLog("라이브러리 초기화 완료", "success");
-            refreshQueueUI(); 
+            syncedData = []; renderResults(); updateCharts(); 
+            const group = document.getElementById('dashboard-group'); if(group) group.classList.add('hidden'); 
+            const modal = document.getElementById('confirm-modal'); if(modal) modal.style.display = 'none'; 
+            window.addLog("라이브러리 초기화 완료", "success"); refreshQueueUI(); 
         };
         
         window.confirmReanalyze = function() { document.getElementById('reanalyze-modal').style.display = 'none'; runAnalysis(syncedData, true); };
-        window.closePlayer = function() { document.getElementById('player-modal').style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; };
+        window.closePlayer = function() { document.getElementById('player-modal').style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; activeVideo = null; };
 
         window.seekTo = function(timeStr) {
             const parts = timeStr.split(':').map(Number);
             const sec = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
             const iframe = document.getElementById('main-player-iframe');
             if(iframe) iframe.src = `https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&start=${sec}`;
+        };
+
+        window.saveNotes = function() {
+            if (!activeVideo) return;
+            const textarea = document.getElementById('video-memo-textarea');
+            const noteContent = textarea.value;
+            activeVideo.memo = noteContent;
+            const idx = syncedData.findIndex(v => v.id === activeVideo.id);
+            if (idx !== -1) syncedData[idx] = activeVideo;
+            saveToLocal(); window.addLog("메모가 저장되었습니다.", "success");
         };
 
         // --- 내부 기능 함수 ---
@@ -667,65 +646,57 @@
             const resultBody = document.getElementById('result-body'), term = document.getElementById('search-input')?.value.toLowerCase() || "";
             const catFilter = document.getElementById('filter-category')?.value || "all", sortVal = document.getElementById('sort-select')?.value || "default", pagination = document.getElementById('pagination-container');
             const clearBtn = document.getElementById('clear-search-btn');
-            
             if (!resultBody) return;
             if (clearBtn) clearBtn.style.display = term ? 'flex' : 'none'; 
-
             let filtered = syncedData.filter(v => (v.title?.toLowerCase().includes(term) || v.channelTitle?.toLowerCase().includes(term) || (v.tags && v.tags.some(t => t.toLowerCase().includes(term)))) && (catFilter === "all" || (v.categories && v.categories.includes(catFilter))));
             if (sortVal === "views-desc") filtered.sort((a,b) => (b.viewCount || 0) - (a.viewCount || 0));
             else if (sortVal === "newest") filtered.sort((a,b) => new Date(b.analyzedAt || 0) - new Date(a.analyzedAt || 0));
             else if (sortVal === "title-asc") filtered.sort((a,b) => a.title.localeCompare(b.title));
-            
             const total = filtered.length, pages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
             if(currentPage > pages) currentPage = pages;
             const start = (currentPage - 1) * ITEMS_PER_PAGE, pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
-            
             if (pagination) {
                 if (total > 0) {
                     pagination.classList.remove('hidden');
                     const totCount = document.getElementById('total-results-count'), rangeTxt = document.getElementById('current-range-text'), currNum = document.getElementById('current-page-num');
-                    const prevBtn = document.getElementById('prev-page-btn'), nextBtn = document.getElementById('next-page-btn');
                     if(totCount) totCount.textContent = total.toLocaleString();
                     if(rangeTxt) rangeTxt.textContent = `${(start + 1).toLocaleString()} - ${Math.min(start + ITEMS_PER_PAGE, total).toLocaleString()}`;
                     if(currNum) currNum.textContent = currentPage;
+                    const prevBtn = document.getElementById('prev-page-btn'), nextBtn = document.getElementById('next-page-btn');
                     if(prevBtn) prevBtn.disabled = (currentPage === 1);
                     if(nextBtn) nextBtn.disabled = (currentPage === pages);
                 } else pagination.classList.add('hidden');
             }
-            
             resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr>';
             pageData.forEach(data => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50"; tr.onclick = () => openPlayer(data);
-                const cats = (data.categories || []).map(c => { const st = getStyleForCat(c); return `<span class="inline-block px-2.5 py-1 bg-white border-2 ${st.border} ${st.text} text-[10px] font-black rounded-lg mr-1 mb-1 uppercase">${c}</span>`; }).join('');
+                // 카테고리 배지 둥근 스타일 알약 모양으로 개선
+                const cats = (data.categories || []).map(c => { 
+                    const st = getStyleForCat(c); 
+                    return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; 
+                }).join('');
                 const tags = (data.tags || []).map(t => `<span class="auto-tag" onclick="event.stopPropagation(); document.getElementById('search-input').value='${t}'; window.resetPageAndRender();">${t}</span>`).join('');
                 tr.innerHTML = `<td class="px-8 py-6 align-top"><div class="aspect-video rounded-xl bg-slate-100 overflow-hidden relative shadow-sm">${data.thumbnail ? `<img src="${data.thumbnail}" class="w-full h-full object-cover">` : ''}<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded font-black">${data.duration || "00:00"}</span></div></td><td class="px-8 py-6 align-top"><div class="flex flex-wrap">${cats}</div></td><td class="px-8 py-6 align-top"><div class="font-black text-slate-800 line-clamp-2 text-base mb-1.5">${data.title}</div><p class="text-xs text-slate-400 line-clamp-2 font-medium mb-2 leading-relaxed">${data.summary || '정보 없음'}</p><div class="flex flex-wrap">${tags}</div></td><td class="px-8 py-6 align-top text-xs text-right"><div class="text-slate-900 mb-1 font-mono font-black text-base">${(data.viewCount || 0).toLocaleString()}</div><div class="text-[12px] text-slate-400 font-bold uppercase break-words mt-2 leading-tight">${data.channelTitle || 'YouTube'}</div></td>`;
                 resultBody.appendChild(tr);
             });
-            const countBadge = document.getElementById('result-count');
-            if(countBadge) countBadge.textContent = `${syncedData.length}개 항목 저장됨`;
+            const countBadge = document.getElementById('result-count'); if(countBadge) countBadge.textContent = `${syncedData.length}개 항목 저장됨`;
         }
 
         function updateCharts() {
-            const group = document.getElementById('dashboard-group');
-            const treemapCont = document.getElementById('treemap-content');
-            const cloudCont = document.getElementById('word-cloud-content');
-            
+            const group = document.getElementById('dashboard-group'), treemapCont = document.getElementById('treemap-content'), cloudCont = document.getElementById('word-cloud-content');
             if (syncedData.length === 0) {
                 if(treemapCont) treemapCont.innerHTML = '<div class="col-span-12 py-10 text-center text-slate-300 italic font-medium">분석된 데이터가 없습니다. 먼저 영상을 분석해 주세요.</div>';
                 if(cloudCont) cloudCont.innerHTML = '<div class="py-10 text-center text-slate-300 italic font-medium">분석된 키워드가 없습니다.</div>';
                 return;
             }
-            
             if(group) group.classList.remove('hidden');
             const catStats = {}; syncedData.forEach(item => { (item.categories || []).forEach(cat => { catStats[cat] = (catStats[cat] || 0) + 1; }); });
-            
             if(treemapCont) {
                 treemapCont.innerHTML = '';
                 const sortedCats = Object.entries(catStats).sort((a,b) => b[1] - a[1]);
                 sortedCats.forEach(([cat, count]) => {
                     const perc = Math.round((count / syncedData.length) * 100); if (perc < 1) return;
-                    const style = getStyleForCat(cat);
-                    const tile = document.createElement('div');
+                    const style = getStyleForCat(cat), tile = document.createElement('div');
                     tile.className = `treemap-tile bg-white border-2 ${style.border} ${style.text}`;
                     const span = Math.max(2, Math.round((perc / 100) * 12));
                     tile.style.gridColumn = `span ${span}`;
@@ -759,14 +730,14 @@
             cont.innerHTML = ''; filter.innerHTML = '<option value="all">모든 카테고리</option>';
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             currentCategories.forEach(cat => {
-                const style = getStyleForCat(cat);
-                const tag = document.createElement('div');
-                tag.className = `category-tag-container bg-white border-2 ${style.border} ${style.text}`;
-                tag.innerHTML = `<span>${cat}</span><span class="category-tag-delete font-bold cursor-pointer" onclick="event.stopPropagation(); window.removeCategory('${cat}')">&times;</span>`;
+                const style = getStyleForCat(cat), tag = document.createElement('div');
+                tag.className = `category-tag-container ${style.border} ${style.text}`; // 알약형 모던 스타일 배지
+                tag.innerHTML = `<span>${cat}</span><span class="category-tag-delete font-bold" onclick="event.stopPropagation(); window.removeCategory('${cat}')">&times;</span>`;
                 cont.appendChild(tag);
                 filter.appendChild(new Option(cat, cat));
             });
         }
+        window.removeCategory = function(cat) { currentCategories = currentCategories.filter(c => c !== cat); renderCategoriesUI_Logic(); };
 
         async function runAnalysis(items, isReanalyze = false) {
             const key = getGeminiApiKey(); if (!key) return;
@@ -774,7 +745,6 @@
             const pb = document.getElementById('progress-bar'), pic = document.getElementById('progress-item-count'), pt = document.getElementById('progress-text'), card = document.getElementById('progress-card');
             if(card) card.classList.remove('hidden');
             let processed = 0, total = items.length, start = Date.now();
-            
             const timer = setInterval(() => {
                 if (!isAnalysisActive) { clearInterval(timer); return; }
                 const elapsed = Math.floor((Date.now() - start) / 1000);
@@ -786,7 +756,6 @@
                     if(remTime) remTime.textContent = formatTime(remaining);
                 }
             }, 1000);
-
             const enriched = await enrichMetadataBulk(items);
             for (let item of enriched) {
                 if (!isAnalysisActive) break;
@@ -795,10 +764,8 @@
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) });
                     const aiData = await res.json(), result = JSON.parse(aiData.candidates[0].content.parts[0].text);
                     const final = { ...item, ...result, analyzedAt: new Date().toISOString() };
-                    
                     if (isReanalyze) { const idx = syncedData.findIndex(v => v.id === item.id); if (idx !== -1) syncedData[idx] = final; } 
                     else { syncedData.push(final); csvRawItems = csvRawItems.filter(i => i.id !== item.id); }
-                    
                     processed++; saveToLocal(); renderResults(); updateCharts(); refreshQueueUI();
                     const p = Math.round((processed / total) * 100);
                     if(pb) pb.style.width = `${p}%`; if(pt) pt.textContent = `${p}%`; if(pic) pic.textContent = `${processed} / ${total} items`;
@@ -823,7 +790,7 @@
         window.runDetailedAnalysis = async function() {
             const key = getGeminiApiKey(); if (!key || !activeVideo) return;
             const btn = document.getElementById('detailed-summary-btn'), loading = document.getElementById('script-loading'), summaryArea = document.getElementById('modal-video-summary-container');
-            if(btn) btn.classList.add('hidden'); if(loading) loading.classList.remove('hidden'); if(summaryArea) summaryArea.innerHTML = '';
+            if(btn) btn.classList.add('hidden'); if(loading) loading.classList.remove('hidden');
             try {
                 const prompt = `구조 분석: "${activeVideo.title}". 설명 Context: ${activeVideo.description?.substring(0, 1000)}. 섹션별 MM:SS 타임라인과 상세 한글 요약 생성. JSON: {"longSummary": "전체 요약", "detailedBlocks": [{"time": "MM:SS", "subtitle": "제목", "content": "내용"}]}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }) });
@@ -831,7 +798,7 @@
                 activeVideo.longSummary = result.longSummary; activeVideo.detailedBlocks = result.detailedBlocks;
                 const idx = syncedData.findIndex(v => v.id === activeVideo.id); if (idx !== -1) syncedData[idx] = activeVideo;
                 saveToLocal(); renderSummaryUI();
-            } catch (e) { if(summaryArea) summaryArea.innerHTML = '오류 발생'; if(btn) btn.classList.remove('hidden'); } finally { if(loading) loading.classList.add('hidden'); }
+            } catch (e) { window.addLog("분석 오류", "error"); if(btn) btn.classList.remove('hidden'); } finally { if(loading) loading.classList.add('hidden'); }
         };
 
         window.askLibrarian = async function() {
@@ -846,7 +813,7 @@
             messages.appendChild(aiLoading); btn.disabled = true;
             try {
                 const dbContext = syncedData.map(v => `[${v.categories?.join(',')}] ${v.title}: ${v.summary}`).join('\n');
-                const prompt = `내 라이브러리 데이터를 바탕으로 질문에 답해줘. 없는 내용은 모른다고 답해.\n\n[DB]\n${dbContext.substring(0, 15000)}\n\n[질문]\n${question}`;
+                const prompt = `내 라이브러리 데이터를 바탕으로 질문에 답해줘. 없는 내용은 정직하게 모른다고 답해.\n\n[DB]\n${dbContext.substring(0, 15000)}\n\n[질문]\n${question}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
                 const aiData = await res.json(), answer = aiData.candidates[0].content.parts[0].text;
                 messages.removeChild(aiLoading);
@@ -860,56 +827,49 @@
             const modal = document.getElementById('player-modal'), container = document.getElementById('player-target-container');
             if(container) container.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" allowfullscreen></iframe>`;
             const tit = document.getElementById('modal-video-title'), ch = document.getElementById('modal-video-channel');
+            const textarea = document.getElementById('video-memo-textarea');
             if(tit) tit.textContent = video.title;
             if(ch) ch.textContent = video.channelTitle || 'YouTube';
+            if(textarea) textarea.value = video.memo || "";
             renderSummaryUI(); 
             if(modal) modal.style.display = 'flex';
         }
 
         function renderSummaryUI() {
-            const container = document.getElementById('modal-video-summary-container'), btn = document.getElementById('detailed-summary-btn');
-            if(!container) return; container.innerHTML = '';
+            const sumContainer = document.getElementById('modal-video-summary-container');
+            const timelineContainer = document.getElementById('modal-timeline-container');
+            const btn = document.getElementById('detailed-summary-btn');
+            if(!sumContainer || !timelineContainer) return;
+            sumContainer.innerHTML = ''; timelineContainer.innerHTML = '';
+            const shortP = document.createElement('p'); shortP.className = "text-sm text-slate-700 font-medium leading-relaxed italic opacity-80";
+            shortP.textContent = activeVideo.summary || "아래 버튼을 눌러 심층 분석을 시작하세요."; sumContainer.appendChild(shortP);
             if (activeVideo.detailedBlocks && activeVideo.detailedBlocks.length > 0) {
                 if(btn) btn.classList.add('hidden');
-                if (activeVideo.longSummary) {
-                    const longText = document.createElement('p');
-                    longText.className = "text-sm text-slate-700 font-bold mb-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm";
-                    longText.textContent = activeVideo.longSummary; container.appendChild(longText);
-                }
                 activeVideo.detailedBlocks.forEach((block, index) => {
                     const div = document.createElement('div'); div.className = 'summary-block';
                     div.style.animationDelay = `${index * 0.1}s`;
-                    div.innerHTML = `<div class="flex items-center gap-3 mb-2"><button class="bg-blue-600 text-white font-black px-3 py-1 rounded-lg text-[10px]" onclick="window.seekTo('${block.time}')">${block.time}</button><span class="font-bold text-slate-800">${block.subtitle}</span></div><p class="text-slate-500 text-sm leading-relaxed">${block.content}</p>`;
-                    container.appendChild(div);
+                    div.onclick = () => window.seekTo(block.time); // 박스 전체 클릭 시 이동
+                    div.innerHTML = `<div class="flex items-center gap-3 mb-2"><span class="bg-blue-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px] pointer-events-none">${block.time}</span><span class="font-bold text-slate-800">${block.subtitle}</span></div><p class="text-slate-500 text-xs leading-relaxed">${block.content}</p>`;
+                    timelineContainer.appendChild(div);
                 });
-            } else {
-                const shortP = document.createElement('p'); shortP.className = "text-sm text-slate-700 font-medium leading-relaxed italic opacity-80";
-                shortP.textContent = activeVideo.summary || "아래 버튼을 눌러 심층 분석을 시작하세요."; container.appendChild(shortP);
-                if(btn) btn.classList.remove('hidden');
-            }
+            } else if(btn) btn.classList.remove('hidden');
         }
 
         window.onload = function() {
             const el = id => document.getElementById(id), bind = (id, evt, fn) => el(id)?.addEventListener(evt, fn);
             loadFromLocal(); renderCategoriesUI_Logic();
             bind('save-config-btn', 'click', () => { 
-                localStorage.setItem('gemini-key', getGeminiApiKey()); 
-                localStorage.setItem('google-client-id', getClientId()); 
-                updateConfigStatus(); window.toggleCard('credentials-details', 'credentials-toggle-icon');
-                window.addLog("설정이 저장되었습니다.", "success");
+                localStorage.setItem('gemini-key', getGeminiApiKey()); localStorage.setItem('google-client-id', getClientId()); 
+                updateConfigStatus(); window.toggleCard('credentials-details', 'credentials-toggle-icon'); window.addLog("설정 저장됨", "success");
             });
             bind('url-import-btn', 'click', () => {
-                const input = el('url-import-input'), url = input?.value.trim(); 
-                if (!url) return; 
+                const input = el('url-import-input'), url = input?.value.trim(); if (!url) return; 
                 const vid = url.match(/[v=|\/]([a-zA-Z0-9_-]{11})/); 
                 if (vid) {
-                    fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${vid[1]}&key=${YT_API_KEY}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const v = data.items[0];
-                        const item = { id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: formatDuration(v.contentDetails.duration), thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount) || 0, description: v.snippet.description };
+                    fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${vid[1]}&key=${YT_API_KEY}`).then(res => res.json()).then(data => {
+                        const v = data.items[0], item = { id: v.id, title: v.snippet.title, channelTitle: v.snippet.channelTitle, duration: formatDuration(v.contentDetails.duration), thumbnail: v.snippet.thumbnails.high?.url, viewCount: parseInt(v.statistics.viewCount) || 0, description: v.snippet.description };
                         if (el('immediate-analyze-toggle').checked) runAnalysis([item]); else { csvRawItems.push(item); refreshQueueUI(); }
-                    }).catch(e => window.addLog("로드 실패", "error"));
+                    });
                 }
                 if(input) input.value = ""; 
             });
@@ -924,36 +884,22 @@
             bind('clear-search-btn', 'click', () => { const i = el('search-input'); if(i) i.value = ""; window.resetPageAndRender(); });
             bind('send-chat-btn', 'click', window.askLibrarian);
             bind('add-category-btn', 'click', () => {
-                const v = el('new-category-input')?.value.trim();
-                if (v && !currentCategories.includes(v)) { currentCategories.push(v); el('new-category-input').value = ''; renderCategoriesUI_Logic(); }
+                const v = el('new-category-input')?.value.trim(); if (v && !currentCategories.includes(v)) { currentCategories.push(v); el('new-category-input').value = ''; renderCategoriesUI_Logic(); }
             });
             bind('csv-input', 'change', e => { 
-                if(!e.target.files[0]) return; 
-                const r = new FileReader(); 
+                if(!e.target.files[0]) return; const r = new FileReader(); 
                 r.onload = ev => { 
                     try {
-                        const content = ev.target.result;
-                        const lines = content.split(/\r?\n/).filter(l => l.trim());
-                        const news = lines.map(l => {
-                            const idMatch = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
-                            const id = idMatch ? idMatch[1] : null;
-                            const title = l.split(/[,\t]/)[0]?.replace(/"/g,'').trim() || "Unknown Title";
-                            return { id, title };
-                        }).filter(v => v.id);
+                        const content = ev.target.result, lines = content.split(/\r?\n/).filter(l => l.trim());
+                        const news = lines.map(l => { const idMatch = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/), id = idMatch ? idMatch[1] : null, title = l.split(/[,\t]/)[0]?.replace(/"/g,'').trim() || "Unknown Title"; return { id, title }; }).filter(v => v.id);
                         const existing = new Set(syncedData.map(d => d.id).concat(csvRawItems.map(i => i.id)));
-                        const filtered = news.filter(ni => !existing.has(ni.id)); 
-                        csvRawItems = [...csvRawItems, ...filtered]; 
-                        window.addLog(`CSV 로드 완료 (${filtered.length}개 추가)`, "success"); refreshQueueUI();
-                        const info = el('file-info'), name = el('file-name'); 
-                        if(info) info.classList.remove('hidden'); if(name) name.textContent = e.target.files[0].name;
-                    } catch (err) { window.addLog("CSV 파싱 오류", "error"); }
+                        const filtered = news.filter(ni => !existing.has(ni.id)); csvRawItems = [...csvRawItems, ...filtered]; window.addLog(`CSV 완료 (${filtered.length}개)`, "success"); refreshQueueUI();
+                        const info = el('file-info'), name = el('file-name'); if(info) info.classList.remove('hidden'); if(name) name.textContent = e.target.files[0].name;
+                    } catch (err) { window.addLog("CSV 오류", "error"); }
                 }; r.readAsText(e.target.files[0], 'UTF-8'); 
             });
             bind('prev-page-btn', 'click', () => { if(currentPage > 1) { currentPage--; renderResults(); window.scrollTo(0,0); } });
-            bind('next-page-btn', 'click', () => { 
-                const total = syncedData.length;
-                if(total > 0 && currentPage < Math.ceil(total/ITEMS_PER_PAGE)) { currentPage++; renderResults(); window.scrollTo(0,0); }
-            });
+            bind('next-page-btn', 'click', () => { const total = syncedData.length; if(total > 0 && currentPage < Math.ceil(total/ITEMS_PER_PAGE)) { currentPage++; renderResults(); window.scrollTo(0,0); } });
             updateCharts();
         };
     </script>
