@@ -336,7 +336,7 @@
                             <button id="note-save-btn" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-lg" onclick="window.saveMemo()">저장</button>
                         </div>
                     </div>
-                    <div id="personal-memo-edit-view" class="flex-grow flex flex-col p-6 pt-2">
+                    <div id="personal-memo-edit-view" class="flex-grow flex flex-col p-6 pt-2 min-h-0">
                         <textarea id="personal-memo-textarea" class="w-full flex-grow p-6 rounded-3xl bg-slate-50 border-none outline-none text-sm leading-relaxed custom-scrollbar" placeholder="지식을 기록하세요..."></textarea>
                     </div>
                     <div id="personal-memo-rendered-view" class="hidden flex-grow p-6 pt-2 overflow-y-auto custom-scrollbar bg-slate-50 rounded-3xl text-sm leading-relaxed whitespace-pre-wrap text-slate-700 mx-6 mb-6"></div>
@@ -371,6 +371,7 @@
 
         window.formatDurationDisplay = dur => { if(!dur) return "00:00"; if(dur.includes(':')) return dur; return dur.replace('PT','').replace('H',':').replace('M',':').replace('S',''); };
         window.extractJson = text => { try { const m=text.match(/\{[\s\S]*\}/); return m?JSON.parse(m[0]):null; } catch(e){ return null; } };
+        window.addLog = (msg, type) => { const lb=window.el('log-console'); if(!lb) return; const div=document.createElement('div'); div.className=type==='error'?'text-rose-500 font-bold':type==='success'?'text-emerald-500 font-bold':'text-slate-400'; div.textContent=`> ${msg}`; lb.appendChild(div); lb.scrollTop=lb.scrollHeight; };
 
         // --- 1. GLOBAL STATE ---
         let syncedData = []; let csvRawItems = []; let activeVideo = null; let currentPageNum = 1; 
@@ -418,14 +419,12 @@
         window.renderResults = function() {
             const term = window.el('search-input')?.value.toLowerCase() || "", itemsVal = parseInt(window.el('items-per-page-select')?.value) || 50;
             const sortVal = window.el('sort-select')?.value || 'default';
-            
             let filtered = syncedData.filter(v => {
                 const searchStr = `${v.title} ${v.channelTitle} ${v.summary} ${v.tags?.join(' ')}`.toLowerCase();
                 const termMatch = !term || searchStr.includes(term);
                 const catMatch = selectedChips.length === 0 || v.categories.some(c => selectedChips.includes(c));
                 return termMatch && catMatch;
             });
-            
             if(sortVal === 'views-desc') filtered.sort((a,b) => (b.viewCount||0) - (a.viewCount||0));
             else if(sortVal === 'relevance' && selectedChips.length > 0) {
                 const target = selectedChips[0]; filtered.sort((a,b) => { const idxA = a.categories.indexOf(target), idxB = b.categories.indexOf(target); if(idxA !== idxB) return idxA - idxB; return new Date(b.analyzedAt) - new Date(a.analyzedAt); });
@@ -434,11 +433,9 @@
             const totalCount = filtered.length; 
             window.el('total-results-count-top').textContent = totalCount.toLocaleString();
             document.querySelectorAll('.current-page-num').forEach(e => e.textContent = currentPageNum);
-
             const tableBody = window.el('result-body'), galleryCont = window.el('gallery-body'), emptyState = window.el('empty-state');
             if(totalCount === 0) { emptyState?.classList.remove('hidden'); window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.add('hidden'); return; }
             emptyState?.classList.add('hidden');
-
             const pageItems = filtered.slice((currentPageNum-1)*itemsVal, currentPageNum*itemsVal);
             if (isLiteView) {
                 window.el('table-mode-body').classList.add('hidden'); window.el('gallery-mode-body').classList.remove('hidden');
@@ -455,7 +452,7 @@
             }
         };
 
-        // --- 3. SIDEBAR TAB & SYNC 로직 (보존) ---
+        // --- 3. SIDEBAR TAB & SYNC ---
         window.switchSidebarTab = function(type) {
             ['url', 'csv', 'sync', 'manage'].forEach(t => { 
                 const cont = window.el(`tab-content-${t}`); if(cont) cont.classList.add('hidden');
@@ -476,6 +473,8 @@
         window.updateSyncQty = (d) => { if(window.el('sync-qty-input')?.disabled) return; syncQuantity = Math.max(1, Math.min(5000, syncQuantity + d)); const input = window.el('sync-qty-input'); if(input) input.value = syncQuantity; window.el('auth-btn').classList.remove('hidden'); };
         window.handleDirectQtyInput = (val) => { const n = parseInt(val); if(!isNaN(n)) { syncQuantity = Math.max(1, Math.min(5000, n)); window.el('auth-btn').classList.remove('hidden'); } };
 
+        window.updateItemsPerPage = (val) => { itemsPerPage = parseInt(val); currentPageNum = 1; window.renderResults(); };
+
         window.runAnalysis = async function() {
             const key = localStorage.getItem('gemini-key'); if(!key) { window.el('settings-modal').style.display='flex'; return; }
             const prg = window.el('analysis-progress-panel'); const qBox = window.el('analysis-queue-box');
@@ -488,7 +487,7 @@
             let count = 0; const start = Date.now();
             for (const item of news) {
                 try {
-                    const prompt = `영상 분석 JSON: {"categories":["분류"],"summary":"요약","tags":["#태그"]} 규칙: ${AI_CATEGORY_GUIDE} 제목: ${item.title}`;
+                    const prompt = `영상 분석 JSON 응답: {"categories":["분류"],"summary":"요약","tags":["#태그"]} 규칙: ${AI_CATEGORY_GUIDE} 제목: ${item.title}`;
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                     const result = window.extractJson(res.candidates?.[0]?.content?.parts?.[0]?.text);
                     if (result) { syncedData.unshift({ ...item, ...result, analyzedAt: new Date().toISOString() }); localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderResults(); }
@@ -589,7 +588,7 @@
             const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 중...";
             try {
                 const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                const prompt = `영상 URL: "${url}"의 내용을 정독 분석하여 상세 리포트를 작성하세요. 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
+                const prompt = `YouTube 영상(ID: ${activeVideo.id}, 제목: "${activeVideo.title}", 채널: "${activeVideo.channelTitle}")의 내용을 분석하여 상세 리포트를 작성하세요. 양식: ## [00:00] 제목, - 내용, > [00:00] 인사이트 마크다운 작성. (한국어 응답)`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }).then(r => r.json());
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
                 if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
@@ -623,7 +622,7 @@
 
         window.seekToVideo = (t) => { if(!ytPlayer || !ytPlayer.seekTo) return; const p=t.split(':').map(Number); ytPlayer.seekTo(p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2], true); ytPlayer.playVideo(); };
 
-        // --- 5. EVENT HANDLERS (기존 유지) ---
+        // --- 5. EVENT HANDLERS ---
         window.toggleSidebar = (show) => { const b = document.body; if (show) b.classList.remove('sidebar-collapsed'); else b.classList.add('sidebar-collapsed'); };
         window.toggleDashboard = () => { window.el('dashboard-widget').classList.toggle('open'); window.updateCharts(); };
         window.switchViewMode = (gallery) => { isLiteView = gallery; window.el('view-list').classList.toggle('active', !gallery); window.el('view-gallery').classList.toggle('active', gallery); window.renderResults(); };
@@ -633,7 +632,9 @@
         window.removeCategoryChip = (cat) => { currentCategories = currentCategories.filter(c => c !== cat); window.renderCategoriesUI(); };
         window.saveCredentials = () => { localStorage.setItem('google-client-id', window.el('client-id-input').value.trim()); localStorage.setItem('gemini-key', window.el('gemini-api-key-input').value.trim()); window.updateApiStatusUI(); window.el('settings-modal').style.display='none'; window.initAuth(); };
         window.handleUrlBtnVisibility = v => { window.el('url-import-btn').classList.toggle('show', v.trim().length > 0); };
-        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='backup.json'; a.click(); };
+        window.resetLibrary = () => { localStorage.removeItem(LOCAL_STORAGE_KEY); syncedData = []; window.renderResults(); window.el('confirm-modal').style.display = 'none'; window.updateCharts(); };
+        window.changePage = d => { const max = Math.ceil(syncedData.length/itemsPerPage); if(currentPageNum+d>0 && currentPageNum+d<=max){ currentPageNum+=d; window.renderResults(); window.el('library-anchor').scrollIntoView(); } };
+        window.exportJson = () => { const b=new Blob([JSON.stringify(syncedData)],{type:'application/json'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='yt_backup.json'; a.click(); };
         window.importJson = e => { const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ syncedData=JSON.parse(ev.target.result); localStorage.setItem(LOCAL_STORAGE_KEY,ev.target.result); window.renderResults(); window.updateCharts(); }; r.readAsText(f); };
 
         window.fetchYouTubeMetadata = async (ids) => {
