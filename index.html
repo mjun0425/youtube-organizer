@@ -7,6 +7,8 @@
     <title>YouTube Smart Organizer - Modern AI Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -29,6 +31,7 @@
             gap: 10px;
             width: 100%;
             height: fit-content;
+            padding-bottom: 10px;
         }
         
         .treemap-tile {
@@ -73,7 +76,7 @@
             margin-bottom: 0 !important;
         }
 
-        /* 모달 스타일 */
+        /* 모달 스타일 수정: 닫기 버튼 겹침 방지 */
         #player-modal, #confirm-modal, #reanalyze-modal {
             display: none;
             position: fixed;
@@ -98,23 +101,25 @@
             position: relative;
         }
 
+        /* 닫기 버튼 위치 변경: 최상단 레이어로 분리 */
         .modal-close-x {
             position: absolute;
-            top: 24px;
-            right: 24px;
-            width: 44px;
-            height: 44px;
-            background: #fff;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 2100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 2200;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transition: all 0.2s;
+            border: 1px solid #eee;
         }
-        .modal-close-x:hover { background: #f8f9fa; color: #d93025; transform: rotate(90deg); }
+        .modal-close-x:hover { background: #fff; color: #d93025; transform: rotate(90deg); }
 
         .player-panel {
             display: flex;
@@ -136,7 +141,14 @@
         #main-player-iframe { width: 100%; height: 100%; border: none; }
 
         .video-info-area { padding: 32px; flex-grow: 1; }
-        .memo-panel { display: flex; flex-direction: column; height: 100%; background: #fff; padding: 32px; }
+        .memo-panel { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            background: #fff; 
+            padding: 32px;
+            padding-top: 60px; /* X 버튼 공간 확보 */
+        }
 
         .google-btn-primary { background-color: #1a73e8; color: white; transition: all .2s; font-weight: 600; }
         .google-btn-primary:enabled:hover { background-color: #1765cc; box-shadow: 0 1px 3px rgba(60,64,67,.3); }
@@ -160,14 +172,12 @@
         .toggle-icon { transition: transform 0.3s ease; }
         .toggle-icon.rotated { transform: rotate(-90deg); }
 
-        /* 카테고리 태그 모던 스타일링 */
         .category-tag-container {
-            display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
-            border-radius: 9999px; border: 1.5px solid; font-size: 11px; font-weight: 700;
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+            border-radius: 9999px; border: 2px solid; font-size: 11px; font-weight: 800;
             background: #fff; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            text-transform: uppercase; letter-spacing: 0.02em;
         }
-        .category-tag-delete { cursor: pointer; opacity: 0.4; font-size: 14px; margin-left: 6px; line-height: 1; }
+        .category-tag-delete { cursor: pointer; opacity: 0.5; font-size: 16px; margin-left: 4px; line-height: 1; }
         .category-tag-delete:hover { opacity: 1; color: #d93025; }
 
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
@@ -181,9 +191,21 @@
         .google-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
 
         #clear-search-btn {
-            display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            color: #94a3b8; transition: all 0.2s; padding: 8px; border-radius: 50%; cursor: pointer;
-            background: transparent; z-index: 10; display: flex; align-items: center; justify-content: center;
+            display: none; 
+            position: absolute; 
+            right: 14px; 
+            top: 50%; 
+            transform: translateY(-50%);
+            color: #94a3b8; 
+            transition: all 0.2s; 
+            padding: 8px; 
+            border-radius: 50%; 
+            cursor: pointer;
+            background: transparent;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #clear-search-btn:hover { color: #1e293b; background: #f1f5f9; }
 
@@ -246,6 +268,7 @@
             <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 
+                <!-- 1. 분석 대기열 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0] border-t-4 border-t-blue-500">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xs font-bold text-[#5f6368] uppercase tracking-wider">분석 대기열</h2>
@@ -263,6 +286,7 @@
                     </div>
                 </div>
 
+                <!-- 2. URL 직접 추가 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">URL 추가</h2>
                     <div class="space-y-3">
@@ -275,6 +299,7 @@
                     </div>
                 </div>
 
+                <!-- 3. Google 동기화 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">Google 동기화</h2>
                     <div class="space-y-4">
@@ -286,6 +311,7 @@
                     </div>
                 </div>
 
+                <!-- 4. 데이터 관리 -->
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">데이터 관리</h2>
                     <div class="space-y-4">
@@ -309,6 +335,7 @@
                     </div>
                 </div>
                 
+                <!-- 5. 카테고리 설정 -->
                 <div id="category-panel" class="bg-white p-6 rounded-2xl shadow-sm border border-[#dadce0]">
                     <h2 class="text-xs font-bold text-[#5f6368] uppercase mb-4 tracking-wider">카테고리 설정</h2>
                     <div class="flex items-center gap-2 mb-5">
@@ -318,6 +345,7 @@
                     <div id="category-tags" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
                 </div>
 
+                <!-- 6. 로그 콘솔 -->
                 <div class="bg-[#202124] rounded-2xl p-6 shadow-xl">
                     <h2 class="text-[9px] font-bold text-slate-500 uppercase mb-3 tracking-widest text-center border-b border-slate-700 pb-2 font-mono">Engine Logs</h2>
                     <div id="log-console" class="h-40 custom-scrollbar overflow-y-auto font-mono text-[11px] text-[#9aa0a6] space-y-2 pt-2"><div class="text-[#81c995] font-bold">> Ready.</div></div>
@@ -326,6 +354,8 @@
 
             <!-- 메인 영역 -->
             <div class="lg:col-span-3">
+                
+                <!-- 아코디언 버튼 그룹 및 콘텐츠 -->
                 <div class="mb-5">
                     <div class="flex flex-wrap md:flex-nowrap gap-4 items-start mb-4">
                         <div class="accordion-header" onclick="window.toggleCard('credentials-details', 'credentials-toggle-icon')">
@@ -335,6 +365,7 @@
                             </div>
                             <svg id="credentials-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
+
                         <div class="accordion-header" onclick="window.toggleCard('dashboard-content', 'dashboard-toggle-icon')">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-6 bg-blue-600 rounded-full shadow-sm"></div>
@@ -342,6 +373,7 @@
                             </div>
                             <svg id="dashboard-toggle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="toggle-icon rotated"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </div>
+
                         <div class="accordion-header" onclick="window.toggleCard('librarian-content', 'librarian-toggle-icon')">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-6 bg-emerald-500 rounded-full shadow-sm"></div>
@@ -402,6 +434,7 @@
                     </div>
                 </div>
 
+                <!-- 진행률 카드 -->
                 <div id="progress-card" class="bg-white p-8 rounded-3xl shadow-sm border border-[#dadce0] hidden mb-5">
                     <div class="flex justify-between items-end mb-6">
                         <div>
@@ -457,7 +490,12 @@
                     <div class="overflow-x-auto flex-grow">
                         <table class="w-full text-sm text-left border-collapse table-fixed">
                             <thead class="bg-[#f8f9fa] text-[#5f6368] font-bold text-[10px] uppercase tracking-wider border-b border-[#dadce0]">
-                                <tr><th class="px-8 py-4 w-48 text-center">썸네일</th><th class="px-8 py-4 w-60">카테고리</th><th class="px-8 py-4">내용 요약</th><th class="px-8 py-4 w-52 text-right">조회수 / 채널</th></tr>
+                                <tr>
+                                    <th class="px-8 py-4 w-48 text-center">썸네일</th>
+                                    <th class="px-8 py-4 w-60">카테고리</th>
+                                    <th class="px-8 py-4">내용 요약</th>
+                                    <th class="px-8 py-4 w-52 text-right">조회수 / 채널</th>
+                                </tr>
                             </thead>
                             <tbody id="result-body" class="divide-y divide-[#eee]"><tr id="empty-state"><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr></tbody>
                         </table>
@@ -467,42 +505,62 @@
         </main>
     </div>
 
+    <!-- 비디오 모달 개편 -->
     <div id="player-modal">
         <div class="modal-content">
+            <!-- 닫기 버튼: 겹침 방지를 위해 최상단 고정 -->
             <div id="close-player-x" class="modal-close-x shadow-xl transition-all" onclick="window.closePlayer()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" x2="6" x2="6" y2="18"></line><line x1="6" x2="18" y2="18"></line></svg>
             </div>
+
+            <!-- 왼쪽 영역: 플레이어 + 비디오 정보 -->
             <div class="player-panel custom-scrollbar">
-                <div class="player-wrapper" id="player-target-container"></div>
+                <div class="player-wrapper" id="player-target-container">
+                    <!-- YouTube IFrame API가 여기에 플레이어를 생성합니다 -->
+                    <div id="yt-player-frame"></div>
+                </div>
                 <div class="video-info-area">
                     <h3 id="modal-video-title" class="font-black text-[#202124] text-2xl leading-tight mb-2">비디오 제목</h3>
                     <p id="modal-video-channel" class="text-xs text-blue-600 font-black uppercase tracking-widest mb-6">채널명</p>
+                    
                     <div class="space-y-6">
                         <button id="detailed-summary-btn" class="google-btn-primary w-full py-4 rounded-2xl text-sm font-black shadow-lg flex items-center justify-center gap-2" onclick="window.runDetailedAnalysis()">
                             AI 심층 분석 및 타임라인 생성
                         </button>
+
                         <div id="script-loading" class="hidden py-10 text-center animate-pulse flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100">
                             <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
                             <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">분석 중...</p>
                         </div>
+
                         <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                             <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">AI Content Insight</p>
-                            <div id="modal-video-summary-container" class="space-y-4"><p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium">정보를 불러오는 중...</p></div>
+                            <div id="modal-video-summary-container" class="space-y-4">
+                                <p id="modal-video-summary" class="text-sm text-slate-700 leading-relaxed font-medium">정보를 불러오는 중...</p>
+                            </div>
                         </div>
+
                         <div id="modal-timeline-container" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- 오른쪽 영역: 퍼스널 메모장 (X 버튼 겹침 해결) -->
             <div class="memo-panel">
                 <div class="flex items-center justify-between mb-6">
                     <h4 class="text-lg font-black text-slate-800 tracking-tight">퍼스널 노트</h4>
-                    <button class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-600 hover:text-white transition-all" onclick="window.saveNotes()">메모 저장</button>
+                    <div class="flex gap-2">
+                        <!-- 추가: 현재 재생 시간 삽입 버튼 -->
+                        <button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-100 transition-all" onclick="window.insertCurrentTimestamp()">현재 시간 삽입</button>
+                        <button class="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-[11px] font-black hover:bg-blue-600 hover:text-white transition-all" onclick="window.saveNotes()">메모 저장</button>
+                    </div>
                 </div>
-                <textarea id="video-memo-textarea" placeholder="영상을 시청하며 핵심 내용을 기록하세요..." class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm leading-relaxed custom-scrollbar resize-none"></textarea>
+                <textarea id="video-memo-textarea" placeholder="영상을 시청하며 핵심 내용을 기록하세요... (현재 시간 삽입을 눌러 타임라인을 남겨보세요)" class="flex-grow w-full bg-slate-50 rounded-3xl p-6 outline-none border border-transparent focus:border-blue-500 focus:bg-white transition-all text-sm leading-relaxed custom-scrollbar resize-none"></textarea>
             </div>
         </div>
     </div>
 
+    <!-- 확인 모달 -->
     <div id="confirm-modal">
         <div class="confirm-content shadow-2xl">
             <h3 class="text-xl font-bold text-slate-900 mb-4 tracking-tighter">데이터 초기화</h3>
@@ -520,6 +578,14 @@
         const YT_API_KEY = "AIzaSyDMCuTm5jzoItamDh8HRgOymweAH698bvs"; 
         const ITEMS_PER_PAGE = 100;
 
+        let csvRawItems = []; 
+        let syncedData = [];  
+        let activeVideo = null;
+        let currentPage = 1; 
+        let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
+        let isAnalysisActive = false;
+        let ytPlayer = null;
+
         const PALETTE = [
             { border: 'border-blue-400', text: 'text-blue-800', bg: 'bg-blue-50/50' },
             { border: 'border-emerald-400', text: 'text-emerald-800', bg: 'bg-emerald-50/50' },
@@ -531,17 +597,7 @@
             { border: 'border-cyan-400', text: 'text-cyan-800', bg: 'bg-cyan-50/50' }
         ];
 
-        const PRECISION_CATEGORIES = ["테크", "푸드", "라이프", "경제", "건강관리", "여행", "정보", "음악", "게임", "리빙", "성장", "자기관리", "미디어"];
-
-        let csvRawItems = []; 
-        let syncedData = [];  
-        let activeVideo = null;
-        let currentPage = 1; 
-        let currentCategories = JSON.parse(localStorage.getItem('yt-cats-v11')) || PRECISION_CATEGORIES;
-        let isAnalysisActive = false;
-        let tokenClient;
-
-        // --- 전역 유틸리티 (TypeError 방지 및 안전 장치 강화) ---
+        // --- 전역 유틸리티 ---
         window.addLog = function(msg, type) {
             const logBox = document.getElementById('log-console');
             if (!logBox) return;
@@ -555,10 +611,7 @@
         window.toggleCard = function(bodyId, iconId) {
             const body = document.getElementById(bodyId);
             const icon = document.getElementById(iconId);
-            if (body) {
-                body.classList.remove('hidden'); 
-                body.classList.toggle('collapsed');
-            }
+            if (body) { body.classList.remove('hidden'); body.classList.toggle('collapsed'); }
             if (icon) icon.classList.toggle('rotated');
         };
 
@@ -576,13 +629,38 @@
         };
         
         window.confirmReanalyze = function() { document.getElementById('reanalyze-modal').style.display = 'none'; runAnalysis(syncedData, true); };
-        window.closePlayer = function() { document.getElementById('player-modal').style.display = 'none'; document.getElementById('player-target-container').innerHTML = ''; activeVideo = null; };
+        
+        window.closePlayer = function() { 
+            document.getElementById('player-modal').style.display = 'none'; 
+            if(ytPlayer) { ytPlayer.destroy(); ytPlayer = null; }
+            document.getElementById('player-target-container').innerHTML = '<div id="yt-player-frame"></div>';
+            activeVideo = null; 
+        };
 
         window.seekTo = function(timeStr) {
             const parts = timeStr.split(':').map(Number);
             const sec = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2] : parts[0]*60 + parts[1];
-            const iframe = document.getElementById('main-player-iframe');
-            if(iframe) iframe.src = `https://www.youtube-nocookie.com/embed/${activeVideo.id}?autoplay=1&start=${sec}`;
+            if(ytPlayer && ytPlayer.seekTo) {
+                ytPlayer.seekTo(sec, true);
+                ytPlayer.playVideo();
+            }
+        };
+
+        // 기능 추가: 현재 재생 시간을 메모에 삽입
+        window.insertCurrentTimestamp = function() {
+            if(!ytPlayer || !ytPlayer.getCurrentTime) return;
+            const currentSeconds = Math.floor(ytPlayer.getCurrentTime());
+            const minutes = Math.floor(currentSeconds / 60);
+            const seconds = currentSeconds % 60;
+            const timestamp = `[${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}] `;
+            
+            const textarea = document.getElementById('video-memo-textarea');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + timestamp + text.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + timestamp.length;
         };
 
         window.saveNotes = function() {
@@ -670,7 +748,6 @@
             resultBody.innerHTML = pageData.length ? '' : '<tr><td colspan="4" class="py-48 text-center text-slate-300 italic font-black text-lg">Your library is currently empty.</td></tr>';
             pageData.forEach(data => {
                 const tr = document.createElement('tr'); tr.className = "hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50"; tr.onclick = () => openPlayer(data);
-                // 카테고리 배지 둥근 스타일 알약 모양으로 개선
                 const cats = (data.categories || []).map(c => { 
                     const st = getStyleForCat(c); 
                     return `<span class="category-tag-container bg-white border-2 ${st.border} ${st.text} mr-1 mb-1">${c}</span>`; 
@@ -731,7 +808,7 @@
             localStorage.setItem('yt-cats-v11', JSON.stringify(currentCategories));
             currentCategories.forEach(cat => {
                 const style = getStyleForCat(cat), tag = document.createElement('div');
-                tag.className = `category-tag-container ${style.border} ${style.text}`; // 알약형 모던 스타일 배지
+                tag.className = `category-tag-container ${style.border} ${style.text}`; 
                 tag.innerHTML = `<span>${cat}</span><span class="category-tag-delete font-bold" onclick="event.stopPropagation(); window.removeCategory('${cat}')">&times;</span>`;
                 cont.appendChild(tag);
                 filter.appendChild(new Option(cat, cat));
@@ -824,15 +901,28 @@
 
         function openPlayer(video) {
             activeVideo = video;
-            const modal = document.getElementById('player-modal'), container = document.getElementById('player-target-container');
-            if(container) container.innerHTML = `<iframe id="main-player-iframe" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1" allowfullscreen></iframe>`;
-            const tit = document.getElementById('modal-video-title'), ch = document.getElementById('modal-video-channel');
-            const textarea = document.getElementById('video-memo-textarea');
-            if(tit) tit.textContent = video.title;
-            if(ch) ch.textContent = video.channelTitle || 'YouTube';
-            if(textarea) textarea.value = video.memo || "";
-            renderSummaryUI(); 
+            const modal = document.getElementById('player-modal');
             if(modal) modal.style.display = 'flex';
+            
+            // IFrame Player API를 이용한 초기화
+            if(ytPlayer) { ytPlayer.destroy(); }
+            
+            ytPlayer = new YT.Player('yt-player-frame', {
+                height: '100%',
+                width: '100%',
+                videoId: video.id,
+                playerVars: { 'autoplay': 1, 'modestbranding': 1, 'rel': 0 },
+                events: {
+                    'onReady': (event) => {
+                        const tit = document.getElementById('modal-video-title'), ch = document.getElementById('modal-video-channel');
+                        const textarea = document.getElementById('video-memo-textarea');
+                        if(tit) tit.textContent = video.title;
+                        if(ch) ch.textContent = video.channelTitle || 'YouTube';
+                        if(textarea) textarea.value = video.memo || "";
+                        renderSummaryUI();
+                    }
+                }
+            });
         }
 
         function renderSummaryUI() {
@@ -848,7 +938,7 @@
                 activeVideo.detailedBlocks.forEach((block, index) => {
                     const div = document.createElement('div'); div.className = 'summary-block';
                     div.style.animationDelay = `${index * 0.1}s`;
-                    div.onclick = () => window.seekTo(block.time); // 박스 전체 클릭 시 이동
+                    div.onclick = () => window.seekTo(block.time);
                     div.innerHTML = `<div class="flex items-center gap-3 mb-2"><span class="bg-blue-600 text-white font-black px-2 py-0.5 rounded-lg text-[10px] pointer-events-none">${block.time}</span><span class="font-bold text-slate-800">${block.subtitle}</span></div><p class="text-slate-500 text-xs leading-relaxed">${block.content}</p>`;
                     timelineContainer.appendChild(div);
                 });
@@ -893,7 +983,7 @@
                         const content = ev.target.result, lines = content.split(/\r?\n/).filter(l => l.trim());
                         const news = lines.map(l => { const idMatch = l.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/), id = idMatch ? idMatch[1] : null, title = l.split(/[,\t]/)[0]?.replace(/"/g,'').trim() || "Unknown Title"; return { id, title }; }).filter(v => v.id);
                         const existing = new Set(syncedData.map(d => d.id).concat(csvRawItems.map(i => i.id)));
-                        const filtered = news.filter(ni => !existing.has(ni.id)); csvRawItems = [...csvRawItems, ...filtered]; window.addLog(`CSV 완료 (${filtered.length}개)`, "success"); refreshQueueUI();
+                        const filtered = news.filter(ni => !existing.has(ni.id)); csvRawItems = [...csvRawItems, ...filtered]; refreshQueueUI();
                         const info = el('file-info'), name = el('file-name'); if(info) info.classList.remove('hidden'); if(name) name.textContent = e.target.files[0].name;
                     } catch (err) { window.addLog("CSV 오류", "error"); }
                 }; r.readAsText(e.target.files[0], 'UTF-8'); 
