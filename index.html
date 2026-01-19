@@ -97,7 +97,7 @@
         .chip-input-field { background: transparent; border: none; outline: none; padding: 0 12px; font-size: 12px; font-weight: 800; width: 100px; color: #1e293b; }
         .chip-add-btn { background: #1a73e8; color: white; height: 100%; padding: 0 12px; font-weight: 900; }
 
-        /* 리스트 내 카테고리 그리드 레이아웃 (개편) */
+        /* 리스트 내 카테고리 그리드 레이아웃 (가운데 정렬 및 세련된 스타일) */
         .list-category-group { display: flex; flex-direction: column; width: 100%; overflow: hidden; background: transparent; }
         .list-category-item { 
             padding: 11px 16px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; 
@@ -405,7 +405,7 @@
         window.refreshQueueUI = function() {
             if(isAnalysisActive) return; 
             const qBox=window.el('analysis-queue-box'); if(!qBox) return;
-            const seenIds=new Set(syncedData.map(d=>d.id)), news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id));
+            const news=csvRawItems.filter(i=>!syncedData.some(d=>d.id===i.id));
             if(news.length === 0) { qBox.style.display = 'none'; }
             else { qBox.style.display = 'block'; window.el('new-q-count').textContent = news.length; window.el('dup-q-count').textContent = 0; window.el('analyze-btn').classList.toggle('hidden', news.length === 0); }
         };
@@ -546,27 +546,79 @@
             isAnalysisActive = false; setTimeout(() => prg.classList.remove('active'), 2000); csvRawItems = []; window.refreshQueueUI(); window.updateCharts();
         };
 
-        // --- 상세 분석 로직 ---
+        // --- 상세 분석 로직 (강화된 로깅 및 Vercel 파이썬 백엔드 연동) ---
         window.runDetailedAnalysis = async function() {
-            const key = localStorage.getItem('gemini-key'); if(!key || !activeVideo) return;
-            const btn = window.el('ai-gen-btn'); btn.disabled = true; btn.textContent = "AI 분석 정독 중...";
+            const key = localStorage.getItem('gemini-key');
+            if(!key || !activeVideo) {
+                window.addLog("분석 실패: API 키 또는 활성 영상 정보가 없습니다.", "error");
+                return;
+            }
+            
+            const btn = window.el('ai-gen-btn');
+            btn.disabled = true;
+            btn.textContent = "자막 데이터 분석 중...";
+            window.addLog(`${activeVideo.id} 영상의 자막 추출 시도...`, "info");
+
             try {
+                // 1. Vercel 파이썬 API 호출 (상대 경로 사용)
                 const proxyUrl = `/api/transcript?videoId=${activeVideo.id}`;
                 const subRes = await fetch(proxyUrl);
+                
+                if (!subRes.ok) {
+                    window.addLog(`서버 통신 실패: HTTP ${subRes.status}`, "error");
+                }
+                
                 const subData = await subRes.json();
                 let transcriptText = "";
+
                 if (subData.success && subData.transcript) {
+                    window.addLog(`자막 수신 성공: ${subData.transcript.length}개의 타임라인 확보`, "success");
                     transcriptText = subData.transcript.map(t => `${Math.floor(t.start/60).toString().padStart(2,'0')}:${Math.floor(t.start%60).toString().padStart(2,'0')} - ${t.text}`).join('\n');
+                } else {
+                    window.addLog(`자막 추출 불가: ${subData.error || '자막이 없는 영상입니다.'}`, "warning");
+                    window.addLog("AI 검색 도구(Grounding)를 사용하여 분석을 계속합니다.", "info");
                 }
+
+                // 2. 하이브리드 프롬프트 구성
                 const url = `https://www.youtube.com/watch?v=${activeVideo.id}`;
-                const prompt = `YouTube 영상 자막 및 메타데이터 정독 분석 리포트를 작성하세요.\nURL: "${url}"\n제목: "${activeVideo.title}"\n채널: "${activeVideo.channelTitle}"\n\n[실제 자막 데이터]\n${transcriptText || "자막 추출 불가. Google Search 도구로 실제 정보를 찾아낼 것."}\n\n양식:\n## [00:00] 섹션 제목\n- 해당 섹션 요약\n> [00:00] 인사이트\n\n반드시 마크다운 형식을 지키고 한국어로 응답하세요.`;
+                const prompt = `YouTube 영상 자막 및 메타데이터 정독 분석 리포트를 작성하세요.
+URL: "${url}"
+제목: "${activeVideo.title}"
+채널: "${activeVideo.channelTitle}"
+
+[실제 자막 데이터]
+${transcriptText || "자막 직접 추출 불가. Google Search 도구로 실제 영상 정보를 찾아낼 것."}
+
+양식:
+## [00:00] 섹션 제목
+- 해당 섹션 요약
+> [00:00] 인사이트
+
+반드시 마크다운 형식을 지키고 한국어로 응답하세요.`;
+
+                // 3. Gemini API 호출
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`, { 
-                    method: 'POST', headers: {'Content-Type':'application/json'}, 
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], tools: transcriptText ? [] : [{ "google_search": {} }] }) 
+                    method: 'POST', 
+                    headers: {'Content-Type':'application/json'}, 
+                    body: JSON.stringify({ 
+                        contents: [{ parts: [{ text: prompt }] }],
+                        tools: transcriptText ? [] : [{ "google_search": {} }]
+                    }) 
                 }).then(r => r.json());
+                
                 const text = res.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) { activeVideo.aiNote = text; localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData)); window.renderAiNoteBlocks(text); }
-            } catch(e) { window.addLog("분석 오류 발생.", "error"); } finally { btn.disabled = false; btn.textContent = "상세 분석 시작"; }
+                if (text) {
+                    activeVideo.aiNote = text;
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(syncedData));
+                    window.renderAiNoteBlocks(text);
+                    window.addLog("상세 리포트 생성이 완료되었습니다.", "success");
+                }
+            } catch(e) {
+                window.addLog(`분석 중 시스템 오류: ${e.message}`, "error");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "상세 분석 시작";
+            }
         };
 
         window.renderAiNoteBlocks = (text) => {
